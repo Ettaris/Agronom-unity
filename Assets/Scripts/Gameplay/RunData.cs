@@ -14,8 +14,6 @@ namespace Gameplay
         public int CurrentDay { get; set; }
         public int DailyQuota { get; set; }
         public bool IsQuotaReached { get; set; }
-
-        // —сылка на журнал (мета-данные) передаЄтс€ извне
         public JournalData Journal { get; set; }
 
         public RunData(int seed, int boardWidth, int boardHeight, int handMaxSize, int dailyQuota, JournalData journal)

@@ -3,11 +3,12 @@ using Data;
 
 namespace Gameplay
 {
+    [System.Serializable]
     public class JournalData
     {
-        private readonly Dictionary<PropertyData, int> _discoveredProperties = new Dictionary<PropertyData, int>();
+        private readonly Dictionary<GenomePropertyData, int> _discoveredProperties = new Dictionary<GenomePropertyData, int>();
 
-        public void AddEntry(PropertyData property)
+        public void AddEntry(GenomePropertyData property)
         {
             if (_discoveredProperties.ContainsKey(property))
                 _discoveredProperties[property]++;
@@ -15,10 +16,13 @@ namespace Gameplay
                 _discoveredProperties[property] = 1;
         }
 
-        public bool IsPropertyDiscovered(PropertyData property) => _discoveredProperties.ContainsKey(property);
-
-        public IReadOnlyDictionary<PropertyData, int> GetAllEntries() => _discoveredProperties;
+        public bool IsPropertyDiscovered(GenomePropertyData property) => _discoveredProperties.ContainsKey(property);
 
         public void Clear() => _discoveredProperties.Clear();
+
+        public Dictionary<GenomePropertyData, int> GetAllEntries()
+        {
+            return new Dictionary<GenomePropertyData, int>(_discoveredProperties);
+        }
     }
 }

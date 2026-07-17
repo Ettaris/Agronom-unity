@@ -5,17 +5,17 @@ namespace Gameplay
 {
     public class Deck
     {
-        private readonly List<PlantInstance> _cards = new List<PlantInstance>();
+        private readonly List<ItemInstance> _cards = new List<ItemInstance>();
         private int _currentIndex = 0;
 
         public int Count => _cards.Count - _currentIndex;
 
-        public void Add(PlantInstance card)
+        public void Add(ItemInstance card)
         {
             _cards.Add(card);
         }
 
-        public void AddRange(IEnumerable<PlantInstance> cards)
+        public void AddRange(IEnumerable<ItemInstance> cards)
         {
             _cards.AddRange(cards);
         }
@@ -32,7 +32,7 @@ namespace Gameplay
             _currentIndex = 0;
         }
 
-        public PlantInstance Draw()
+        public ItemInstance Draw()
         {
             if (_currentIndex >= _cards.Count) return null;
             var card = _cards[_currentIndex];
@@ -46,5 +46,8 @@ namespace Gameplay
         }
 
         public bool IsEmpty => _currentIndex >= _cards.Count;
+
+        // Можно получить все карты для отладки
+        public IReadOnlyList<ItemInstance> GetAllCards() => _cards.AsReadOnly();
     }
 }

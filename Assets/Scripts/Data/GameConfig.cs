@@ -5,19 +5,28 @@ namespace Data
     [CreateAssetMenu(fileName = "GameConfig", menuName = "Game/Game Config")]
     public class GameConfig : ScriptableObject
     {
-        [Header("Ссылки на пулы")]
+        [Header("Пулы данных")]
         public PlantPool plantPool;
-        public PropertyPool propertyPool;
+        public GenomePool genomePool;
+        public FermentPool fermentPool;   // новый пул ферментов
+        public BatteryPool batteryPool;   // новый пул батареек
 
         [Header("Лимиты")]
-        public int maxPropertiesPerPlant = 3;
-        public int initialHandSize = 5;
         public int maxHandSize = 10;
-        public int dailyQuota = 50; // калорий в день
+        public int initialHandSize = 5;
+        public int maxGenomeCapacity = 60; // дефолтный, но перекрывается растением
+        public int dailyQuota = 50;
         public int totalDays = 10;
+        public int defaultMaxGenomeCapacity = 60;
+        public int cardsPerDay = 6;
+        public int cardsToSelect = 2;
 
         [Header("Стартовые параметры")]
         public int startingCalories = 0;
-        public int startingDeckSize = 15; // сколько растений в колоде в начале
+        public int startingDeckSize = 15;
+
+        [Header("Настройки поля")]
+        public int boardWidth = 5;
+        public int boardHeight = 5;
     }
 }

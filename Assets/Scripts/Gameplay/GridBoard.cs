@@ -75,5 +75,25 @@ namespace Gameplay
                 }
             return plants;
         }
+
+        public List<PlantInstance> GetPlantsInRectangle(int x1, int y1, int x2, int y2)
+        {
+            int minX = UnityEngine.Mathf.Min(x1, x2);
+            int maxX = UnityEngine.Mathf.Max(x1, x2);
+            int minY = UnityEngine.Mathf.Min(y1, y2);
+            int maxY = UnityEngine.Mathf.Max(y1, y2);
+
+            var plants = new List<PlantInstance>();
+            for (int x = minX; x <= maxX; x++)
+            {
+                for (int y = minY; y <= maxY; y++)
+                {
+                    var cell = GetCell(x, y);
+                    if (cell != null && cell.Plant != null)
+                        plants.Add(cell.Plant);
+                }
+            }
+            return plants;
+        }
     }
 }

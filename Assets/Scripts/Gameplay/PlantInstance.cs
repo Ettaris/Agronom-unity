@@ -1,41 +1,27 @@
-using System.Collections.Generic;
 using Data;
 
 namespace Gameplay
 {
-    public class PlantInstance
+    public class PlantInstance : ItemInstance
     {
-        public readonly PlantData Data;
-        public float GrowthProgress { get; set; } // 0..1
+        public PlantData PlantData => Data as PlantData;
+        public GenomeContainer Genome { get; private set; }
+        public float GrowthProgress { get; set; }
         public bool IsGrown => GrowthProgress >= 1f;
-        public List<PropertyInstance> Properties { get; private set; }
-        public int MaxProperties { get; set; } // из конфига
+        public Cell CurrentCell { get; set; }
 
-        public PlantInstance(PlantData data, int maxProperties)
+        public PlantInstance(PlantData data, int maxGenomeCapacity) : base(data)
         {
-            Data = data;
+            Genome = new GenomeContainer(maxGenomeCapacity);
             GrowthProgress = 0f;
-            Properties = new List<PropertyInstance>(maxProperties);
-            MaxProperties = maxProperties;
+            CurrentCell = null;
         }
 
-        public bool CanAddProperty() => Properties.Count < MaxProperties;
-
-        public bool AddProperty(PropertyInstance property)
-        {
-            if (!CanAddProperty()) return false;
-            Properties.Add(property);
-            return true;
-        }
-
-        public bool RemoveProperty(PropertyInstance property)
-        {
-            return Properties.Remove(property);
-        }
-
-        public void ClearProperties()
-        {
-            Properties.Clear();
-        }
+        // Обёртки для методов Genome с передачей this
+        public bool CanAddGenomeProperty(GenomePropertyInstance property) => Genome.CanAddProperty(property);
+        public bool AddGenomeProperty(GenomePropertyInstance property) => Genome.AddProperty(property, this);
+        public GenomePropertyInstance RemoveGenomeProperty(GenomePropertyData propertyData) => Genome.RemoveProperty(propertyData, this);
+        public void ClearGenomeProperties() => Genome.Clear();
+        public int GetGenomeFillPercent() => Genome.GetFillPercent();
     }
 }

@@ -2,28 +2,25 @@ using System.Collections.Generic;
 using Data;
 using Gameplay;
 using Infrastructure;
+using Infrastructure.Events;
 using Managers;
 
 namespace Systems
 {
-    /// <summary>
-    /// Отвечает за генерацию начального состояния забега.
-    /// Вызывается из RunManager при старте нового забега.
-    /// </summary>
     public class RunGenerationSystem : IGameSystem
     {
         private GameConfig _config;
         private RunManager _runManager;
         private SaveManager _saveManager;
+        private PropertyResolverSystem _propertyResolver;
 
         public void Initialize()
         {
             _config = ServiceLocator.Get<GameConfig>();
             _runManager = ServiceLocator.Get<RunManager>();
             _saveManager = ServiceLocator.Get<SaveManager>();
+            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
 
-            // Подписываемся на событие запроса генерации (если нужно)
-            // Например, RunManager может публиковать RunGenerationRequestedEvent
             EventBus.Subscribe<RunGenerationRequestedEvent>(OnRunGenerationRequested);
         }
 
@@ -32,167 +29,115 @@ namespace Systems
             EventBus.Unsubscribe<RunGenerationRequestedEvent>(OnRunGenerationRequested);
         }
 
-        /// <summary>
-        /// Обработчик запроса на генерацию забега.
-        /// </summary>
         private void OnRunGenerationRequested(RunGenerationRequestedEvent evt)
         {
             GenerateRun(evt.Seed);
         }
 
-        /// <summary>
-        /// Основной метод генерации забега.
-        /// </summary>
         public void GenerateRun(int seed)
         {
-            // 1. Загружаем мета-прогресс (журнал)
             var journal = _saveManager.LoadJournal() ?? new JournalData();
-
-            // 2. Создаём генератор случайных чисел
             var random = new SeedGenerator(seed);
 
-            // 3. Получаем пулы данных
             var plantPool = _config.plantPool;
-            var propertyPool = _config.propertyPool;
+            var genomePool = _config.genomePool;
+            var fermentPool = _config.fermentPool;
+            var batteryPool = _config.batteryPool;
 
             if (plantPool == null || plantPool.plants.Count == 0)
             {
-                UnityEngine.Debug.LogError("PlantPool is empty or not set in GameConfig!");
+                UnityEngine.Debug.LogError("PlantPool is empty!");
                 return;
             }
 
-            // 4. Определяем, сколько растений будет в колоде и руке
             int deckSize = _config.startingDeckSize;
             int handSize = _config.initialHandSize;
             int totalPlantsNeeded = deckSize + handSize;
 
-            // 5. Выбираем растения из пула (с учётом seed)
-            //    Для простоты берём все растения, перемешиваем и берём первые totalPlantsNeeded
-            //    В будущем можно использовать весовые коэффициенты или редкость.
+            // 1. Генерация растений
             var availablePlants = new List<PlantData>(plantPool.plants);
-            // Перемешиваем
-            for (int i = availablePlants.Count - 1; i > 0; i--)
-            {
-                int j = random.NextInt(0, i + 1);
-                var temp = availablePlants[i];
-                availablePlants[i] = availablePlants[j];
-                availablePlants[j] = temp;
-            }
+            ShuffleList(availablePlants, random);
 
-            // Если растений меньше, чем нужно, повторяем или добавляем дефолтные
             while (availablePlants.Count < totalPlantsNeeded)
-            {
-                // Дублируем первые элементы, чтобы заполнить
                 availablePlants.Add(availablePlants[random.NextInt(0, availablePlants.Count)]);
-            }
 
-            // 6. Создаём экземпляры растений с назначенными свойствами
             var allPlantInstances = new List<PlantInstance>(totalPlantsNeeded);
-            var propertyPoolList = propertyPool.properties;
+            var genomeList = genomePool.genomeProperties;
 
             for (int i = 0; i < totalPlantsNeeded; i++)
             {
                 var plantData = availablePlants[i];
-                var plantInstance = new PlantInstance(plantData, _config.maxPropertiesPerPlant);
+                int maxCap = plantData.maxGenomeCapacity > 0 ? plantData.maxGenomeCapacity : _config.defaultMaxGenomeCapacity;
+                var plant = new PlantInstance(plantData, maxCap);
 
                 // Назначаем свойства
-                // Количество свойств: случайное от 0 до maxPropertiesPerPlant (но хотя бы 1, если есть свойства)
-                int propertyCount = propertyPoolList.Count > 0
-                    ? random.NextInt(1, _config.maxPropertiesPerPlant + 1)
-                    : 0;
+                int propertyCount = genomeList.Count > 0 ? random.NextInt(1, 4) : 0;
+                var shuffledGenomes = new List<GenomePropertyData>(genomeList);
+                ShuffleList(shuffledGenomes, random);
 
-                // Перемешиваем пул свойств для детерминированного выбора
-                var shuffledProperties = new List<PropertyData>(propertyPoolList);
-                for (int j = shuffledProperties.Count - 1; j > 0; j--)
+                for (int p = 0; p < propertyCount && p < shuffledGenomes.Count; p++)
                 {
-                    int k = random.NextInt(0, j + 1);
-                    var temp = shuffledProperties[j];
-                    shuffledProperties[j] = shuffledProperties[k];
-                    shuffledProperties[k] = temp;
+                    var propData = shuffledGenomes[p];
+                    var prop = new GenomePropertyInstance(propData, 1);
+                    plant.AddGenomeProperty(prop);
                 }
 
-                for (int p = 0; p < propertyCount && p < shuffledProperties.Count; p++)
-                {
-                    var propData = shuffledProperties[p];
-                    var propInstance = new PropertyInstance(propData, 1);
-                    plantInstance.AddProperty(propInstance);
-                }
-
-                allPlantInstances.Add(plantInstance);
+                allPlantInstances.Add(plant);
+                // Регистрируем свойства в PropertyResolverSystem
+                _propertyResolver.RegisterPlant(plant);
             }
 
-            var resolver = ServiceLocator.Get<PropertyResolverSystem>();
-            foreach (var plant in allPlantInstances)
-            {
-                resolver.RegisterPlant(plant);
-            }
+            // 2. Другие предметы (ферменты, батарейки)
+            var extraItems = new List<ItemInstance>();
+            if (fermentPool != null)
+                foreach (var f in fermentPool.ferments)
+                    extraItems.Add(new ItemInstance(f));
+            if (batteryPool != null)
+                foreach (var b in batteryPool.batteries)
+                    extraItems.Add(new ItemInstance(b));
 
-            // 7. Разделяем на руку и колоду
+            // 3. Разделение на руку и колоду
             var handPlants = new List<PlantInstance>(handSize);
-            // Вместо deckPlants (List<PlantData>) используем список готовых экземпляров
-            var deckPlantInstances = new List<PlantInstance>(deckSize);
-
-            for (int i = 0; i < totalPlantsNeeded; i++)
+            var deckPlants = new List<PlantInstance>(deckSize);
+            for (int i = 0; i < allPlantInstances.Count; i++)
             {
                 if (i < handSize)
                     handPlants.Add(allPlantInstances[i]);
                 else
-                    deckPlantInstances.Add(allPlantInstances[i]);
+                    deckPlants.Add(allPlantInstances[i]);
             }
 
-            // 8. Создаём RunData
-            int boardWidth = 5;   // или из конфига
-            int boardHeight = 5;
-            int dailyQuota = _config.dailyQuota;
+            // 4. Создание RunData
+            var runData = new RunData(seed, _config.boardWidth, _config.boardHeight, _config.maxHandSize, _config.dailyQuota, journal);
 
-            var runData = new RunData(seed, boardWidth, boardHeight, _config.maxHandSize, dailyQuota, journal);
-
-            // 9. Наполняем руку
+            // 5. Заполнение руки
             foreach (var plant in handPlants)
-            {
                 runData.Hand.Add(plant);
-            }
 
-            // 10. Наполняем колоду
-            foreach (var plantData in deckPlantInstances)
-            {
-                runData.Deck.Add(plantData);
-            }
-            runData.Deck.Shuffle(random); // Перемешиваем колоду
+            // 6. Заполнение колоды
+            foreach (var plant in deckPlants)
+                runData.Deck.Add(plant);
+            foreach (var item in extraItems)
+                runData.Deck.Add(item);
 
-            // 11. Инициализируем поле пустым (уже создано в конструкторе RunData)
-
-            // 12. Устанавливаем начальный день
+            runData.Deck.Shuffle(random);
             runData.CurrentDay = 1;
-
-            // 13. Сохраняем ссылку на RunData в RunManager
             _runManager.CurrentRunData = runData;
 
-            // 14. Публикуем событие о старте забега
-            EventBus.Publish(new RunStartedEvent
-            {
-                Seed = seed,
-                RunData = runData
-            });
+            EventBus.Publish(new RunStartedEvent { Seed = seed, RunData = runData });
+            UnityEngine.Debug.Log($"Run generated. Hand: {runData.Hand.Count}, Deck: {runData.Deck.Count}");
+        }
 
-            UnityEngine.Debug.Log($"Run generation completed. Seed: {seed}, Plants in hand: {runData.Hand.Count}, Deck size: {runData.Deck.Count}");
+        private void ShuffleList<T>(List<T> list, SeedGenerator random)
+        {
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = random.NextInt(0, i + 1);
+                var temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
+            }
         }
     }
 
-    /// <summary>
-    /// Событие запроса генерации забега (публикуется, например, из UI или RunManager).
-    /// </summary>
-    public struct RunGenerationRequestedEvent
-    {
-        public int Seed;
-    }
-
-    /// <summary>
-    /// Событие, что забег запущен (публикуется после генерации).
-    /// </summary>
-    public struct RunStartedEvent
-    {
-        public int Seed;
-        public RunData RunData;
-    }
 }

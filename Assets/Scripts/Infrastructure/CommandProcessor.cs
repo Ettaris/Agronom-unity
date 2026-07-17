@@ -1,20 +1,9 @@
-namespace Infrastructure
+using Infrastructure;
+
+public static class CommandProcessor
 {
-    public class CommandProcessor : IGameSystem
+    public static void Execute(ICommand command)
     {
-        public void Initialize()
-        {
-            // Никакой инициализации не требуется
-        }
-
-        public void Dispose()
-        {
-            // Очистка, если есть очередь
-        }
-
-        public void ExecuteCommand(ICommand command)
-        {
-            command?.Execute();
-        }
+        command?.Execute();
     }
 }
