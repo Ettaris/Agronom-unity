@@ -7,7 +7,7 @@ using Data;
 
 namespace Systems
 {
-    public class NotificationSystem : IGameSystem
+    public class NotificationSystem : MonoBehaviour, IGameSystem
     {
         [Header("References")]
         [SerializeField] private Transform _container; // родительский объект для уведомлений
