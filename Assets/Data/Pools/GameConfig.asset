@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37dd6a083ff2ec24a89f183f84077560, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Data.GameConfig
+  plantPool: {fileID: 11400000, guid: 125aac91998516d4783dc05112b3c0cd, type: 2}
+  genomePool: {fileID: 11400000, guid: 5572ebce59187a340bc6786bb9c72454, type: 2}
+  fermentPool: {fileID: 11400000, guid: 3bbc291569a190641a62a315163a59cb, type: 2}
+  batteryPool: {fileID: 11400000, guid: 20f5d189d736f2f488c44ea785b0d369, type: 2}
+  maxHandSize: 10
+  initialHandSize: 5
+  maxGenomeCapacity: 60
+  dailyQuota: 50
+  totalDays: 10
+  defaultMaxGenomeCapacity: 60
+  cardsPerDay: 6
+  cardsToSelect: 2
+  startingCalories: 0
+  startingDeckSize: 15
+  boardWidth: 5
+  boardHeight: 5
