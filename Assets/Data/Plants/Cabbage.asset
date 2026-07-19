@@ -15,11 +15,13 @@ MonoBehaviour:
   _id: 
   itemName: Cabbage
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: 159068718711766808, guid: 95506e1eea4b29b40bbfb233bf04b3aa, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 15
   size: {x: 2, y: 1}
   maxGenomeCapacity: 60
-  growthSprites: []
+  growthSprites:
+  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
+  - {fileID: 159068718711766808, guid: d8ea8b924f3794843b482b6a41bcc4ef, type: 3}
   mutationStages: []

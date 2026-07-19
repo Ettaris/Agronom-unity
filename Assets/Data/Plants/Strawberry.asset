@@ -15,11 +15,12 @@ MonoBehaviour:
   _id: 
   itemName: Strawberry
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: 1775669009216684005, guid: d25b82b1496387343a60e479ef89c875, type: 3}
   rarity: 0
   growthTime: 1
   baseCalories: 10
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
-  growthSprites: []
+  growthSprites:
+  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
   mutationStages: []

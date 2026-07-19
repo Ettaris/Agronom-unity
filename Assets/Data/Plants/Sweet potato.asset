@@ -15,11 +15,12 @@ MonoBehaviour:
   _id: 
   itemName: Sweet potato
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: -4212680751406191657, guid: 1a8ba2b89a450a6429b281005ea9ac0d, type: 3}
   rarity: 0
   growthTime: 1
   baseCalories: 15
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
-  growthSprites: []
+  growthSprites:
+  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
   mutationStages: []

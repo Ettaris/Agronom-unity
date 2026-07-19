@@ -21,5 +21,6 @@ MonoBehaviour:
   baseCalories: 200
   size: {x: 2, y: 2}
   maxGenomeCapacity: 60
-  growthSprites: []
+  growthSprites:
+  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
   mutationStages: []

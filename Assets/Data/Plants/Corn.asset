@@ -15,11 +15,13 @@ MonoBehaviour:
   _id: 
   itemName: Corn
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: -7944502702452990849, guid: a96edb4a63ba125499ce8832ea83a4eb, type: 3}
   rarity: 0
   growthTime: 4
   baseCalories: 13
-  size: {x: 1, y: 1}
+  size: {x: 1, y: 2}
   maxGenomeCapacity: 60
-  growthSprites: []
+  growthSprites:
+  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
+  - {fileID: -7944502702452990849, guid: 3cc7bd4c37d83694489536216e06fc3d, type: 3}
   mutationStages: []

@@ -15,11 +15,13 @@ MonoBehaviour:
   _id: 
   itemName: 
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: -912498489993581376, guid: 650e623e332c62f44ae987eee315e909, type: 3}
   rarity: 0
   growthTime: 1
   baseCalories: 5
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
-  growthSprites: []
+  growthSprites:
+  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
+  - {fileID: -912498489993581376, guid: bdc8b8ada5bc5fd4c8b6d9689d385f51, type: 3}
   mutationStages: []
