@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Cabbage
   description: 
-  icon: {fileID: 159068718711766808, guid: 95506e1eea4b29b40bbfb233bf04b3aa, type: 3}
+  icon: {fileID: -6868335896951200935, guid: a313c11d7058f7c4da88fddd5144416c, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 15

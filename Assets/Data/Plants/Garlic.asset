@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: 
   description: 
-  icon: {fileID: -912498489993581376, guid: 650e623e332c62f44ae987eee315e909, type: 3}
+  icon: {fileID: 1621897230939363492, guid: 590181b6ffe7a85428de8be5a8bfd772, type: 3}
   rarity: 0
   growthTime: 1
   baseCalories: 5

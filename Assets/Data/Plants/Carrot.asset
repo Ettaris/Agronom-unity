@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Carrot
   description: 
-  icon: {fileID: -5859083586626064994, guid: dbf0ddc52be6bb248ac1c836179a5a8c, type: 3}
+  icon: {fileID: 8197652507214342660, guid: a8fca0c391efec64e89be35967d807fa, type: 3}
   rarity: 0
   growthTime: 1
   baseCalories: 10

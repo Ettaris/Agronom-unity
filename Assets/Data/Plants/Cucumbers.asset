@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Cucumbers
   description: 
-  icon: {fileID: -3513379549867885781, guid: 8e678315be2af754387a1e4fbf4eb128, type: 3}
+  icon: {fileID: 6455089648793706954, guid: 30c7dccef94766842886a6a21518f610, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 20

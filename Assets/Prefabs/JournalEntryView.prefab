@@ -149,6 +149,7 @@ GameObject:
   - component: {fileID: 3666936137479163905}
   - component: {fileID: 9016783876433239807}
   - component: {fileID: 981718820104839354}
+  - component: {fileID: 3228580683696522131}
   m_Layer: 5
   m_Name: JournalEntryView
   m_TagString: Untagged
@@ -237,6 +238,18 @@ MonoBehaviour:
   _costText: {fileID: 6670023818050343271}
   _countText: {fileID: 1979465820333156854}
   _rarityFrame: {fileID: 2239801747346103041}
+--- !u!225 &3228580683696522131
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2287755999866345528}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2921770057718806443
 GameObject:
   m_ObjectHideFlags: 0

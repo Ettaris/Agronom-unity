@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Corn
   description: 
-  icon: {fileID: -7944502702452990849, guid: a96edb4a63ba125499ce8832ea83a4eb, type: 3}
+  icon: {fileID: -1222317580728716755, guid: a3b2e65f75978374c8d54d270d6a9601, type: 3}
   rarity: 0
   growthTime: 4
   baseCalories: 13

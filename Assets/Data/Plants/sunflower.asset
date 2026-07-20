@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Sunflower
   description: 
-  icon: {fileID: -256329436847572505, guid: 1e381aae136cc07419833d69622479ff, type: 3}
+  icon: {fileID: -55543728212381692, guid: a65f738437d93264f8d8c8147ca88085, type: 3}
   rarity: 0
   growthTime: 1
   baseCalories: 5
@@ -23,4 +23,5 @@ MonoBehaviour:
   maxGenomeCapacity: 60
   growthSprites:
   - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
+  - {fileID: -256329436847572505, guid: 2834b3fc76e8dda4792c2ed9251747e9, type: 3}
   mutationStages: []

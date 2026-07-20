@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Lamb
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: -4769776175211994874, guid: a92aa199f8acebb46bf9791065bfcfd3, type: 3}
   rarity: 4
   growthTime: 5
   baseCalories: 200

@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Potato
   description: 
-  icon: {fileID: -5661783315169486296, guid: 23e97d38d6ba9544d9fff73c4ac49509, type: 3}
+  icon: {fileID: -880375290909094120, guid: daf6d4d4b08a7a04bbcf4b432f81f0ab, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 15
@@ -23,4 +23,5 @@ MonoBehaviour:
   maxGenomeCapacity: 60
   growthSprites:
   - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
+  - {fileID: -6915279104839378345, guid: b5a8ed9497e3cdc4abbc67e21df096b1, type: 3}
   mutationStages: []

@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Tomatoes
   description: 
-  icon: {fileID: 2656804779241303787, guid: d84be4906c3f91d49bd51b69c46df9ad, type: 3}
+  icon: {fileID: 2860939340324994574, guid: 9e04b4fde6d95a94faa4b2ee60f6164a, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 17
@@ -23,4 +23,5 @@ MonoBehaviour:
   maxGenomeCapacity: 60
   growthSprites:
   - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
+  - {fileID: 3824498671837561107, guid: bf7d69737b809394e8ffb3d160416a2e, type: 3}
   mutationStages: []

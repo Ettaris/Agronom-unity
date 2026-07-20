@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Eggplant
   description: 
-  icon: {fileID: -6905139553319271647, guid: d69a8fb36a20214438f7742f1aa556b2, type: 3}
+  icon: {fileID: 7043426141862731076, guid: 0704e633098396f4ba64909a96ec8d1e, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 17
