@@ -1,16 +1,8 @@
-using UnityEngine;
-
-public class IOnDestroyed : MonoBehaviour
+using Gameplay;
+namespace Properties.Interfaces
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public interface IOnDestroyed
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        void OnDestroyed(PlantInstance plant);
     }
 }

@@ -51,13 +51,19 @@ namespace Systems
             // Базовые калории
             int baseCalories = plant.PlantData.baseCalories;
 
+            // 1. Модификация от соседей (например, Generosity)
+            int modifiedCalories = _propertyResolver.ModifyHarvestByNeighbors(plant, baseCalories);
+
             // Модифицируем через свойства (без публикации события)
-            int modifiedCalories = _propertyResolver.ModifyHarvest(plant, baseCalories);
+            modifiedCalories = _propertyResolver.ModifyHarvest(plant, modifiedCalories);
 
             // Удаляем растение с поля
             ServiceLocator.Get<PropertyResolverSystem>().UnregisterPlant(plant);
             _runData.Board.RemovePlant(x, y);
             plant.CurrentCell = null;
+
+            var resolver = ServiceLocator.Get<PropertyResolverSystem>();
+            resolver.OnPlantDestroyed(plant, x, y);
 
             // Обновляем общий счёт
             _scoreSystem.AddCalories(modifiedCalories);

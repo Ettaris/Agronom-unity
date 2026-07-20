@@ -15,6 +15,8 @@ namespace Gameplay
         public int DailyQuota { get; set; }
         public bool IsQuotaReached { get; set; }
         public JournalData Journal { get; set; }
+        public int TotalCaloriesGoal { get; set; }
+        public bool IsTotalGoalReached { get; set; }
 
         public RunData(int seed, int boardWidth, int boardHeight, int handMaxSize, int dailyQuota, JournalData journal)
         {

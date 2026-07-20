@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bd68da879bbc71c4fbe807a8128ac6a5, type: 3}
-  m_Name: gemmation
+  m_Name: Gemmation
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePropertyData
   _id: 
   propertyName: gemmation

@@ -15,6 +15,7 @@ public class GameOverView : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TMP_Text _dayText;
+    [SerializeField] private TMP_Text _resultText;
     [SerializeField] private TMP_Text _caloriesText;
     [SerializeField] private TMP_Text _propertiesText;
     [SerializeField] private TMP_Text _plantsPlantedText;
@@ -65,10 +66,10 @@ public class GameOverView : MonoBehaviour
 
     private void OnRunEnded(RunEndedEvent evt)
     {
-        ShowResults(evt.FinalRunData);
+        ShowResults(evt.FinalRunData, evt.IsWin);
     }
 
-    public void ShowResults(RunData runData)
+    public void ShowResults(RunData runData, bool isWin)
     {
         if (runData == null)
         {
@@ -95,6 +96,9 @@ public class GameOverView : MonoBehaviour
         _propertiesText.text = "0";
         _plantsPlantedText.text = "0";
         _plantsHarvestedText.text = "0";
+
+        _resultText.text = isWin ? "Победа!" : "Поражение!";
+        _resultText.color = isWin ? Color.green : Color.red;
 
         // Анимируем числа (каждое с небольшой задержкой)
         AnimateNumber(_dayText, daysSurvived, 0f);
