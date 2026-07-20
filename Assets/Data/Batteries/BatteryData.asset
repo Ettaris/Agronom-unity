@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BatteryData
   m_EditorClassIdentifier: Assembly-CSharp::Data.BatteryData
   _id: 
-  itemName: Battary
+  itemName: Battery
   description: 
   icon: {fileID: 0}
   rarity: 0
