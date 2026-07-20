@@ -21,6 +21,7 @@ namespace Systems
             _saveManager = ServiceLocator.Get<SaveManager>();
             _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
 
+
             EventBus.Subscribe<RunGenerationRequestedEvent>(OnRunGenerationRequested);
         }
 
@@ -78,7 +79,7 @@ namespace Systems
                 for (int p = 0; p < propertyCount && p < shuffledGenomes.Count; p++)
                 {
                     var propData = shuffledGenomes[p];
-                    var prop = new GenomePropertyInstance(propData, 1);
+                    var prop = propData.CreateEffect(1);
                     plant.AddGenomeProperty(prop);
                 }
 
@@ -109,6 +110,9 @@ namespace Systems
 
             // 4. Создание RunData
             var runData = new RunData(seed, _config.boardWidth, _config.boardHeight, _config.maxHandSize, _config.dailyQuota, journal);
+
+            runData.TotalCaloriesGoal = _config.totalCaloriesGoal;
+            runData.IsTotalGoalReached = false;
 
             // 5. Заполнение руки
             foreach (var plant in handPlants)

@@ -16,6 +16,7 @@ namespace Infrastructure.Events
     public struct RunEndedEvent
     {
         public RunData FinalRunData;
+        public bool IsWin;
     }
 
     // ---------- Дни ----------
@@ -109,6 +110,9 @@ namespace Infrastructure.Events
     {
         public int DayNumber;
     }
+
+    public struct TotalGoalReachedEvent { }
+
 
     // ---------- Сохранение ----------
     public struct SaveRequestedEvent

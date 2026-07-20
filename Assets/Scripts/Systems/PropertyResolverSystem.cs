@@ -175,5 +175,65 @@ namespace Systems
             }
             return modified;
         }
+
+        /// <summary>
+        /// Вызывается при сборе растения. Проверяет всех соседей и применяет их эффекты.
+        /// </summary>
+        public int ModifyHarvestByNeighbors(PlantInstance plant, int baseCalories)
+        {
+            if (plant == null || plant.CurrentCell == null) return baseCalories;
+
+            int modified = baseCalories;
+            var board = _runData.Board;
+            var neighbors = board.GetNeighbors(plant.CurrentCell.X, plant.CurrentCell.Y, false);
+
+            foreach (var cell in neighbors)
+            {
+                if (cell.Plant == null) continue;
+                var neighborPlant = cell.Plant;
+                // Ищем свойства у соседа, реализующие IOnNeighborHarvest
+                foreach (var prop in neighborPlant.Genome.Properties)
+                {
+                    if (prop is IOnNeighborHarvest handler)
+                    {
+                        modified = handler.ModifyNeighborHarvest(plant, modified);
+                    }
+                }
+            }
+            return modified;
+        }
+
+        public void OnPlantDestroyed(PlantInstance plant, int x, int y)
+        {
+            // Вызов IOnDestroyedWithCoords
+            if (_propertyCacheByInterface.TryGetValue(typeof(Properties.Interfaces.IOnDestroyedWithCoords), out var list))
+            {
+                foreach (var prop in list)
+                {
+                    if (prop is IOnDestroyedWithCoords handler && _propertyOwner.TryGetValue(prop, out var owner) && owner == plant)
+                    {
+                        handler.OnDestroyed(plant, x, y, _runData.Board);
+                    }
+                }
+            }
+            // Вызов старого IOnDestroyed (если есть)
+            if (_propertyCacheByInterface.TryGetValue(typeof(Properties.Interfaces.IOnDestroyed), out var oldList))
+            {
+                foreach (var prop in oldList)
+                {
+                    if (prop is IOnDestroyed handler && _propertyOwner.TryGetValue(prop, out var owner) && owner == plant)
+                    {
+                        handler.OnDestroyed(plant);
+                    }
+                }
+            }
+        }
+
+        public PlantInstance GetOwner(GenomePropertyInstance property)
+        {
+            if (property == null) return null;
+            _propertyOwner.TryGetValue(property, out var owner);
+            return owner;
+        }
     }
 }

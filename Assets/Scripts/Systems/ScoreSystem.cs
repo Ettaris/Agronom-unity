@@ -39,14 +39,20 @@ namespace Systems
 
             _runData.Inventory.Calories += amount;
 
-            // Проверяем, достигнута ли квота за день
+            // Проверка дневной квоты (оставляем как есть)
             if (!_runData.IsQuotaReached && _runData.Inventory.Calories >= _runData.DailyQuota)
             {
                 _runData.IsQuotaReached = true;
                 EventBus.Publish(new QuotaReachedEvent { DayNumber = _runData.CurrentDay });
             }
 
-            // Публикуем событие об изменении счёта (для UI)
+            // Проверка общей цели
+            if (!_runData.IsTotalGoalReached && _runData.Inventory.Calories >= _runData.TotalCaloriesGoal)
+            {
+                _runData.IsTotalGoalReached = true;
+                EventBus.Publish(new TotalGoalReachedEvent());
+            }
+
             EventBus.Publish(new ScoreChangedEvent
             {
                 CurrentCalories = _runData.Inventory.Calories,
