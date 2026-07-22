@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 096e5742d5adbd84c83b1f52afb92fcf, type: 3}
   m_Name: BatteryPool
   m_EditorClassIdentifier: Assembly-CSharp::Data.BatteryPool
-  batteries:
-  - {fileID: 11400000, guid: da42791cff6ace74fbd2315e008b3546, type: 2}
+  batteries: []

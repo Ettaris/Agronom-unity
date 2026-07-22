@@ -80,15 +80,15 @@ public class BoardCellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
             case CellState.Highlighted:
                 _highlightObject.SetActive(true);
                 // цвет зелёный
-                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = Color.green;
+                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = new Color(1f, 1f, 1f, 0.5f);
                 break;
             case CellState.Occupied:
                 _highlightObject.SetActive(true);
-                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = Color.yellow;
+                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = new Color(1f, 1f, 0f, 0.2f);
                 break;
             case CellState.Unavailable:
                 _highlightObject.SetActive(true);
-                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = Color.red;
+                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = new Color(1f, 0f, 0f, 0.2f);
                 break;
             default:
                 _highlightObject.SetActive(false);

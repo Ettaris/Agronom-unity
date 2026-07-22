@@ -19,7 +19,7 @@ public class HandView : MonoBehaviour, IDropHandler
     [SerializeField] private Animator _handAnimator;
 
     [Header("DOTween Settings")]
-    [SerializeField] private float _cardSpacing = 20f; // расстояние между карточками
+    [SerializeField] private float _cardSpacing = 100f; // расстояние между карточками
     [SerializeField] private float _moveDuration = 0.3f;
     [SerializeField] private float _appearBounceAmplitude = 0.3f;
 
