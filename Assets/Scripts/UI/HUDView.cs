@@ -26,7 +26,7 @@ public class HUDView : MonoBehaviour
     private Coroutine _caloriesCoroutine;
     private Coroutine _dayCoroutine;
 
-    private void Awake()
+    private void Start()
     {
         // Подписка на события
         EventBus.Subscribe<DayStartedEvent>(OnDayStarted);
@@ -56,6 +56,7 @@ public class HUDView : MonoBehaviour
 
     private void OnDayStarted(DayStartedEvent evt)
     {
+        Debug.Log("HUDView OnDayStarted");
         _currentDay = evt.DayNumber;
         if (_dayCoroutine != null) StopCoroutine(_dayCoroutine);
         _dayCoroutine = StartCoroutine(AnimateNumberChange(_dayText, _currentDay, _numberChangeDuration));
@@ -106,6 +107,7 @@ public class HUDView : MonoBehaviour
 
     private void OnEndDayButtonClicked()
     {
+        Debug.Log("EndDayButtonPressed");
         CommandProcessor.Execute(new EndDayCommand());
         _hudAnimator.SetTrigger("EndDayPressed");
     }

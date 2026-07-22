@@ -46,18 +46,18 @@ public class LocalFileSaveProvider : ISaveProvider
         }
     }
 
-    public Task<bool> DeleteAsync(string key)
+    public async Task<bool> DeleteAsync(string key)
     {
         try
         {
             string path = GetFilePath(key);
             if (File.Exists(path))
                 File.Delete(path);
-            return Task.FromResult(true);
+            return await Task.FromResult(true);
         }
         catch
         {
-            return Task.FromResult(false);
+            return await Task.FromResult(false);
         }
     }
 

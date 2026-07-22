@@ -1,14 +1,14 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using UnityEngine;
 using Infrastructure;
 using Infrastructure.Events;
 using Gameplay;
 using Newtonsoft.Json;
-using Systems;
-using static UnityEditor.Tilemaps.RuleTileTemplate;
 using Data;
+using System.Threading.Tasks;
+using Systems;
+using System.Collections.Generic;
+using System;
+using System.IO;
 
 namespace Managers
 {
@@ -21,38 +21,42 @@ namespace Managers
         private RunManager _runManager;
         private JournalSystem _journalSystem;
 
-        // ======== Старые методы (для обратной совместимости) ========
-        public void SaveJournal(JournalData journal)
+        // ======================================================================
+        //  Публичные асинхронные методы (использовать везде)
+        // ======================================================================
+
+        public async Task SaveJournalAsync(JournalData journal)
         {
+            if (journal == null) return;
             string json = JsonConvert.SerializeObject(journal, Formatting.Indented);
-            _ = _provider.SaveAsync(JOURNAL_KEY, json);
+            await _provider.SaveAsync(JOURNAL_KEY, json);
         }
 
-        public JournalData LoadJournal()
+        public async Task<JournalData> LoadJournalAsync()
         {
-            var (success, json) = _provider.LoadAsync(JOURNAL_KEY).Result;
+            var (success, json) = await _provider.LoadAsync(JOURNAL_KEY);
             if (!success || string.IsNullOrEmpty(json)) return null;
             return JsonConvert.DeserializeObject<JournalData>(json);
         }
 
-        public void SaveRun(RunData runData)
+        public async Task SaveRunAsync(RunData runData)
         {
+            if (runData == null) return;
             var saveData = BuildSaveData(runData);
             string json = JsonConvert.SerializeObject(saveData, Formatting.Indented,
                 new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
-            _ = _provider.SaveAsync(RUN_KEY, json);
+            await _provider.SaveAsync(RUN_KEY, json);
         }
 
-        public RunData LoadRun()
+        public async Task<RunData> LoadRunAsync()
         {
-            var (success, json) = _provider.LoadAsync(RUN_KEY).Result;
+            var (success, json) = await _provider.LoadAsync(RUN_KEY);
             if (!success || string.IsNullOrEmpty(json)) return null;
             var saveData = JsonConvert.DeserializeObject<SaveData>(json,
                 new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
             return RestoreRunData(saveData);
         }
 
-        // ======== Новые методы для полного сохранения/загрузки (для MainMenu) ========
         public async Task<bool> SaveGameAsync()
         {
             var runData = _runManager?.CurrentRunData;
@@ -68,59 +72,219 @@ namespace Managers
             var (success, json) = await _provider.LoadAsync(SAVE_KEY);
             if (!success || string.IsNullOrEmpty(json)) return false;
 
-            var saveData = JsonConvert.DeserializeObject<SaveData>(json,
-                new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
-            if (saveData == null) return false;
+            SaveData saveData;
+            try
+            {
+                saveData = JsonConvert.DeserializeObject<SaveData>(json,
+                    new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+            }
+            catch
+            {
+                await _provider.DeleteAsync(SAVE_KEY);
+                return false;
+            }
+
+            if (saveData == null)
+            {
+                await _provider.DeleteAsync(SAVE_KEY);
+                return false;
+            }
 
             var runData = RestoreRunData(saveData);
-            if (runData == null) return false;
+            if (runData == null)
+            {
+                await _provider.DeleteAsync(SAVE_KEY);
+                return false;
+            }
 
             var runManager = ServiceLocator.Get<RunManager>();
             runManager.LoadRunData(runData);
-
-            // Публикуем событие обновления руки
-            EventBus.Publish(new Infrastructure.Events.HandUpdatedEvent());
-
+            EventBus.Publish(new HandUpdatedEvent());
             return true;
         }
 
-        public bool HasSave => _provider.HasSave(SAVE_KEY);
+        public async Task<bool> HasSaveAsync()
+        {
+            if (!_provider.HasSave(SAVE_KEY)) return false;
+            try
+            {
+                var (success, json) = await _provider.LoadAsync(SAVE_KEY);
+                if (!success || string.IsNullOrEmpty(json)) return false;
+                var saveData = JsonConvert.DeserializeObject<SaveData>(json,
+                    new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+                return saveData != null;
+            }
+            catch
+            {
+                await _provider.DeleteAsync(SAVE_KEY);
+                return false;
+            }
+        }
+
+        public void SaveJournal(JournalData journal)
+        {
+            if (journal == null) return;
+            string json = JsonConvert.SerializeObject(journal, Formatting.Indented);
+            string path = GetJournalFilePath();
+            File.WriteAllText(path, json);
+        }
+
+        public JournalData LoadJournal()
+        {
+            string path = GetJournalFilePath();
+            if (!File.Exists(path)) return null;
+            string json = File.ReadAllText(path);
+            return JsonConvert.DeserializeObject<JournalData>(json);
+        }
+
+        private string GetJournalFilePath()
+        {
+            return Path.Combine(Application.persistentDataPath, "journal.json");
+        }
+
+
 
         // ======== Вспомогательные методы ========
 
         private SaveData BuildSaveData(RunData runData)
         {
             if (runData == null) return null;
-            // ... (полная сериализация, как было ранее)
-            // Код для сериализации поля, руки, колоды и т.д.
-            // Для краткости я его не дублирую, но он должен быть полным.
-            // В реальном проекте этот код уже был, я его не удалял.
-            return new SaveData();
+
+            var data = new SaveData
+            {
+                version = Application.version,
+                saveTime = DateTime.Now,
+                seed = runData.Seed,
+                currentDay = runData.CurrentDay,
+                calories = runData.Inventory.Calories,
+                dailyQuota = runData.DailyQuota,
+                isQuotaReached = runData.IsQuotaReached,
+                journal = runData.Journal ?? new JournalData(),
+                boardPlants = new List<SaveData.SerializedPlant>(),
+                handItems = new List<SaveData.SerializedItem>(),
+                deckItems = new List<SaveData.SerializedItem>()
+            };
+
+            // ---- Сохраняем поле ----
+            var board = runData.Board;
+            for (int x = 0; x < board.Width; x++)
+            {
+                for (int y = 0; y < board.Height; y++)
+                {
+                    var cell = board.GetCell(x, y);
+                    if (cell == null || cell.Plant == null) continue;
+
+                    var plant = cell.Plant;
+                    var sp = new SaveData.SerializedPlant
+                    {
+                        x = x,
+                        y = y,
+                        plantDataId = plant.PlantData.Id,
+                        growthProgress = plant.GrowthProgress,
+                        maxGenomeCapacity = plant.Genome.MaxCapacity,
+                        currentGenomeWeight = plant.Genome.CurrentWeight,
+                        properties = new List<SaveData.SerializedProperty>()
+                    };
+
+                    foreach (var prop in plant.Genome.Properties)
+                    {
+                        sp.properties.Add(new SaveData.SerializedProperty
+                        {
+                            propertyDataId = prop.Data.Id,
+                            stacks = prop.Stacks
+                        });
+                    }
+
+                    data.boardPlants.Add(sp);
+                }
+            }
+
+            // ---- Сохраняем руку ----
+            foreach (var item in runData.Hand.GetAll())
+            {
+                data.handItems.Add(SerializeItem(item));
+            }
+
+            // ---- Сохраняем колоду ----
+            foreach (var item in runData.Deck.GetAllCards())
+            {
+                data.deckItems.Add(SerializeItem(item));
+            }
+
+            return data;
         }
+
+        // Вспомогательный метод сериализации одного предмета
+        private SaveData.SerializedItem SerializeItem(ItemInstance item)
+        {
+            if (item == null) return null;
+
+            var si = new SaveData.SerializedItem
+            {
+                itemDataId = item.Data.Id,
+                quantity = item.Quantity,
+                isPlant = item is PlantInstance
+            };
+
+            if (item is PlantInstance plant)
+            {
+                si.plantData = new SaveData.SerializedPlant
+                {
+                    plantDataId = plant.PlantData.Id,
+                    growthProgress = plant.GrowthProgress,
+                    maxGenomeCapacity = plant.Genome.MaxCapacity,
+                    currentGenomeWeight = plant.Genome.CurrentWeight,
+                    properties = new List<SaveData.SerializedProperty>()
+                };
+
+                foreach (var prop in plant.Genome.Properties)
+                {
+                    si.plantData.properties.Add(new SaveData.SerializedProperty
+                    {
+                        propertyDataId = prop.Data.Id,
+                        stacks = prop.Stacks
+                    });
+                }
+            }
+
+            return si;
+        }
+
 
         private RunData RestoreRunData(SaveData data)
         {
-            if (data == null) return null;
+            if (data == null)
+            {
+                Debug.LogWarning("RestoreRunData: data is null");
+                return null;
+            }
 
             var config = ServiceLocator.Get<GameConfig>();
             if (config == null)
             {
-                Debug.LogError("GameConfig not found!");
+                Debug.LogError("RestoreRunData: GameConfig not found!");
                 return null;
             }
 
-            // 1. Создаём RunData с seed из сохранения
+            // Проверка пулов
+            if (config.plantPool == null || config.genomePool == null)
+            {
+                Debug.LogError("RestoreRunData: PlantPool or GenomePool is null in GameConfig!");
+                return null;
+            }
+
+            // Создаём RunData
             var runData = new RunData(
                 data.seed,
                 config.boardWidth,
                 config.boardHeight,
                 config.maxHandSize,
                 data.dailyQuota,
-                data.journal // журнал уже восстановлен
+                data.journal ?? new JournalData()
             );
 
-            // 2. Восстанавливаем поле
-            foreach (var sp in data.boardPlants)
+            // Восстанавливаем поле (с проверками)
+            foreach (var sp in data.boardPlants ?? new List<SaveData.SerializedPlant>())
             {
                 var plantData = config.plantPool.plants.Find(p => p.Id == sp.plantDataId);
                 if (plantData == null)
@@ -132,59 +296,68 @@ namespace Managers
                 var plant = new PlantInstance(plantData, sp.maxGenomeCapacity);
                 plant.GrowthProgress = sp.growthProgress;
 
-                // Восстанавливаем свойства
-                foreach (var spProp in sp.properties)
+                foreach (var spProp in sp.properties ?? new List<SaveData.SerializedProperty>())
                 {
                     var propData = config.genomePool.genomeProperties.Find(p => p.Id == spProp.propertyDataId);
-                    if (propData == null)
-                    {
-                        Debug.LogWarning($"GenomePropertyData with id {spProp.propertyDataId} not found");
-                        continue;
-                    }
+                    if (propData == null) continue;
                     var prop = new GenomePropertyInstance(propData, spProp.stacks);
-                    plant.AddGenomeProperty(prop); // публикует событие, но пока не нужно
+                    plant.AddGenomeProperty(prop);
                 }
 
-                // Размещаем на поле
                 if (runData.Board.PlacePlant(plant, sp.x, sp.y))
                 {
                     plant.CurrentCell = runData.Board.GetCell(sp.x, sp.y);
-                    // Регистрируем в PropertyResolverSystem
                     var resolver = ServiceLocator.Get<PropertyResolverSystem>();
-                    if (resolver != null) resolver.RegisterPlant(plant);
-                }
-                else
-                {
-                    Debug.LogWarning($"Failed to place plant at ({sp.x}, {sp.y})");
+                    resolver?.RegisterPlant(plant);
                 }
             }
 
-            // 3. Восстанавливаем руку
-            foreach (var si in data.handItems)
+            // Восстанавливаем руку и колоду (аналогично с проверками)
+            foreach (var si in data.handItems ?? new List<SaveData.SerializedItem>())
             {
                 var item = RestoreItem(si, config);
-                if (item != null)
-                {
-                    if (!runData.Hand.Add(item))
-                        Debug.LogWarning($"Hand is full, cannot add item {si.itemDataId}");
-                }
+                if (item != null) runData.Hand.Add(item);
             }
 
-            // 4. Восстанавливаем колоду
-            foreach (var si in data.deckItems)
+            foreach (var si in data.deckItems ?? new List<SaveData.SerializedItem>())
             {
                 var item = RestoreItem(si, config);
-                if (item != null)
-                    runData.Deck.Add(item);
+                if (item != null) runData.Deck.Add(item);
             }
 
-            // 5. Восстанавливаем параметры забега
+            // Восстанавливаем параметры
             runData.CurrentDay = data.currentDay;
             runData.Inventory.Calories = data.calories;
             runData.IsQuotaReached = data.isQuotaReached;
-            runData.Journal = data.journal;
+            runData.Journal = data.journal ?? new JournalData();
 
             return runData;
+        }
+
+
+        public bool HasSave
+        {
+            get
+            {
+                if (!_provider.HasSave(SAVE_KEY)) return false;
+                // Проверяем валидность файла
+                try
+                {
+                    var (success, json) = _provider.LoadAsync(SAVE_KEY).Result;
+                    if (!success || string.IsNullOrEmpty(json)) return false;
+                    var saveData = JsonConvert.DeserializeObject<SaveData>(json,
+                        new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+                    if (saveData == null) return false;
+                    // Можно также проверить, что восстановление RunData не падает с ошибкой
+                    return true;
+                }
+                catch
+                {
+                    // Если файл повреждён, удаляем его и возвращаем false
+                    _ = _provider.DeleteAsync(SAVE_KEY);
+                    return false;
+                }
+            }
         }
 
         private ItemInstance RestoreItem(SaveData.SerializedItem si, GameConfig config)
@@ -240,29 +413,33 @@ namespace Managers
             _runManager = ServiceLocator.Get<RunManager>();
             _journalSystem = ServiceLocator.Get<JournalSystem>();
 
-            EventBus.Subscribe<DayEndedEvent>(OnDayEnded);
-            EventBus.Subscribe<RunEndedEvent>(OnRunEnded);
-            EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
-            EventBus.Subscribe<PlantPlacedEvent>(OnPlantPlaced);
-            EventBus.Subscribe<PlantHarvestedEvent>(OnPlantHarvested);
-            Application.quitting += OnApplicationQuitting;
+            //EventBus.Subscribe<DayEndedEvent>(OnDayEnded);
+            //EventBus.Subscribe<RunEndedEvent>(OnRunEnded);
+            //EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
+            //EventBus.Subscribe<PlantPlacedEvent>(OnPlantPlaced);
+            //EventBus.Subscribe<PlantHarvestedEvent>(OnPlantHarvested);
+            //Application.quitting += OnApplicationQuitting;
         }
 
         public void Dispose()
         {
-            EventBus.Unsubscribe<DayEndedEvent>(OnDayEnded);
-            EventBus.Unsubscribe<RunEndedEvent>(OnRunEnded);
-            EventBus.Unsubscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
-            EventBus.Unsubscribe<PlantPlacedEvent>(OnPlantPlaced);
-            EventBus.Unsubscribe<PlantHarvestedEvent>(OnPlantHarvested);
-            Application.quitting -= OnApplicationQuitting;
+            //EventBus.Unsubscribe<DayEndedEvent>(OnDayEnded);
+            //EventBus.Unsubscribe<RunEndedEvent>(OnRunEnded);
+            //EventBus.Unsubscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
+            //EventBus.Unsubscribe<PlantPlacedEvent>(OnPlantPlaced);
+            //EventBus.Unsubscribe<PlantHarvestedEvent>(OnPlantHarvested);
+            //Application.quitting -= OnApplicationQuitting;
         }
 
-        private async void OnDayEnded(DayEndedEvent evt) => await SaveGameAsync();
-        private async void OnRunEnded(RunEndedEvent evt) => await SaveGameAsync();
-        private async void OnGenomeDiscovered(GenomeDiscoveredEvent evt) => await SaveGameAsync();
-        private async void OnPlantPlaced(PlantPlacedEvent evt) => await SaveGameAsync();
-        private async void OnPlantHarvested(PlantHarvestedEvent evt) => await SaveGameAsync();
-        private async void OnApplicationQuitting() => await SaveGameAsync();
+        // ======================================================================
+        //  Обработчики событий (автосохранение)
+        // ======================================================================
+
+        //private async void OnDayEnded(DayEndedEvent evt) => await SaveGameAsync();
+        //private async void OnRunEnded(RunEndedEvent evt) => await SaveGameAsync();
+        //private async void OnGenomeDiscovered(GenomeDiscoveredEvent evt) => await SaveGameAsync();
+        //private async void OnPlantPlaced(PlantPlacedEvent evt) => await SaveGameAsync();
+        //private async void OnPlantHarvested(PlantHarvestedEvent evt) => await SaveGameAsync();
+        //private async void OnApplicationQuitting() => await SaveGameAsync();
     }
 }

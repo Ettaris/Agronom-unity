@@ -3151,7 +3151,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1017030949
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3230,6 +3230,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOverView
   _dayText: {fileID: 125679690}
+  _resultText: {fileID: 0}
   _caloriesText: {fileID: 1967703302}
   _propertiesText: {fileID: 1626487579}
   _plantsPlantedText: {fileID: 181055278}
@@ -5471,7 +5472,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1731522220
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5551,6 +5552,7 @@ MonoBehaviour:
   _skipButton: {fileID: 77186054}
   _selectionCounterText: {fileID: 344241331}
   _windowAnimator: {fileID: 1731522224}
+  _cardSpacing: 50
   _cardAppearDelay: 0.1
   _cardAppearDuration: 0.4
   _cardBounceAmplitude: 0.2
@@ -5783,7 +5785,7 @@ MonoBehaviour:
   _cardPrefab: {fileID: 5562292274024961942, guid: c214bb2fb0c15d748b18c362b7c7021e, type: 3}
   _maxCards: 10
   _handAnimator: {fileID: 1736746207}
-  _cardSpacing: 20
+  _cardSpacing: 50
   _moveDuration: 0.3
   _appearBounceAmplitude: 0.3
 --- !u!95 &1736746207
@@ -5970,15 +5972,15 @@ RectTransform:
   m_GameObject: {fileID: 1819223547}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 248.2324, y: 65.50828, z: 2.5039}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1736746203}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.00060669, y: -0.0006409106}
-  m_SizeDelta: {x: 3.4009, y: 3.1003}
+  m_AnchoredPosition: {x: -0.000023007393, y: 0}
+  m_SizeDelta: {x: 870, y: 170}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1922139462
 GameObject:

@@ -8,10 +8,6 @@ using Gameplay;
 using Data;
 using Managers;
 
-/// <summary>
-/// UI лаборатории. Поддерживает режимы анализа (фермент) и центрифуги (батарейка).
-/// Использует слоты для расходников и растений, кнопку выполнения.
-/// </summary>
 public class LaboratoryView : MonoBehaviour
 {
     [Header("Slots")]
@@ -42,6 +38,7 @@ public class LaboratoryView : MonoBehaviour
         _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
         if (_runData == null) Debug.LogError("LaboratoryView: RunData is null");
 
+        // Подписка на события (только когда окно открыто)
         EventBus.Subscribe<CardSelectedEvent>(OnCardSelected);
         EventBus.Subscribe<HandUpdatedEvent>(OnHandUpdated);
         EventBus.Subscribe<FermentUsedEvent>(OnFermentUsed);
@@ -50,6 +47,9 @@ public class LaboratoryView : MonoBehaviour
 
         _actionButton.onClick.AddListener(OnActionButtonClicked);
         _actionButton.interactable = false;
+
+        // По умолчанию окно закрыто
+        gameObject.SetActive(false);
     }
 
     private void OnDestroy()
@@ -61,84 +61,66 @@ public class LaboratoryView : MonoBehaviour
         EventBus.Unsubscribe<GenomeTransferredEvent>(OnGenomeTransferred);
     }
 
-    #region Event Handlers
+    #region Открытие/закрытие
+
+    public void OpenLab()
+    {
+        gameObject.SetActive(true);
+        _labAnimator.SetTrigger("Open");
+        ClearSlots();
+    }
+
+    public void CloseLab()
+    {
+        _labAnimator.SetTrigger("Close");
+        ClearSlots();
+        DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
+    }
+
+    #endregion
+
+    #region Обработчики событий
 
     private void OnCardSelected(CardSelectedEvent evt)
     {
+        // Игнорируем выбор, если окно не активно – только Drag&Drop
         if (!gameObject.activeInHierarchy) return;
-
-        // Если слот расходника пуст и предмет является ферментом или батарейкой
-        if (_consumableSlot.IsEmpty && (evt.Item.Data is FermentData || evt.Item.Data is BatteryData))
-        {
-            SetConsumableSlot(evt.Item);
-            return;
-        }
-
-        // Если расходник уже есть, пытаемся вставить растение
-        if (!_consumableSlot.IsEmpty && evt.Item is PlantInstance plant)
-        {
-            if (_isCentrifugeMode)
-            {
-                // Режим центрифуги: два слота
-                if (_plantSlotA.IsEmpty)
-                {
-                    SetPlantSlotA(plant);
-                    return;
-                }
-                if (_plantSlotB.IsEmpty && _plantSlotA.Item != plant)
-                {
-                    SetPlantSlotB(plant);
-                    return;
-                }
-            }
-            else
-            {
-                // Режим анализа: один слот
-                if (_plantSlotA.IsEmpty)
-                {
-                    SetPlantSlotA(plant);
-                    return;
-                }
-            }
-        }
-        // Если не удалось вставить – отрицательная обратная связь (можно добавить анимацию)
-        Debug.Log("No suitable slot for this item");
+        // Никакой автоматической вставки!
+        Debug.Log($"LaboratoryView: Card {evt.Item.Data.itemName} selected, but drag&drop only.");
     }
 
     private void OnHandUpdated(HandUpdatedEvent evt)
     {
-        // Если предмет в слоте расходника был удалён из руки (использован вне лаборатории) – очищаем всё
+        // Если предмет в слоте был удалён из руки (использован) – очищаем слоты
         if (_consumableItem != null)
         {
             bool exists = false;
             foreach (var item in _runData.Hand.GetAll())
             {
-                if (item == _consumableItem)
-                {
-                    exists = true;
-                    break;
-                }
+                if (item == _consumableItem) { exists = true; break; }
             }
-            if (!exists)
-            {
-                ClearSlots();
-            }
+            if (!exists) ClearSlots();
         }
     }
 
-    /// <summary>
-    /// Обрабатывает бросок предмета в лабораторию.
-    /// Распределяет предмет по свободным слотам в зависимости от типа.
-    /// </summary>
-    /// <returns>true, если предмет был размещён</returns>
+    private void OnFermentUsed(FermentUsedEvent evt) { }
+    private void OnBatteryUsed(BatteryUsedEvent evt) { }
+    private void OnGenomeTransferred(GenomeTransferredEvent evt)
+    {
+        _labAnimator.SetTrigger("Success");
+    }
+
+    #endregion
+
+    #region Управление слотами (только через Drag&Drop)
+
     public bool OnItemDropped(ItemInstance item)
     {
-        if (item == null) return false;
+        if (!gameObject.activeInHierarchy) return false;
 
-        // Если предмет – растение
+        // Если это растение
         if (item is PlantInstance plant)
         {
-            // Проверяем, есть ли свободный слот для растения
             if (_plantSlotA.IsEmpty)
             {
                 SetPlantSlotA(plant);
@@ -149,11 +131,10 @@ public class LaboratoryView : MonoBehaviour
                 SetPlantSlotB(plant);
                 return true;
             }
-            // Если слоты заняты – не можем разместить
             return false;
         }
 
-        // Если предмет – фермент или батарейка (расходник)
+        // Если это фермент или батарейка
         if (item.Data is FermentData || item.Data is BatteryData)
         {
             if (_consumableSlot.IsEmpty)
@@ -167,24 +148,11 @@ public class LaboratoryView : MonoBehaviour
         return false;
     }
 
-    private void OnFermentUsed(FermentUsedEvent evt) { /* Можно добавить анимацию или логику, но необязательно */ }
-    private void OnBatteryUsed(BatteryUsedEvent evt) { /* Можно добавить анимацию */ }
-    private void OnGenomeTransferred(GenomeTransferredEvent evt)
-    {
-        // Анимация успешного переноса
-        _labAnimator.SetTrigger("Success");
-    }
-
-    #endregion
-
-    #region Slot Management
-
     private void SetConsumableSlot(ItemInstance item)
     {
         _consumableItem = item;
         _consumableSlot.SetItem(item);
 
-        // Определяем режим
         if (item.Data is BatteryData)
         {
             _isCentrifugeMode = true;
@@ -248,7 +216,7 @@ public class LaboratoryView : MonoBehaviour
 
     #endregion
 
-    #region Execution
+    #region Выполнение действия
 
     private void OnActionButtonClicked()
     {
@@ -282,25 +250,7 @@ public class LaboratoryView : MonoBehaviour
             }
         }
 
-        // Очищаем слоты после выполнения (расходник удалён, растения могли быть уничтожены или изменены)
         ClearSlots();
-    }
-
-    #endregion
-
-    #region Public Methods
-
-    public void OpenLab()
-    {
-        gameObject.SetActive(true);
-        _labAnimator.SetTrigger("Open");
-        ClearSlots();
-    }
-
-    public void CloseLab()
-    {
-        _labAnimator.SetTrigger("Close");
-        DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
     }
 
     #endregion

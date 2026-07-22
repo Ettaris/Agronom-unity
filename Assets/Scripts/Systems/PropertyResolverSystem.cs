@@ -16,13 +16,8 @@ namespace Systems
 
         public void Initialize()
         {
-            _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (_runData == null)
-            {
-                UnityEngine.Debug.LogError("RunData is null in PropertyResolverSystem!");
-                return;
-            }
 
+            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<PlantPlacedEvent>(OnPlantPlaced);
             EventBus.Subscribe<DayStartedEvent>(OnDayStarted);
             EventBus.Subscribe<DayEndedEvent>(OnDayEnded);
@@ -32,12 +27,18 @@ namespace Systems
 
         public void Dispose()
         {
+            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Unsubscribe<PlantPlacedEvent>(OnPlantPlaced);
             EventBus.Unsubscribe<DayStartedEvent>(OnDayStarted);
             EventBus.Unsubscribe<DayEndedEvent>(OnDayEnded);
             EventBus.Unsubscribe<HarvestEvent>(OnHarvest);
             EventBus.Unsubscribe<PlantGrownEvent>(OnPlantGrown);
             ClearCache();
+        }
+
+        private void OnRunStarted(RunStartedEvent evt)
+        {
+            _runData = evt.RunData;
         }
 
         public void RegisterProperty(GenomePropertyInstance property, PlantInstance owner)

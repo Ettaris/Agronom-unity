@@ -24,7 +24,7 @@ public class MutationView : MonoBehaviour
     private PlantInstance _currentPlant;
     private BoardCellView _cellView;
 
-    private void Awake()
+    private void Start()
     {
         _cellView = GetComponent<BoardCellView>();
         if (_cellView == null)

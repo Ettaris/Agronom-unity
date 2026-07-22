@@ -16,10 +16,12 @@ MonoBehaviour:
   genomePool: {fileID: 11400000, guid: 5572ebce59187a340bc6786bb9c72454, type: 2}
   fermentPool: {fileID: 11400000, guid: 3bbc291569a190641a62a315163a59cb, type: 2}
   batteryPool: {fileID: 11400000, guid: 20f5d189d736f2f488c44ea785b0d369, type: 2}
+  weedPlantData: {fileID: 0}
   maxHandSize: 10
   initialHandSize: 5
   maxGenomeCapacity: 60
-  dailyQuota: 50
+  dailyQuota: 0
+  totalCaloriesGoal: 300
   totalDays: 10
   defaultMaxGenomeCapacity: 60
   cardsPerDay: 6

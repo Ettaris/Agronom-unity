@@ -36,19 +36,19 @@ public class JournalView : MonoBehaviour
 
     private void Awake()
     {
-        _journalSystem = ServiceLocator.Get<JournalSystem>();
-        if (_journalSystem == null)
-        {
-            Debug.LogError("JournalSystem not found!");
-            return;
-        }
-
         _closeButton.onClick.AddListener(CloseJournal);
-
+        EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
         EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
 
         gameObject.SetActive(false);
         _isOpen = false;
+    }
+
+    private void OnServicesInitialized(ServicesInitializedEvent evt)
+    {
+        _journalSystem = ServiceLocator.Get<JournalSystem>();
+        if (_journalSystem == null)
+            Debug.LogError("JournalSystem not found!");
     }
 
     private void OnDestroy()

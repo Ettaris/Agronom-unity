@@ -7,8 +7,7 @@ namespace Commands
     {
         public void Execute()
         {
-            // Публикуем событие, на которое подписан DayManager
-            EventBus.Publish(new DayEndRequestedEvent());
+            EventBus.Publish(new EndDayCommand()); // можно вызвать напрямую, но для команд используем CommandProcessor
         }
     }
 }

@@ -16,21 +16,22 @@ namespace Systems
 
         public void Initialize()
         {
-            _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (_runData == null)
-            {
-                UnityEngine.Debug.LogError("RunData is null in HarvestSystem!");
-                return;
-            }
-
-            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
-            _scoreSystem = ServiceLocator.Get<ScoreSystem>();
+            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
         }
 
         public void Dispose()
         {
-            // Нет подписок на события, система вызывается напрямую
+            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
         }
+
+        private void OnRunStarted(RunStartedEvent evt)
+        {
+            _runData = evt.RunData;
+            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
+            _scoreSystem = ServiceLocator.Get<ScoreSystem>();
+        }
+
+
 
         /// <summary>
         /// Собирает растение в указанной клетке, если оно зрелое.

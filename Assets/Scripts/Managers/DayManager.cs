@@ -1,7 +1,10 @@
+using Commands;
 using Data;
+using DG.Tweening;
 using Gameplay;
 using Infrastructure;
 using Infrastructure.Events;
+using UnityEngine;
 
 namespace Managers
 {
@@ -13,15 +16,6 @@ namespace Managers
 
         public void Initialize()
         {
-            _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (_runData == null)
-            {
-                UnityEngine.Debug.LogError("RunData is null in DayManager!");
-                return;
-            }
-
-            _totalDays = ServiceLocator.Get<GameConfig>().totalDays;
-            _currentDay = 0;
 
             EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<EndDayCommand>(OnEndDayCommand); // команда от игрока
@@ -35,24 +29,36 @@ namespace Managers
 
         private void OnRunStarted(RunStartedEvent evt)
         {
+
             _runData = evt.RunData;
+
+            _totalDays = ServiceLocator.Get<GameConfig>().totalDays;
+            _currentDay = 0;
+
             if (!evt.IsLoaded)
             {
                 _currentDay = 1;
                 _runData.CurrentDay = _currentDay;
-                EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay });
+                DOVirtual.DelayedCall(0.1f, () => EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay }));
+                DOVirtual.DelayedCall(0.1f, () => Debug.Log("Publish OnDayStarted from OnRunStarted(DayManager) - new game"));
+
             }
             else
             {
                 _currentDay = _runData.CurrentDay;
                 // Публикуем событие загрузки дня для UI
-                EventBus.Publish(new DayLoadedEvent { DayNumber = _currentDay });
+                Debug.Log("Publish OnDayStarted from OnRunStarted(DayManager) - loaded game");
+                DOVirtual.DelayedCall(0.01f, () => EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay }));
             }
+
+            Debug.Log(_runData + " - DayManager run data from OnRunStarted");
         }
 
         private void OnEndDayCommand(EndDayCommand command)
         {
             // Завершаем текущий день
+
+            Debug.Log("OnEndDay from daymanager");
             EventBus.Publish(new DayEndedEvent { DayNumber = _currentDay });
 
             // Проверяем, достигнута ли квота (это может делать ScoreSystem)
@@ -68,16 +74,10 @@ namespace Managers
 
             // Начинаем новый день
             _runData.CurrentDay = _currentDay;
+            Debug.Log("Publish onDayStarted from OnEndDayCommand");
             EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay });
         }
     }
 
     // Команда для завершения дня (игрок нажимает кнопку)
-    public struct EndDayCommand : ICommand
-    {
-        public void Execute()
-        {
-            EventBus.Publish(new EndDayCommand()); // можно вызвать напрямую, но для команд используем CommandProcessor
-        }
-    }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Infrastructure
 {
@@ -10,6 +11,7 @@ namespace Infrastructure
         public static void Register<T>(T service) where T : class
         {
             var type = typeof(T);
+            Debug.Log("register - " + type);
             if (_services.ContainsKey(type))
                 throw new InvalidOperationException($"Service {type} already registered.");
             _services[type] = service;
@@ -23,6 +25,7 @@ namespace Infrastructure
 
         public static T Get<T>() where T : class
         {
+
             var type = typeof(T);
             if (_services.TryGetValue(type, out var service))
                 return (T)service;

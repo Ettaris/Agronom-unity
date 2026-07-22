@@ -2,6 +2,7 @@ using Gameplay;
 using Infrastructure;
 using Infrastructure.Events;
 using Managers;
+using UnityEngine;
 
 namespace Systems
 {
@@ -14,20 +15,20 @@ namespace Systems
 
         public void Initialize()
         {
-            _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (_runData == null)
-            {
-                UnityEngine.Debug.LogError("RunData is null in ScoreSystem!");
-                return;
-            }
-
-            // Подписываемся на событие начала дня для сброса квоты
+            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<DayStartedEvent>(OnDayStarted);
         }
 
         public void Dispose()
         {
             EventBus.Unsubscribe<DayStartedEvent>(OnDayStarted);
+            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
+        }
+
+        private void OnRunStarted(RunStartedEvent evt)
+        {
+            _runData = evt.RunData;
+            Debug.Log(_runData + " - score system run data");
         }
 
         /// <summary>
@@ -62,14 +63,18 @@ namespace Systems
 
         private void OnDayStarted(DayStartedEvent evt)
         {
-            // Сбрасываем флаг выполнения квоты в начале дня
-            _runData.IsQuotaReached = false;
-            // Публикуем событие для обновления UI
-            EventBus.Publish(new ScoreChangedEvent
+            Debug.Log("Score system onDayStarted");
+            if (_runData != null)
             {
-                CurrentCalories = _runData.Inventory.Calories,
-                DailyQuota = _runData.DailyQuota
-            });
+                // Сбрасываем флаг выполнения квоты в начале дня
+                _runData.IsQuotaReached = false;
+                // Публикуем событие для обновления UI
+                EventBus.Publish(new ScoreChangedEvent
+                {
+                    CurrentCalories = _runData.Inventory.Calories,
+                    DailyQuota = _runData.DailyQuota
+                });
+            }
         }
     }
 }

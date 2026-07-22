@@ -17,24 +17,24 @@ namespace Systems
 
         public void Initialize()
         {
-            _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (_runData == null)
-            {
-                UnityEngine.Debug.LogError("RunData is null in GrowthSystem!");
-                return;
-            }
-
-            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
 
             // Подписываемся на событие окончания дня
+            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<DayEndedEvent>(OnDayEnded);
         }
 
         public void Dispose()
         {
+            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Unsubscribe<DayEndedEvent>(OnDayEnded);
         }
 
+
+        private void OnRunStarted(RunStartedEvent evt)
+        {
+            _runData = evt.RunData;
+            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
+        }
         /// <summary>
         /// Обработчик события окончания дня.
         /// Обновляет рост всех растений на поле.

@@ -177,8 +177,6 @@ namespace Infrastructure.Events
         public int Seed;
     }
 
-    public struct DayEndRequestedEvent { }
-
     public struct HandUpdatedEvent { }
 
     public struct OfferGeneratedEvent
@@ -191,4 +189,6 @@ namespace Infrastructure.Events
     {
         public RunData RunData;
     }
+
+    public struct ServicesInitializedEvent { }
 }

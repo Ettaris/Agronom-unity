@@ -33,26 +33,40 @@ public class BoardView : MonoBehaviour
 
     private void Awake()
     {
-        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-        if (_runData == null)
-        {
-            Debug.LogError("BoardView: RunData is null!");
-            return;
-        }
-        _board = _runData.Board;
-        _boardSize = new Vector2Int(_board.Width, _board.Height);
 
         // Подписка на события
         EventBus.Subscribe<PlantPlacedEvent>(OnPlantPlaced);
         EventBus.Subscribe<PlantHarvestedEvent>(OnPlantHarvested);
         EventBus.Subscribe<PlantKilledEvent>(OnPlantKilled);
         EventBus.Subscribe<CardSelectedEvent>(OnCardSelected);
+        EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
+        EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
+        Debug.Log("BoardView subscribed");
 
+    }
+
+    private void OnServicesInitialized(ServicesInitializedEvent evt)
+    {
+        Debug.Log("BoardView initialized");
+    }
+
+    private void OnRunStarted(RunStartedEvent evt)
+    {
+        Debug.Log("BoardView OnRunStarted");
+        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
+        if (_runData == null)
+        {
+            Debug.LogError("RunData is null in BoardView!");
+            return;
+        }
+        _board = _runData.Board;
+        _boardSize = new Vector2Int(_board.Width, _board.Height);
         InitializeBoard();
     }
 
     private void OnDestroy()
     {
+        EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
         EventBus.Unsubscribe<PlantPlacedEvent>(OnPlantPlaced);
         EventBus.Unsubscribe<PlantHarvestedEvent>(OnPlantHarvested);
         EventBus.Unsubscribe<PlantKilledEvent>(OnPlantKilled);
@@ -195,6 +209,7 @@ public class BoardView : MonoBehaviour
                     Y = y
                 });
                 // После успешной посадки HandView получит событие обновления руки и удалит карточку
+                _selectedItem = null; // <-- СБРОС
             }
         }
     }

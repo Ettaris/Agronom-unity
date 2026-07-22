@@ -10,6 +10,7 @@ using TMPro;
 using Data;
 using Managers;
 using Systems;
+using System;
 
 /// <summary>
 /// Окно ежедневного выбора карточек.
@@ -27,6 +28,7 @@ public class CardDrawView : MonoBehaviour
     [SerializeField] private Animator _windowAnimator;
 
     [Header("DOTween Settings")]
+    [SerializeField] private float _cardSpacing = 1f;
     [SerializeField] private float _cardAppearDelay = 0.1f;
     [SerializeField] private float _cardAppearDuration = 0.4f;
     [SerializeField] private float _cardBounceAmplitude = 0.2f;
@@ -39,6 +41,23 @@ public class CardDrawView : MonoBehaviour
     private bool _isProcessing;
 
     private void Awake()
+    {
+
+        _confirmButton.onClick.AddListener(OnConfirmClicked);
+        if (_skipButton != null) _skipButton.onClick.AddListener(OnSkipClicked);
+
+        EventBus.Subscribe<OfferGeneratedEvent>(OnOfferGenerated);
+        EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
+        EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
+
+    }
+
+    private void OnServicesInitialized(ServicesInitializedEvent evt)
+    {
+
+    }
+
+    private void OnRunStarted(RunStartedEvent evt)
     {
         _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
         if (_runData == null)
@@ -53,14 +72,9 @@ public class CardDrawView : MonoBehaviour
             Debug.LogError("CardDrawView: CardDrawSystem not found");
             return;
         }
-
-        _confirmButton.onClick.AddListener(OnConfirmClicked);
-        if (_skipButton != null) _skipButton.onClick.AddListener(OnSkipClicked);
-
-        EventBus.Subscribe<OfferGeneratedEvent>(OnOfferGenerated);
-
         gameObject.SetActive(false);
         _isProcessing = false;
+        Debug.Log("CardDrawView OnRunStarted");
     }
 
     private void OnDestroy()
@@ -72,16 +86,10 @@ public class CardDrawView : MonoBehaviour
 
     private void OnOfferGenerated(OfferGeneratedEvent evt)
     {
-        // Получаем конфиг
-        var config = ServiceLocator.Get<GameConfig>();
-        _maxSelectable = config.cardsToSelect; // или из evt, если там передаётся
-
-        ShowOffer(evt.Offer, _maxSelectable);
+        Debug.Log($"CardDrawView: OfferGenerated received, count={evt.Offer.Count}, maxSelectable={evt.MaxSelectable}");
+        ShowOffer(evt.Offer, evt.MaxSelectable);
     }
 
-    /// <summary>
-    /// Показывает окно с предложением.
-    /// </summary>
     public void ShowOffer(List<ItemInstance> offer, int maxSelectable)
     {
         if (offer == null || offer.Count == 0)
@@ -94,48 +102,58 @@ public class CardDrawView : MonoBehaviour
         _selectedCards.Clear();
         _isProcessing = false;
 
-        // Активируем окно с анимацией
         gameObject.SetActive(true);
         _windowAnimator.SetTrigger("Open");
 
-        // Создаём карточки
         CreateCards(offer);
-
-        // Обновляем счётчик
         UpdateSelectionCounter();
-
-        // Кнопка подтверждения неактивна, пока не выбрано достаточно
         _confirmButton.interactable = false;
     }
 
     private void CreateCards(List<ItemInstance> offer)
     {
-        // Удаляем старые карточки (если есть)
+        // Удаляем старые карточки
         foreach (var card in _cardViews)
         {
-            if (card != null && card.gameObject != null)
-                Destroy(card.gameObject);
+            if (card != null) Destroy(card.gameObject);
         }
         _cardViews.Clear();
 
-        int index = 0;
+        // Создаём новые
         foreach (var item in offer)
         {
             CardView card = Instantiate(_cardPrefab, _cardsContainer);
             card.Setup(item);
-
-            // Начальное состояние для анимации
-            card.transform.localScale = Vector3.zero;
-            // Добавляем обработчик клика для выбора/отмены выбора
             card.OnCardClick += OnCardClicked;
-
-            // Анимация появления с задержкой
-            card.transform.DOScale(Vector3.one, _cardAppearDuration)
-                .SetDelay(index * _cardAppearDelay)
-                .SetEase(Ease.OutBack, _cardBounceAmplitude);
-
             _cardViews.Add(card);
-            index++;
+        }
+
+        // Расставляем карточки
+        RearrangeCards();
+
+        // Анимация появления с задержкой
+        for (int i = 0; i < _cardViews.Count; i++)
+        {
+            var card = _cardViews[i];
+            card.transform.localScale = Vector3.zero;
+            card.transform.DOScale(Vector3.one, _cardAppearDuration)
+                .SetDelay(i * _cardAppearDelay)
+                .SetEase(Ease.OutBack, _cardBounceAmplitude);
+        }
+    }
+
+    private void RearrangeCards()
+    {
+        int count = _cardViews.Count;
+        if (count == 0) return;
+
+        float totalWidth = (count - 1) * _cardSpacing;
+        float startX = -totalWidth / 2f;
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector2 targetPos = new Vector2(startX + i * _cardSpacing, 0);
+            _cardViews[i].GetComponent<RectTransform>().anchoredPosition = targetPos;
         }
     }
 
@@ -143,23 +161,23 @@ public class CardDrawView : MonoBehaviour
     {
         if (_isProcessing) return;
 
-        // Если карточка уже выбрана — снимаем выбор
         if (_selectedCards.Contains(card))
         {
             _selectedCards.Remove(card);
             card.Deselect();
+            Debug.Log($"Card deselected, selected count: {_selectedCards.Count}");
         }
         else
         {
-            // Если достигнут лимит — нельзя выбрать больше
             if (_selectedCards.Count >= _maxSelectable)
             {
-                // Отрицательная обратная связь (встряхивание)
+                // Отрицательная обратная связь – встряхиваем карточку
                 card.transform.DOShakePosition(0.2f, 5f);
                 return;
             }
             _selectedCards.Add(card);
             card.Select();
+            Debug.Log($"Card selected, selected count: {_selectedCards.Count}");
         }
 
         UpdateSelectionCounter();
@@ -179,17 +197,14 @@ public class CardDrawView : MonoBehaviour
 
         _isProcessing = true;
 
-        // Собираем выбранные предметы
         List<ItemInstance> selectedItems = new List<ItemInstance>();
         foreach (var card in _selectedCards)
         {
             selectedItems.Add(card.Item);
         }
 
-        // Отправляем команду выбора
         CommandProcessor.Execute(new SelectCardsCommand { SelectedItems = selectedItems });
 
-        // Анимация закрытия
         _windowAnimator.SetTrigger("Close");
         DOVirtual.DelayedCall(0.5f, () =>
         {
@@ -201,16 +216,10 @@ public class CardDrawView : MonoBehaviour
     private void OnSkipClicked()
     {
         if (_isProcessing) return;
-
-        // Если пропуск разрешён — просто закрываем без выбора
         _windowAnimator.SetTrigger("Close");
-        DOVirtual.DelayedCall(0.5f, () =>
-        {
-            gameObject.SetActive(false);
-        });
+        DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
     }
 
-    // Метод для принудительного закрытия (например, если рука полна)
     public void ForceClose()
     {
         if (gameObject.activeSelf)

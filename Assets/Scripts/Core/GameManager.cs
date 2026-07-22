@@ -3,10 +3,12 @@ using Infrastructure;
 using Managers;
 using Systems;
 using Data;
+using Infrastructure.Events;
 
 /// <summary>
 /// Главный менеджер игры. Отвечает за инициализацию всех систем и управление состоянием игры.
 /// </summary>
+[DefaultExecutionOrder(-100)]
 public class GameManager : MonoBehaviour
 {
     [Header("Configs")]
@@ -19,20 +21,26 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log("GameManager Awake preSTART");
         if (_isInitialized) return;
 
-        // Регистрируем конфиг в ServiceLocator
-        ServiceLocator.Register(_gameConfig);
-
-        // Регистрируем все сервисы (менеджеры и системы)
-        RegisterServices();
-
-        // Инициализируем все сервисы
-        InitializeServices();
+        Debug.Log("GameManager Awake START");
 
         _isInitialized = true;
+        ServiceLocator.Register(_gameConfig);
+        RegisterServices();
+        InitializeServices();
 
-        // Запускаем игру (для прототипа сразу стартуем забег)
+       
+
+    }
+
+    private void Start()
+    {
+        // Публикуем событие, что сервисы готовы
+        EventBus.Publish(new ServicesInitializedEvent());
+        Debug.Log("ServicesInitializedEvent published");
+
         StartGame();
     }
 
@@ -41,6 +49,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void RegisterServices()
     {
+        Debug.Log("RegisterServices START");
+
         // Менеджеры (сервисы)
         var saveManager = new SaveManager();
         var runManager = new RunManager();
@@ -60,9 +70,7 @@ public class GameManager : MonoBehaviour
         var centrifugeSystem = new CentrifugeSystem();
         var cardDrawSystem = new CardDrawSystem();
         var journalSystem = new JournalSystem();
-        var notificationSystem = new NotificationSystem();
 
-        ServiceLocator.Register(notificationSystem);
         ServiceLocator.Register(propertyResolver);
         ServiceLocator.Register(runGeneration);
         ServiceLocator.Register(growthSystem);
@@ -72,6 +80,16 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Register(centrifugeSystem);
         ServiceLocator.Register(cardDrawSystem);
         ServiceLocator.Register(journalSystem);
+
+        var notificationSystem = FindAnyObjectByType<NotificationSystem>();
+        if (notificationSystem == null)
+        {
+            Debug.LogError("NotificationSystem not found in scene! Please add it to GameScene.");
+        }
+        else
+        {
+            ServiceLocator.Register(notificationSystem);
+        }
     }
 
     /// <summary>
@@ -79,6 +97,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void InitializeServices()
     {
+        Debug.Log("InitializeServices START");
         // Менеджеры
         ServiceLocator.Get<SaveManager>().Initialize();
         ServiceLocator.Get<RunManager>().Initialize();
@@ -104,29 +123,27 @@ public class GameManager : MonoBehaviour
     {
         if (IsNewGame)
         {
-            // Новая игра – запускаем новый забег с переданным seed или случайным
             int seed = NewGameSeed >= 0 ? NewGameSeed : Random.Range(0, int.MaxValue);
             ServiceLocator.Get<RunManager>().StartNewRun(seed);
-            IsNewGame = false; // сбрасываем флаг
+            IsNewGame = false;
             NewGameSeed = -1;
+            return;
         }
-        else
+
+        var saveManager = ServiceLocator.Get<SaveManager>();
+        if (await saveManager.HasSaveAsync())
         {
-            // Проверяем сохранение
-            var saveManager = ServiceLocator.Get<SaveManager>();
-            if (saveManager.HasSave)
+            bool loaded = await saveManager.LoadGameAsync();
+            if (loaded)
             {
-                bool loaded = await saveManager.LoadGameAsync();
-                if (loaded)
-                {
-                    Debug.Log("Game loaded successfully");
-                    return;
-                }
+                Debug.Log("Game loaded successfully");
+                return;
             }
-            // Если сохранения нет или загрузка не удалась – начинаем новый забег
-            int seed = Random.Range(0, int.MaxValue);
-            ServiceLocator.Get<RunManager>().StartNewRun(seed);
+            Debug.LogWarning("Failed to load save, starting new run.");
         }
+
+        int newSeed = Random.Range(0, int.MaxValue);
+        ServiceLocator.Get<RunManager>().StartNewRun(newSeed);
     }
 
     /// <summary>

@@ -16,12 +16,7 @@ namespace Systems
 
         public void Initialize()
         {
-            _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (_runData == null)
-            {
-                UnityEngine.Debug.LogError("RunData is null in CardDrawSystem!");
-                return;
-            }
+
 
             _config = ServiceLocator.Get<GameConfig>();
             _currentOffer = new List<ItemInstance>();

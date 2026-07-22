@@ -18,6 +18,18 @@ namespace Systems
 
         public void Initialize()
         {
+            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
+
+           
+        }
+
+        public void Dispose()
+        {
+            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
+        }
+
+        private void OnRunStarted(RunStartedEvent evt)
+        {
             _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
             if (_runData == null)
             {
@@ -26,11 +38,6 @@ namespace Systems
             }
 
             _hand = _runData.Hand;
-        }
-
-        public void Dispose()
-        {
-            // Нет подписок
         }
 
         /// <summary>

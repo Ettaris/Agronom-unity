@@ -40,6 +40,23 @@ public class GameOverView : MonoBehaviour
 
     private void Awake()
     {
+
+        _restartButton.onClick.AddListener(OnRestartClicked);
+        _mainMenuButton.onClick.AddListener(OnMainMenuClicked);
+
+        EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
+        EventBus.Subscribe<RunEndedEvent>(OnRunEnded);
+        EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
+
+    }
+
+    private void OnServicesInitialized(ServicesInitializedEvent evt)
+    {
+
+    }
+
+    private void OnRunStarted(RunStartedEvent evt)
+    {
         _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
         if (_runData == null)
         {
@@ -48,12 +65,6 @@ public class GameOverView : MonoBehaviour
         }
 
         _journalSystem = ServiceLocator.Get<JournalSystem>();
-
-        _restartButton.onClick.AddListener(OnRestartClicked);
-        _mainMenuButton.onClick.AddListener(OnMainMenuClicked);
-
-        EventBus.Subscribe<RunEndedEvent>(OnRunEnded);
-
         gameObject.SetActive(false);
     }
 

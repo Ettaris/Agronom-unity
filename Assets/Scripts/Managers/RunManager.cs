@@ -1,6 +1,7 @@
 using Gameplay;
 using Infrastructure;
 using Infrastructure.Events;
+using UnityEngine;
 
 namespace Managers
 {
@@ -48,8 +49,8 @@ namespace Managers
         {
             CurrentRunData = evt.RunData;
             _isRunActive = true;
+            Debug.Log("OnRunStarted runManager");
             // Можно также инициализировать первый день
-            EventBus.Publish(new DayStartedEvent { DayNumber = 1 });
         }
 
         private void OnRunEnded(RunEndedEvent evt)
