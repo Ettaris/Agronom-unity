@@ -4,6 +4,7 @@ using Gameplay;
 using Infrastructure;
 using Infrastructure.Events;
 using Managers;
+using UnityEngine;
 
 namespace Systems
 {
@@ -13,16 +14,13 @@ namespace Systems
         private GameConfig _config;
         private List<ItemInstance> _currentOffer;
         private int _cardsToSelect;
+        private PropertyResolverSystem _propertyResolver;
+        private GenomePool _genomePool;
+        private int _maxPropertiesPerPlant;
 
         public void Initialize()
         {
 
-
-            _config = ServiceLocator.Get<GameConfig>();
-            _currentOffer = new List<ItemInstance>();
-            _cardsToSelect = _config.cardsToSelect;
-
-            // Подписка на события
             EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<DayStartedEvent>(OnDayStarted);
         }
@@ -34,10 +32,9 @@ namespace Systems
             _currentOffer.Clear();
         }
 
-        public IReadOnlyList<ItemInstance> GetCurrentOffer()
-        {
-            return _currentOffer.AsReadOnly();
-        }
+        public IReadOnlyList<ItemInstance> GetCurrentOffer() => _currentOffer.AsReadOnly();
+
+        public int GetMaxSelectable() => _cardsToSelect;
 
         public bool SelectCards(List<ItemInstance> selected)
         {
@@ -77,85 +74,140 @@ namespace Systems
         {
             _currentOffer.Clear();
 
+            var offerConfig = _config.offerGenerationConfig;
+            var rarityConfig = _config.plantRarityConfig;
+            var rarityPool = _config.plantRarityPool;
+
+            if (offerConfig == null || rarityConfig == null || rarityPool == null)
+            {
+                UnityEngine.Debug.LogError("CardDrawSystem: OfferGenerationConfig, PlantRarityConfig, or PlantRarityPool is null!");
+                return;
+            }
+
+            int totalSlots = offerConfig.cardsPerDay;
+            int guaranteed = offerConfig.guaranteedPlants;
+            int remaining = totalSlots - guaranteed;
+
             var random = _runData.Random;
-            int totalCards = _config.cardsPerDay;
-            int plantCount = totalCards / 2;
-            int fermentCount = totalCards / 3;
-            int batteryCount = totalCards - plantCount - fermentCount;
 
-            var plantPool = _config.plantPool;
-            var fermentPool = _config.fermentPool;
-            var batteryPool = _config.batteryPool;
-
-            // Растения
-            if (plantPool != null && plantPool.plants.Count > 0)
+            for (int i = 0; i < guaranteed; i++)
             {
-                for (int i = 0; i < plantCount; i++)
-                {
-                    int index = random.NextInt(0, plantPool.plants.Count);
-                    var plantData = plantPool.plants[index];
-                    int maxCap = plantData.maxGenomeCapacity > 0 ? plantData.maxGenomeCapacity : _config.defaultMaxGenomeCapacity;
-                    var plant = new PlantInstance(plantData, maxCap);
+                var plant = GenerateRandomPlant(random, rarityConfig, rarityPool);
+                if (plant != null)
                     _currentOffer.Add(plant);
-                }
             }
 
-            // Ферменты
-            if (fermentPool != null && fermentPool.ferments.Count > 0)
+            int[] typeWeights = new int[] {
+                offerConfig.plantWeight,
+                offerConfig.fermentWeight,
+                offerConfig.batteryWeight
+            };
+
+            for (int i = 0; i < remaining; i++)
             {
-                for (int i = 0; i < fermentCount; i++)
+                int typeIndex = WeightedRandom.ChooseIndex(typeWeights, random);
+                ItemInstance item = null;
+
+                switch (typeIndex)
                 {
-                    int index = random.NextInt(0, fermentPool.ferments.Count);
-                    var ferment = new ItemInstance(fermentPool.ferments[index]);
-                    _currentOffer.Add(ferment);
+                    case 0: // Plant
+                        item = GenerateRandomPlant(random, rarityConfig, rarityPool);
+                        break;
+                    case 1: // Ferment
+                        var fermentPool = _config.fermentPool;
+                        if (fermentPool != null && fermentPool.ferments.Count > 0)
+                        {
+                            int idx = random.NextInt(fermentPool.ferments.Count);
+                            item = new ItemInstance(fermentPool.ferments[idx]);
+                        }
+                        break;
+                    case 2: // Battery
+                        var batteryPool = _config.batteryPool;
+                        if (batteryPool != null && batteryPool.batteries.Count > 0)
+                        {
+                            int idx = random.NextInt(batteryPool.batteries.Count);
+                            item = new ItemInstance(batteryPool.batteries[idx]);
+                        }
+                        break;
                 }
+
+                if (item != null)
+                    _currentOffer.Add(item);
             }
 
-            // Батарейки
-            if (batteryPool != null && batteryPool.batteries.Count > 0)
-            {
-                for (int i = 0; i < batteryCount; i++)
-                {
-                    int index = random.NextInt(0, batteryPool.batteries.Count);
-                    var battery = new ItemInstance(batteryPool.batteries[index]);
-                    _currentOffer.Add(battery);
-                }
-            }
-
-            // Перемешиваем
+            // Перемешивание
             for (int i = _currentOffer.Count - 1; i > 0; i--)
             {
-                int j = random.NextInt(0, i + 1);
+                int j = random.NextInt(i + 1);
                 var temp = _currentOffer[i];
                 _currentOffer[i] = _currentOffer[j];
                 _currentOffer[j] = temp;
             }
 
-            // Публикуем событие для UI
             EventBus.Publish(new OfferGeneratedEvent
             {
                 Offer = _currentOffer,
-                MaxSelectable = _cardsToSelect
+                MaxSelectable = offerConfig.selectableCards
             });
+        }
+
+        private PlantInstance GenerateRandomPlant(SeedGenerator random, PlantRarityConfig rarityConfig, PlantRarityPool rarityPool)
+        {
+            int[] rarityWeights = new int[] { rarityConfig.commonWeight, rarityConfig.uncommonWeight, rarityConfig.rareWeight, rarityConfig.epicWeight, rarityConfig.legendaryWeight };
+            int rarityIndex = WeightedRandom.ChooseIndex(rarityWeights, random);
+
+            List<PlantData> plantList = null;
+            switch (rarityIndex)
+            {
+                case 0: plantList = rarityPool.commonPlants; break;
+                case 1: plantList = rarityPool.uncommonPlants; break;
+                case 2: plantList = rarityPool.rarePlants; break;
+                case 3: plantList = rarityPool.epicPlants; break;
+                case 4: plantList = rarityPool.legendaryPlants; break;
+            }
+
+            if (plantList == null || plantList.Count == 0)
+            {
+                Debug.LogWarning($"No plants of rarity index {rarityIndex} in pool.");
+                return null;
+            }
+
+            int plantIdx = random.NextInt(plantList.Count);
+            var plantData = plantList[plantIdx];
+
+            // Используем фабрику
+            return PlantFactory.CreatePlantWithProperties(plantData, random, _genomePool, _maxPropertiesPerPlant);
         }
 
         private void OnRunStarted(RunStartedEvent evt)
         {
             _runData = evt.RunData;
-            // Генерируем предложение только для нового забега (не для загрузки)
-            if (!evt.IsLoaded)
+            if (_runData == null)
             {
-                GenerateOffer();
+                UnityEngine.Debug.LogError("RunData is null in CardDrawSystem!");
+                return;
             }
+
+            _config = ServiceLocator.Get<GameConfig>();
+            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
+            _genomePool = _config.genomePool;
+            _maxPropertiesPerPlant = _config.maxPropertiesPerPlant;
+
+            _currentOffer = new List<ItemInstance>();
+
+            if (_config.offerGenerationConfig != null)
+                _cardsToSelect = _config.offerGenerationConfig.selectableCards;
+            else
+                _cardsToSelect = 2;
+
+            if (!evt.IsLoaded)
+                GenerateOffer();
         }
 
         private void OnDayStarted(DayStartedEvent evt)
         {
-            // Генерируем для дней после первого (чтобы не дублировать)
             if (evt.DayNumber > 1)
-            {
                 GenerateOffer();
-            }
         }
     }
 }

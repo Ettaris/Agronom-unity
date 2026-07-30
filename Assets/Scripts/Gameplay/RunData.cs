@@ -17,8 +17,11 @@ namespace Gameplay
         public JournalData Journal { get; set; }
         public int TotalCaloriesGoal { get; set; }
         public bool IsTotalGoalReached { get; set; }
+        public int CurrentStageIndex { get; set; }
+        public int StageStartDay { get; set; }
+        public StageData[] Stages { get; set; }
 
-        public RunData(int seed, int boardWidth, int boardHeight, int handMaxSize, int dailyQuota, JournalData journal)
+        public RunData(int seed, int boardWidth, int boardHeight, int handMaxSize, JournalData journal)
         {
             Seed = seed;
             Random = new SeedGenerator(seed);
@@ -27,9 +30,17 @@ namespace Gameplay
             Deck = new Deck();
             Inventory = new PlayerInventory();
             CurrentDay = 0;
-            DailyQuota = dailyQuota;
             IsQuotaReached = false;
             Journal = journal;
         }
+
+        public StageData GetCurrentStage()
+        {
+            if (Stages == null || CurrentStageIndex >= Stages.Length)
+                return default;
+            return Stages[CurrentStageIndex];
+        }
+
+        public bool IsAllStagesCompleted => CurrentStageIndex >= Stages.Length;
     }
 }

@@ -23,4 +23,5 @@ MonoBehaviour:
   maxGenomeCapacity: 60
   growthSprites:
   - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
+  - {fileID: -8918940840976848179, guid: 466b1b514fca7eb4db7fd0971be7a37a, type: 3}
   mutationStages: []

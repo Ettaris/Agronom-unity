@@ -142,15 +142,41 @@ public class BoardView : MonoBehaviour
     }
 
     // Методы ввода (вызываются из BoardCellView)
-    public void OnCellPointerDown(int x, int y)
+    public void OnCellPointerDown(int x, int y, PointerEventData eventData)
     {
+        // Правый клик – открыть отладку
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            var cell = _board.GetCell(x, y);
+            if (cell != null && cell.Plant != null)
+            {
+                OpenDebugInfo(cell.Plant);
+                return;
+            }
+        }
+
+        // Левый клик – посадка/сбор
+        if (eventData.button != PointerEventData.InputButton.Left) return; // только ЛКМ
         _isPointerDown = true;
         _lastHarvestedCell = new Vector2Int(-1, -1);
         TryPlantOrHarvest(x, y);
     }
 
-    public void OnCellPointerUp(int x, int y)
+    //TODO: delete after debug.
+    private void OpenDebugInfo(PlantInstance plant)
     {
+        var debugView = FindAnyObjectByType<DebugPlantInfoView>(FindObjectsInactive.Include);
+        if (debugView == null)
+        {
+            Debug.LogWarning("DebugPlantInfoView not found in scene!");
+            return;
+        }
+        debugView.ShowInfo(plant);
+    }
+
+    public void OnCellPointerUp(int x, int y, PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left) return;
         _isPointerDown = false;
         _lastHarvestedCell = new Vector2Int(-1, -1);
     }
@@ -159,6 +185,7 @@ public class BoardView : MonoBehaviour
     {
         if (_isPointerDown)
         {
+            // Если кнопка зажата – пытаемся собрать
             if (Time.time - _lastHarvestTime >= _harvestCooldown)
             {
                 TryHarvest(x, y);
@@ -166,16 +193,15 @@ public class BoardView : MonoBehaviour
         }
         else
         {
+            // Без зажатия – просто подсветка
             HighlightCell(x, y, true);
         }
     }
 
     public void OnCellPointerExit(int x, int y)
     {
-        if (!_isPointerDown)
-        {
-            HighlightCell(x, y, false);
-        }
+        // Всегда снимаем хайлайт при выходе с клетки
+        HighlightCell(x, y, false);
     }
 
     private void TryPlantOrHarvest(int x, int y)

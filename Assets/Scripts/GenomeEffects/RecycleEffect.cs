@@ -13,11 +13,17 @@ namespace GenomeEffects
 
         public int ModifyHarvest(PlantInstance plant, int baseCalories, GridBoard board)
         {
-            // Добавляем семя в руку
-            var seed = new ItemInstance(plant.PlantData);
-            var hand = ServiceLocator.Get<RunManager>().CurrentRunData.Hand;
-            hand.Add(seed);
+            var runData = ServiceLocator.Get<RunManager>().CurrentRunData;
+            if (runData == null) return baseCalories;
+
+            // Создаём новое растение (семя) с такой же максимальной ёмкостью генома, но без свойств
+            var seed = new PlantInstance(plant.PlantData, plant.Genome.MaxCapacity);
+            // (свойства не копируются)
+
+            // Добавляем в руку
+            runData.Hand.Add(seed);
             EventBus.Publish(new HandUpdatedEvent());
+
             return baseCalories;
         }
     }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Garlic
   m_EditorClassIdentifier: Assembly-CSharp::Data.PlantData
   _id: 
-  itemName: 
+  itemName: "\u0413\u0410\u0420\u041B\u0418\u041A(\u0421\u043E\u0440\u043D\u044F\u043A)"
   description: 
   icon: {fileID: 1621897230939363492, guid: 590181b6ffe7a85428de8be5a8bfd772, type: 3}
   rarity: 0

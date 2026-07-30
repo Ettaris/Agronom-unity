@@ -58,12 +58,13 @@ public class BoardCellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
         _currentPlant = plant;
         if (plant != null)
         {
-            _plantImage.sprite = plant.PlantData.icon;
-            _plantImage.gameObject.SetActive(true);
+            _mutationView.Initialize(plant);
+            _plantImage.gameObject.SetActive(true); // гарантия
             UpdateGrowthText();
         }
         else
         {
+            _plantImage.sprite = null;
             _plantImage.gameObject.SetActive(false);
             _growthText.text = "";
         }
@@ -99,7 +100,8 @@ public class BoardCellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     public void PlayHarvestAnimation()
     {
         // Анимация сбора: исчезновение, частицы (можно через DOTween)
-        _plantImage.transform.DOScale(Vector3.zero, 0.2f).OnComplete(() => {
+        _plantImage.transform.DOScale(Vector3.zero, 0.2f).OnComplete(() =>
+        {
             _plantImage.gameObject.SetActive(false);
         });
         // Также можно сделать вспышку или движение вверх
@@ -118,14 +120,12 @@ public class BoardCellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     // Обработка ввода (передаём в BoardView)
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left)
-            _boardView.OnCellPointerDown(_x, _y);
+        _boardView.OnCellPointerDown(_x, _y, eventData);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left)
-            _boardView.OnCellPointerUp(_x, _y);
+        _boardView.OnCellPointerUp(_x, _y, eventData);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

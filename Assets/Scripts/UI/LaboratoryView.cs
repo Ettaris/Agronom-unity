@@ -33,10 +33,9 @@ public class LaboratoryView : MonoBehaviour
     private PlantInstance _plantB;
     private bool _isCentrifugeMode;
 
-    private void Awake()
+    private void Start()
     {
-        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-        if (_runData == null) Debug.LogError("LaboratoryView: RunData is null");
+
 
         // Подписка на события (только когда окно открыто)
         EventBus.Subscribe<CardSelectedEvent>(OnCardSelected);
@@ -65,6 +64,8 @@ public class LaboratoryView : MonoBehaviour
 
     public void OpenLab()
     {
+        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
+        if (_runData == null) Debug.LogError("LaboratoryView: RunData is null");
         gameObject.SetActive(true);
         _labAnimator.SetTrigger("Open");
         ClearSlots();

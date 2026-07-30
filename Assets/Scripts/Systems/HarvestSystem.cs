@@ -41,43 +41,39 @@ namespace Systems
         /// <returns>Количество собранных калорий, или -1 если растение не найдено или незрелое.</returns>
         public int HarvestPlantAt(int x, int y)
         {
+            if (_runData == null || _propertyResolver == null || _scoreSystem == null) return -1;
+
             var cell = _runData.Board.GetCell(x, y);
-            if (cell == null || cell.Plant == null)
-                return -1;
+            if (cell == null || cell.Plant == null || !cell.Plant.IsGrown) return -1;
 
             var plant = cell.Plant;
-            if (!plant.IsGrown)
-                return -1;
-
-            // Базовые калории
             int baseCalories = plant.PlantData.baseCalories;
 
-            // 1. Модификация от соседей (например, Generosity)
+            // 1. Модификация от соседей (Generosity и т.п.)
             int modifiedCalories = _propertyResolver.ModifyHarvestByNeighbors(plant, baseCalories);
 
-            // Модифицируем через свойства (без публикации события)
+            // 2. Модификация от собственных свойств
             modifiedCalories = _propertyResolver.ModifyHarvest(plant, modifiedCalories);
 
-            // Удаляем растение с поля
-            ServiceLocator.Get<PropertyResolverSystem>().UnregisterPlant(plant);
+            // 3. Удаляем растение с поля
             _runData.Board.RemovePlant(x, y);
             plant.CurrentCell = null;
 
-            var resolver = ServiceLocator.Get<PropertyResolverSystem>();
-            resolver.OnPlantDestroyed(plant, x, y);
+            // 4. Вызываем эффекты уничтожения (Fruiting, RandomFruiting и т.д.)
+            //    Это должно происходить до UnregisterPlant, чтобы свойства были доступны
+            _propertyResolver.OnPlantDestroyed(plant, x, y);
 
-            // Обновляем общий счёт
+            // 5. Публикуем событие уничтожения (для других систем)
+            EventBus.Publish(new PlantKilledEvent { Plant = plant, X = x, Y = y, Reason = "Harvested" });
+
+            // 6. Удаляем все свойства растения из кэша PropertyResolverSystem
+            _propertyResolver.UnregisterPlant(plant);
+
+            // 7. Обновляем счёт
             _scoreSystem.AddCalories(modifiedCalories);
 
-            // Публикуем событие о сборе конкретного растения (для UI и эффектов)
-            EventBus.Publish(new PlantHarvestedEvent
-            {
-                Plant = plant,
-                X = x,
-                Y = y,
-                CaloriesGained = modifiedCalories
-            });
-
+            // 8. Публикуем событие сбора (для UI)
+            EventBus.Publish(new PlantHarvestedEvent { Plant = plant, X = x, Y = y, CaloriesGained = modifiedCalories });
             return modifiedCalories;
         }
     }

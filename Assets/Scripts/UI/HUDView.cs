@@ -1,18 +1,21 @@
 using UnityEngine;
-using TMPro; // TextMeshPro
+using TMPro;
+using UnityEngine.UI;
+using DG.Tweening;
 using Infrastructure;
 using Infrastructure.Events;
 using Commands;
-using System.Collections;
+using Gameplay;
 
 public class HUDView : MonoBehaviour
 {
     [Header("UI References (TextMeshPro)")]
-    [SerializeField] private TextMeshProUGUI _dayText;
-    [SerializeField] private TextMeshProUGUI _caloriesText;
-    [SerializeField] private TextMeshProUGUI _quotaText;
-    [SerializeField] private GameObject _quotaReachedIndicator;
-    [SerializeField] private UnityEngine.UI.Button _endDayButton;
+    [SerializeField] private TMP_Text _dayText;
+    [SerializeField] private TMP_Text _caloriesText;
+    [SerializeField] private TMP_Text _stageText; // опционально
+    [SerializeField] private Slider _stageProgressSlider; // опционально
+    [SerializeField] private Button _endDayButton;
+    [SerializeField] private Button _labButton;
 
     [Header("Animator")]
     [SerializeField] private Animator _hudAnimator;
@@ -20,103 +23,173 @@ public class HUDView : MonoBehaviour
     [Header("Animation Settings")]
     [SerializeField] private float _numberChangeDuration = 0.5f;
 
+    private RunData _runData;
+    private int _currentDayInStage;
+    private int _totalDaysInStage;
+    private int _requiredCalories;
     private int _currentCalories;
-    private int _currentDay;
-    private int _dailyQuota;
     private Coroutine _caloriesCoroutine;
-    private Coroutine _dayCoroutine;
 
-    private void Start()
+    private void Awake()
     {
-        // Подписка на события
+        EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
         EventBus.Subscribe<DayStartedEvent>(OnDayStarted);
         EventBus.Subscribe<ScoreChangedEvent>(OnScoreChanged);
-        EventBus.Subscribe<QuotaReachedEvent>(OnQuotaReached);
-        EventBus.Subscribe<DayLoadedEvent>(OnDayLoaded);      // НОВОЕ
-        EventBus.Subscribe<RunLoadedEvent>(OnRunLoaded);      // НОВОЕ
+        EventBus.Subscribe<StageChangedEvent>(OnStageChanged);
 
-        // Кнопка завершения дня
         _endDayButton.onClick.AddListener(OnEndDayButtonClicked);
+        _labButton.onClick.AddListener(OnLabButtonClicked);
 
-        // Инициализация значений
-        _dayText.text = "Day 0";
-        _caloriesText.text = "0";
-        _quotaText.text = "0";
-        _quotaReachedIndicator.SetActive(false);
+        // Инициализация текстов
+        _dayText.text = "0/0";
+        _caloriesText.text = "0/0";
+        if (_stageText != null) _stageText.text = "";
+        if (_stageProgressSlider != null) _stageProgressSlider.value = 0;
     }
 
     private void OnDestroy()
     {
+        EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
         EventBus.Unsubscribe<DayStartedEvent>(OnDayStarted);
-        EventBus.Unsubscribe<DayLoadedEvent>(OnDayLoaded);
-        EventBus.Unsubscribe<RunLoadedEvent>(OnRunLoaded);
         EventBus.Unsubscribe<ScoreChangedEvent>(OnScoreChanged);
-        EventBus.Unsubscribe<QuotaReachedEvent>(OnQuotaReached);
+        EventBus.Unsubscribe<StageChangedEvent>(OnStageChanged);
+        _labButton.onClick.RemoveListener(OnLabButtonClicked);
+    }
+
+    private void OnLabButtonClicked()
+    {
+        var labView = ServiceLocator.TryGet<LaboratoryView>(out var lab) ? lab : null;
+        if (labView == null)
+        {
+            // Если не зарегистрирован, пробуем найти на сцене
+            labView = FindAnyObjectByType<LaboratoryView>(FindObjectsInactive.Include);
+            if (labView != null)
+            {
+                ServiceLocator.Register(labView);
+            }
+            else
+            {
+                Debug.LogError("LaboratoryView not found in scene!");
+                return;
+            }
+        }
+
+        if (labView.gameObject.activeInHierarchy)
+        {
+            labView.CloseLab();
+        }
+        else
+        {
+            labView.OpenLab();
+        }
+    }
+
+    private void OnRunStarted(RunStartedEvent evt)
+    {
+        _runData = evt.RunData;
+        Debug.Log(_runData);
+        Debug.Log(_runData.Stages[0].totalDays);
+        Debug.Log(_runData.Stages[1].totalDays);
+        Debug.Log(_runData.Stages[1].requiredCalories);
+        UpdateHUD(instant: true);
     }
 
     private void OnDayStarted(DayStartedEvent evt)
     {
-        Debug.Log("HUDView OnDayStarted");
-        _currentDay = evt.DayNumber;
-        if (_dayCoroutine != null) StopCoroutine(_dayCoroutine);
-        _dayCoroutine = StartCoroutine(AnimateNumberChange(_dayText, _currentDay, _numberChangeDuration));
+        if (_runData == null) return;
+        UpdateHUD(instant: true);
         _hudAnimator.SetTrigger("DayChanged");
     }
 
     private void OnScoreChanged(ScoreChangedEvent evt)
     {
+        Debug.Log("score changed HUD");
+        if (_runData == null) return;
         _currentCalories = evt.CurrentCalories;
-        _dailyQuota = evt.DailyQuota;
+        AnimateCalories(_currentCalories);
+        UpdateStageProgress();
+    }
+
+    private void OnStageChanged(StageChangedEvent evt)
+    {
+        Debug.Log("stage changed HUD");
+        if (_runData == null) return;
+        UpdateHUD(instant: true);
+        _hudAnimator.SetTrigger("StageChanged");
+    }
+
+    private void UpdateHUD(bool instant = false)
+    {
+        if (_runData == null)
+        {
+            Debug.LogWarning("HUDView: _runData is null, cannot update HUD.");
+            return;
+        }
+
+        var stage = _runData.GetCurrentStage();
+        if (_runData.Stages == null || _runData.Stages.Length == 0)
+        {
+            _dayText.text = "--/--";
+            _caloriesText.text = "--/--";
+            if (_stageText != null) _stageText.text = "No stages";
+            if (_stageProgressSlider != null) _stageProgressSlider.value = 0;
+            return;
+        }
+
+        if (stage.totalDays == 0)
+        {
+            Debug.LogWarning("HUDView: totalDays is 0, skipping update.");
+            return;
+        }
+
+        // Количество завершённых дней = текущий день - 1 (в начале игры 0 завершённых дней)
+        int completedDays = _runData.CurrentDay;
+        int totalDays = stage.totalDays; // нарастающий итог
+
+        _requiredCalories = stage.requiredCalories;
+        _currentCalories = _runData.Inventory.Calories;
+
+        Debug.Log($"HUDView: completedDays={completedDays}, totalDays={totalDays}, calories={_currentCalories}/{_requiredCalories}");
+
+        if (instant)
+        {
+            _dayText.text = $"{completedDays}/{totalDays}";
+            _caloriesText.text = $"{_currentCalories}/{_requiredCalories}";
+            UpdateStageProgress();
+        }
+        else
+        {
+            _dayText.text = $"{completedDays}/{totalDays}";
+            AnimateCalories(_currentCalories);
+        }
+
+        if (_stageText != null)
+            _stageText.text = $"Этап {_runData.CurrentStageIndex + 1}";
+    }
+
+    private void UpdateStageProgress()
+    {
+        if (_stageProgressSlider != null)
+        {
+            float progress = _requiredCalories > 0 ? (float)_currentCalories / _requiredCalories : 0;
+            _stageProgressSlider.value = Mathf.Clamp01(progress);
+        }
+    }
+
+    private void AnimateCalories(int targetCalories)
+    {
         if (_caloriesCoroutine != null) StopCoroutine(_caloriesCoroutine);
-        _caloriesCoroutine = StartCoroutine(AnimateNumberChange(_caloriesText, _currentCalories, _numberChangeDuration));
-        _quotaText.text = _dailyQuota.ToString();
-        _hudAnimator.SetTrigger("CaloriesUpdated");
+        _caloriesCoroutine = StartCoroutine(AnimateNumberChange(_caloriesText, targetCalories, _numberChangeDuration));
     }
 
-    private void OnQuotaReached(QuotaReachedEvent evt)
+    private System.Collections.IEnumerator AnimateNumberChange(TMP_Text textComponent, int targetValue, float duration)
     {
-        _quotaReachedIndicator.SetActive(true);
-        _hudAnimator.SetTrigger("QuotaReached");
-    }
-
-    private void OnDayLoaded(DayLoadedEvent evt)
-    {
-        _currentDay = evt.DayNumber;
-        if (_dayCoroutine != null) StopCoroutine(_dayCoroutine);
-        _dayCoroutine = StartCoroutine(AnimateNumberChange(_dayText, _currentDay, _numberChangeDuration));
-        _hudAnimator.SetTrigger("DayChanged");
-    }
-
-    // Обработчик загрузки забега (восстанавливаем все значения)
-    private void OnRunLoaded(RunLoadedEvent evt)
-    {
-        var runData = evt.RunData;
-        _currentDay = runData.CurrentDay;
-        _currentCalories = runData.Inventory.Calories;
-        _dailyQuota = runData.DailyQuota;
-
-        _dayText.text = _currentDay.ToString();
-        _caloriesText.text = _currentCalories.ToString();
-        _quotaText.text = _dailyQuota.ToString();
-        _quotaReachedIndicator.SetActive(runData.IsQuotaReached);
-
-        // Можно также запустить анимацию обновления
-        _hudAnimator.SetTrigger("CaloriesUpdated");
-        _hudAnimator.SetTrigger("DayChanged");
-    }
-
-    private void OnEndDayButtonClicked()
-    {
-        Debug.Log("EndDayButtonPressed");
-        CommandProcessor.Execute(new EndDayCommand());
-        _hudAnimator.SetTrigger("EndDayPressed");
-    }
-
-    private IEnumerator AnimateNumberChange(TMP_Text textComponent, int targetValue, float duration)
-    {
-        int startValue;
-        if (!int.TryParse(textComponent.text, out startValue))
-            startValue = 0;
+        int startValue = 0;
+        if (textComponent.text.Contains("/"))
+        {
+            string[] parts = textComponent.text.Split('/');
+            int.TryParse(parts[0], out startValue);
+        }
 
         float elapsed = 0f;
         while (elapsed < duration)
@@ -125,20 +198,24 @@ public class HUDView : MonoBehaviour
             float t = elapsed / duration;
             float smoothT = t * t * (3f - 2f * t);
             int currentValue = Mathf.RoundToInt(Mathf.Lerp(startValue, targetValue, smoothT));
-            textComponent.text = currentValue.ToString();
+            textComponent.text = $"{currentValue}/{_requiredCalories}";
             yield return null;
         }
-        textComponent.text = targetValue.ToString();
+        textComponent.text = $"{targetValue}/{_requiredCalories}";
+        _caloriesCoroutine = null;
     }
 
-    public void SetInitialValues(int day, int calories, int quota)
+    private void OnEndDayButtonClicked()
     {
-        _currentDay = day;
-        _currentCalories = calories;
-        _dailyQuota = quota;
-        _dayText.text = day.ToString();
-        _caloriesText.text = calories.ToString();
-        _quotaText.text = quota.ToString();
-        _quotaReachedIndicator.SetActive(false);
+        CommandProcessor.Execute(new EndDayCommand());
+        _hudAnimator.SetTrigger("EndDayPressed");
+    }
+
+    // Метод для принудительной установки (можно использовать при загрузке)
+    public void SetInitialValues(int day, int calories, int totalDays, int requiredCalories)
+    {
+        _dayText.text = $"{day}/{totalDays}";
+        _caloriesText.text = $"{calories}/{requiredCalories}";
+        UpdateStageProgress();
     }
 }

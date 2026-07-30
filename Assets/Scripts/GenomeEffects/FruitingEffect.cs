@@ -3,6 +3,9 @@ using Properties.Interfaces;
 using Infrastructure;
 using Data;
 using Systems;
+using UnityEngine;
+using Infrastructure.Events;
+using Managers;
 
 namespace GenomeEffects
 {
@@ -12,12 +15,20 @@ namespace GenomeEffects
 
         public void OnDestroyed(PlantInstance plant, int x, int y, GridBoard board)
         {
-            // Оставляем росток на том же месте
-            var sprout = new PlantInstance(plant.PlantData, plant.Genome.MaxCapacity);
+            var config = ServiceLocator.Get<GameConfig>();
+            var random = ServiceLocator.Get<RunManager>().CurrentRunData.Random;
+            var genomePool = config.genomePool;
+            var maxProperties = config.maxPropertiesPerPlant;
+
+            var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, random, genomePool, maxProperties);
+
+
             if (board.PlacePlant(sprout, x, y))
             {
                 sprout.CurrentCell = board.GetCell(x, y);
-                ServiceLocator.Get<PropertyResolverSystem>().RegisterPlant(sprout);
+                var resolver = ServiceLocator.Get<PropertyResolverSystem>();
+                resolver.RegisterPlant(sprout);
+                EventBus.Publish(new PlantPlacedEvent { Plant = sprout, X = x, Y = y });
             }
         }
     }

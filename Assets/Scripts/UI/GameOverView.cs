@@ -15,11 +15,9 @@ public class GameOverView : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TMP_Text _dayText;
-    [SerializeField] private TMP_Text _resultText;
     [SerializeField] private TMP_Text _caloriesText;
     [SerializeField] private TMP_Text _propertiesText;
-    [SerializeField] private TMP_Text _plantsPlantedText;
-    [SerializeField] private TMP_Text _plantsHarvestedText;
+    [SerializeField] private TMP_Text _resultText;
     [SerializeField] private Transform _statsContainer;
     [SerializeField] private GameObject _statEntryPrefab;
 
@@ -40,47 +38,48 @@ public class GameOverView : MonoBehaviour
 
     private void Awake()
     {
-
+        _journalSystem = ServiceLocator.Get<JournalSystem>();
         _restartButton.onClick.AddListener(OnRestartClicked);
         _mainMenuButton.onClick.AddListener(OnMainMenuClicked);
 
-        EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
         EventBus.Subscribe<RunEndedEvent>(OnRunEnded);
-        EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
+        EventBus.Subscribe<StageFailedEvent>(OnStageFailed);
+        EventBus.Subscribe<GameWinEvent>(OnGameWin);
 
-    }
-
-    private void OnServicesInitialized(ServicesInitializedEvent evt)
-    {
-
-    }
-
-    private void OnRunStarted(RunStartedEvent evt)
-    {
-        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-        if (_runData == null)
-        {
-            Debug.LogError("GameOverView: RunData is null!");
-            return;
-        }
-
-        _journalSystem = ServiceLocator.Get<JournalSystem>();
         gameObject.SetActive(false);
     }
 
     private void OnDestroy()
     {
         EventBus.Unsubscribe<RunEndedEvent>(OnRunEnded);
+        EventBus.Unsubscribe<StageFailedEvent>(OnStageFailed);
+        EventBus.Unsubscribe<GameWinEvent>(OnGameWin);
         _restartButton.onClick.RemoveAllListeners();
         _mainMenuButton.onClick.RemoveAllListeners();
     }
 
     private void OnRunEnded(RunEndedEvent evt)
     {
-        ShowResults(evt.FinalRunData, evt.IsWin);
+        _runData = evt.FinalRunData;
+        ShowResults(_runData, evt.IsWin ? "Победа!" : "Поражение!");
     }
 
-    public void ShowResults(RunData runData, bool isWin)
+    private void OnStageFailed(StageFailedEvent evt)
+    {
+        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
+        string message = $"Не удалось набрать {evt.RequiredCalories} калорий\nСобрано: {evt.CurrentCalories}";
+        ShowResults(_runData, message);
+        _resultText.color = Color.red;
+    }
+
+    private void OnGameWin(GameWinEvent evt)
+    {
+        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
+        ShowResults(_runData, "Победа! Вы прошли все этапы!");
+        _resultText.color = Color.green;
+    }
+
+    public void ShowResults(RunData runData, string resultMessage)
     {
         if (runData == null)
         {
@@ -91,41 +90,29 @@ public class GameOverView : MonoBehaviour
         gameObject.SetActive(true);
         _gameOverAnimator.SetTrigger("Open");
 
-        // Собираем статистику
         int daysSurvived = runData.CurrentDay;
         int totalCalories = runData.Inventory.Calories;
         int discoveredProperties = _journalSystem.GetJournal().GetAllEntries().Count;
 
-        // Подсчёт посаженных/собранных растений можно вести в RunData, но пока нет
-        // Добавим заглушки (можно расширить RunData позже)
+        // Заглушки (можно расширить RunData позже)
         int plantsPlanted = 0;
         int plantsHarvested = 0;
 
-        // Заполняем тексты
         _dayText.text = "0";
         _caloriesText.text = "0";
         _propertiesText.text = "0";
-        _plantsPlantedText.text = "0";
-        _plantsHarvestedText.text = "0";
 
-        _resultText.text = isWin ? "Победа!" : "Поражение!";
-        _resultText.color = isWin ? Color.green : Color.red;
+        _resultText.text = resultMessage;
+        _resultText.color = Color.white; // будет переопределён в обработчиках
 
-        // Анимируем числа (каждое с небольшой задержкой)
         AnimateNumber(_dayText, daysSurvived, 0f);
         AnimateNumber(_caloriesText, totalCalories, 0.2f);
         AnimateNumber(_propertiesText, discoveredProperties, 0.4f);
-        AnimateNumber(_plantsPlantedText, plantsPlanted, 0.6f);
-        AnimateNumber(_plantsHarvestedText, plantsHarvested, 0.8f);
 
-        // Очищаем старые записи статистики
         foreach (var entry in _statEntries)
             Destroy(entry);
         _statEntries.Clear();
 
-        // Можно добавить дополнительные записи (например, список открытых свойств)
-        // Для простоты покажем только количество, но при желании можно вывести список
-        // Добавим 2-3 примера записей
         AddStatEntry("Свойств открыто", discoveredProperties.ToString(), 0.4f);
         AddStatEntry("Посажено растений", plantsPlanted.ToString(), 0.6f);
         AddStatEntry("Собрано растений", plantsHarvested.ToString(), 0.8f);
@@ -154,7 +141,6 @@ public class GameOverView : MonoBehaviour
 
         entryObj.transform.localScale = Vector3.zero;
         entryObj.transform.DOScale(Vector3.one, 0.3f).SetDelay(delay).SetEase(Ease.OutBack);
-
         _statEntries.Add(entryObj);
     }
 

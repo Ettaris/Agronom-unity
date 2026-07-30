@@ -103,12 +103,6 @@ namespace Infrastructure.Events
     public struct ScoreChangedEvent
     {
         public int CurrentCalories;
-        public int DailyQuota;
-    }
-
-    public struct QuotaReachedEvent
-    {
-        public int DayNumber;
     }
 
     public struct TotalGoalReachedEvent { }
@@ -191,4 +185,8 @@ namespace Infrastructure.Events
     }
 
     public struct ServicesInitializedEvent { }
+
+    public struct StageChangedEvent { public int StageIndex; public RunData RunData; }
+    public struct StageFailedEvent { public int StageIndex; public int RequiredCalories; public int CurrentCalories; }
+    public struct GameWinEvent { }
 }

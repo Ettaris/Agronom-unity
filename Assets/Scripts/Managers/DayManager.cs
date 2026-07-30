@@ -56,25 +56,63 @@ namespace Managers
 
         private void OnEndDayCommand(EndDayCommand command)
         {
-            // Завершаем текущий день
+            if (_runData == null) return;
 
-            Debug.Log("OnEndDay from daymanager");
+            // Завершаем текущий день
             EventBus.Publish(new DayEndedEvent { DayNumber = _currentDay });
 
-            // Проверяем, достигнута ли квота (это может делать ScoreSystem)
-            // Если день завершён, переходим к следующему
-            _currentDay++;
+            // Проверяем, не закончился ли текущий этап
+            var currentStage = _runData.GetCurrentStage();
 
-            if (_currentDay > _totalDays)
+            // Проверяем, что этапы вообще существуют
+            if (_runData.Stages == null || _runData.Stages.Length == 0)
             {
-                // Забег завершён
+                // Если этапов нет – завершаем забег (аварийно)
                 ServiceLocator.Get<RunManager>().EndRun();
                 return;
             }
 
-            // Начинаем новый день
+            if (_currentDay >= currentStage.totalDays)
+            {
+                // Этап закончился – проверяем калории
+                if (_runData.Inventory.Calories >= currentStage.requiredCalories)
+                {
+                    // Успешно! Переходим к следующему этапу
+                    _runData.CurrentStageIndex++;
+                    _runData.StageStartDay = _currentDay + 1;
+
+                    if (_runData.IsAllStagesCompleted)
+                    {
+                        // Победа!
+                        Debug.Log("Win event");
+                        EventBus.Publish(new GameWinEvent());
+                        ServiceLocator.Get<RunManager>().EndRun();
+                        return;
+                    }
+                    else
+                    {
+                        EventBus.Publish(new StageChangedEvent { StageIndex = _runData.CurrentStageIndex, RunData = _runData });
+                        // Переход к следующему дню уже будет ниже
+                    }
+                }
+                else
+                {
+                    // Поражение – не выполнил цель этапа
+                    Debug.Log("Stage Failed Event");
+                    EventBus.Publish(new StageFailedEvent
+                    {
+                        StageIndex = _runData.CurrentStageIndex,
+                        RequiredCalories = currentStage.requiredCalories,
+                        CurrentCalories = _runData.Inventory.Calories
+                    });
+                    ServiceLocator.Get<RunManager>().EndRun();
+                    return;
+                }
+            }
+
+            // Переход к следующему дню (увеличиваем день только если забег ещё не завершён)
+            _currentDay++;
             _runData.CurrentDay = _currentDay;
-            Debug.Log("Publish onDayStarted from OnEndDayCommand");
             EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay });
         }
     }

@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePool
   genomeProperties:
   - {fileID: 11400000, guid: 144c034460327b34ab83242951e5612a, type: 2}
+  - {fileID: 11400000, guid: 8dd7332d80bdef740884679a67ea9efd, type: 2}
   - {fileID: 11400000, guid: 3ee52e1248836c3499ad923d10685bb6, type: 2}
   - {fileID: 11400000, guid: d306b6fdae448af49b06adf603c1a8ad, type: 2}
-  - {fileID: 11400000, guid: 8dd7332d80bdef740884679a67ea9efd, type: 2}
-  - {fileID: 11400000, guid: 8d704a6a7f456e74fb96f5d87ecea239, type: 2}
   - {fileID: 11400000, guid: 89bc4c0c94648f04c8d8036c1c932dcf, type: 2}
   - {fileID: 11400000, guid: 0bc582ff008dc84479649b619088f354, type: 2}
-  - {fileID: 11400000, guid: 88d28093b94458d479b49ad4797d5fb7, type: 2}
   - {fileID: 11400000, guid: 92108003bfc8fc6489423ec1f079f790, type: 2}
   - {fileID: 11400000, guid: 88d28093b94458d479b49ad4797d5fb7, type: 2}
+  - {fileID: 11400000, guid: 8d704a6a7f456e74fb96f5d87ecea239, type: 2}

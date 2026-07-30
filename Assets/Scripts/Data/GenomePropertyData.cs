@@ -25,23 +25,26 @@ namespace Data
         public GenomePropertyInstance CreateEffect(int stacks = 1)
         {
             if (string.IsNullOrEmpty(_effectClassName))
+            {
+                Debug.Log($"CreateEffect: {propertyName} has no effect class, using base instance");
                 return new GenomePropertyInstance(this, stacks);
+            }
 
             Type type = Type.GetType($"GenomeEffects.{_effectClassName}");
             if (type == null)
             {
-                Debug.LogError($"Effect class '{_effectClassName}' not found. Using base instance.");
+                Debug.LogWarning($"CreateEffect: Class 'GenomeEffects.{_effectClassName}' not found for {propertyName}");
                 return new GenomePropertyInstance(this, stacks);
             }
 
             if (!typeof(GenomeEffectBase).IsAssignableFrom(type))
             {
-                Debug.LogError($"Class '{_effectClassName}' does not inherit GenomeEffectBase.");
+                Debug.LogWarning($"CreateEffect: Class '{type.Name}' does not inherit GenomeEffectBase");
                 return new GenomePropertyInstance(this, stacks);
             }
 
-            // Создаём экземпляр через конструктор (GenomePropertyData, int)
             var instance = Activator.CreateInstance(type, this, stacks) as GenomePropertyInstance;
+            Debug.Log($"CreateEffect: Created {instance.GetType().Name} for {propertyName}");
             return instance ?? new GenomePropertyInstance(this, stacks);
         }
 

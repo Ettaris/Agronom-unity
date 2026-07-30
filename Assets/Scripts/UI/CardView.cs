@@ -53,7 +53,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void OnDestroy() => _currentTween?.Kill();
 
-    public void Setup(ItemInstance item, bool animateAppear=true)
+    public void Setup(ItemInstance item, bool animateAppear = true)
     {
         _item = item;
         if (_item == null) { gameObject.SetActive(false); return; }
@@ -116,12 +116,11 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _originalAnchoredPosition = _rectTransform.anchoredPosition;
         _originalScale = transform.localScale;
 
-        // Подъём и увеличение – относительные
+        // Поднимаем карточку (без изменения масштаба)
         float lift = _rectTransform.rect.height * _dragLift;
-        transform.DOScale(_originalScale * _dragScale, 0.15f);
         _rectTransform.DOAnchorPosY(_originalAnchoredPosition.y + lift, 0.15f);
-
         _rectTransform.SetAsLastSibling();
+
         _cardAnimator.SetBool("IsDragging", true);
         OnDragStart?.Invoke(this);
     }
@@ -168,12 +167,20 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         var results = new System.Collections.Generic.List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
+        Debug.Log($"Raycast results count: {results.Count}");
         foreach (var result in results)
         {
+            Debug.Log($"Hit: {result.gameObject.name}");
             if (result.gameObject.GetComponent<BoardCellView>() != null ||
-                result.gameObject.GetComponent<LaboratorySlotView>() != null)
+            result.gameObject.GetComponent<LaboratorySlotView>() != null)
             {
                 var handView = ServiceLocator.TryGet<HandView>(out var hv) ? hv : null;
+                Debug.Log(handView + " - hand view");
+                if (handView == null)
+                {
+                    handView = FindAnyObjectByType<HandView>();
+                    ServiceLocator.Register(handView);
+                }
                 if (handView != null)
                 {
                     handView.HandleDrop(this, result.gameObject);

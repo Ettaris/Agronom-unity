@@ -69,19 +69,10 @@ namespace Systems
             {
                 var plantData = availablePlants[i];
                 int maxCap = plantData.maxGenomeCapacity > 0 ? plantData.maxGenomeCapacity : _config.defaultMaxGenomeCapacity;
-                var plant = new PlantInstance(plantData, maxCap);
+                var plant = PlantFactory.CreatePlantWithProperties(plantData, random, genomePool, _config.maxPropertiesPerPlant);
 
                 // Назначаем свойства
-                int propertyCount = genomeList.Count > 0 ? random.NextInt(1, 4) : 0;
-                var shuffledGenomes = new List<GenomePropertyData>(genomeList);
-                ShuffleList(shuffledGenomes, random);
-
-                for (int p = 0; p < propertyCount && p < shuffledGenomes.Count; p++)
-                {
-                    var propData = shuffledGenomes[p];
-                    var prop = propData.CreateEffect(1);
-                    plant.AddGenomeProperty(prop);
-                }
+                PlantGeneratorHelper.AssignRandomProperties(plant, random, genomePool, _config.maxPropertiesPerPlant);
 
                 allPlantInstances.Add(plant);
                 // Регистрируем свойства в PropertyResolverSystem
@@ -109,10 +100,14 @@ namespace Systems
             }
 
             // 4. Создание RunData
-            var runData = new RunData(seed, _config.boardWidth, _config.boardHeight, _config.maxHandSize, _config.dailyQuota, journal);
+            var runData = new RunData(seed, _config.boardWidth, _config.boardHeight, _config.maxHandSize, journal);
 
             runData.TotalCaloriesGoal = _config.totalCaloriesGoal;
             runData.IsTotalGoalReached = false;
+
+            runData.Stages = _config.stages;
+            runData.CurrentStageIndex = 0;
+            runData.StageStartDay = 1;
 
             // 5. Заполнение руки
             foreach (var plant in handPlants)

@@ -279,7 +279,6 @@ namespace Managers
                 config.boardWidth,
                 config.boardHeight,
                 config.maxHandSize,
-                data.dailyQuota,
                 data.journal ?? new JournalData()
             );
 

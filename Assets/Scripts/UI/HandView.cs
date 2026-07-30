@@ -74,7 +74,7 @@ public class HandView : MonoBehaviour, IDropHandler
     {
         // Включаем режим выбора: отображаем предложение вместо руки
         _isSelectionMode = true;
-        RefreshHand(evt.Offer);
+        //RefreshHand(evt.Offer);
     }
 
     // Обновление руки (из Hand)
@@ -166,43 +166,37 @@ public class HandView : MonoBehaviour, IDropHandler
         var item = card.Item;
         if (item == null) return;
 
-        // Проверяем дроп на игровое поле
+        // Посадка на поле
         if (target.TryGetComponent<BoardCellView>(out var cellView))
         {
             if (item is PlantInstance plant)
             {
-                CommandProcessor.Execute(new PlacePlantCommand
-                {
-                    Plant = plant,
-                    X = cellView.X,
-                    Y = cellView.Y
-                });
-                
+                CommandProcessor.Execute(new PlacePlantCommand { Plant = plant, X = cellView.X, Y = cellView.Y });
+                // Карточка будет удалена через HandUpdatedEvent
             }
             return;
         }
 
-        // Проверяем дроп на лабораторию (любой слот)
+        // Дроп в лабораторию (только если окно открыто)
         if (target.TryGetComponent<LaboratorySlotView>(out var slotView))
         {
-            // Находим LaboratoryView через ServiceLocator
             var labView = ServiceLocator.Get<LaboratoryView>();
-            if (labView != null)
+            if (labView != null && labView.gameObject.activeInHierarchy)
             {
                 bool placed = labView.OnItemDropped(item);
                 if (placed)
                 {
-                    // Удаляем карточку из руки
                     RemoveCard(card);
                 }
                 else
                 {
-                    // Если не удалось разместить – возвращаем карточку (отрицательная анимация в CardView)
-                    card.CancelDrop();
+                    card.CancelDrop(); // анимация возврата
                 }
             }
             return;
         }
+
+        // Если дроп на пустое место – карточка вернётся сама (в CardView)
     }
 
     public void RemoveCard(CardView card)

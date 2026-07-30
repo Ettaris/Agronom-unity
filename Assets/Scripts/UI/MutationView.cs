@@ -51,6 +51,12 @@ public class MutationView : MonoBehaviour
             Clear();
             return;
         }
+        // —брос scale и alpha перед обновлением
+        _plantImage.transform.localScale = Vector3.one;
+        _plantImage.color = new Color(1f, 1f, 1f, 1f);
+        _plantImage.gameObject.SetActive(true);
+        DOTween.Kill(_plantImage);
+        DOTween.Kill(_plantImage.transform);
         UpdateVisuals(false);
     }
 
@@ -77,6 +83,10 @@ public class MutationView : MonoBehaviour
         {
             _plantImage.sprite = targetSprite;
         }
+
+        _plantImage.transform.localScale = Vector3.one;
+        _plantImage.color = new Color(1f, 1f, 1f, 1f);
+        _plantImage.gameObject.SetActive(true);
 
         if (mutationLevel > 0)
         {
@@ -174,6 +184,7 @@ public class MutationView : MonoBehaviour
     {
         _plantImage.sprite = null;
         _plantImage.DOKill();
+        _plantImage.transform.localScale = Vector3.one;
         if (_mutationOverlay != null) _mutationOverlay.color = Color.clear;
     }
 

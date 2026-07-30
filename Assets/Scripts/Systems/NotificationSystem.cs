@@ -57,7 +57,6 @@ namespace Systems
             EventBus.Subscribe<PlantGrownEvent>(OnPlantGrown);
             EventBus.Subscribe<PlantHarvestedEvent>(OnPlantHarvested);
             EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
-            EventBus.Subscribe<QuotaReachedEvent>(OnQuotaReached);
             EventBus.Subscribe<PlantKilledEvent>(OnPlantKilled);
             EventBus.Subscribe<HandFullEvent>(OnHandFull);
         }
@@ -67,7 +66,6 @@ namespace Systems
             EventBus.Unsubscribe<PlantGrownEvent>(OnPlantGrown);
             EventBus.Unsubscribe<PlantHarvestedEvent>(OnPlantHarvested);
             EventBus.Unsubscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
-            EventBus.Unsubscribe<QuotaReachedEvent>(OnQuotaReached);
             EventBus.Unsubscribe<PlantKilledEvent>(OnPlantKilled);
             EventBus.Unsubscribe<HandFullEvent>(OnHandFull);
 
@@ -217,15 +215,6 @@ namespace Systems
             ));
         }
 
-        private void OnQuotaReached(QuotaReachedEvent evt)
-        {
-            EnqueueNotification(new NotificationData(
-                $" вота дн€ {evt.DayNumber} выполнена!",
-                null,
-                Color.green,
-                3f
-            ));
-        }
 
         private void OnPlantKilled(PlantKilledEvent evt)
         {

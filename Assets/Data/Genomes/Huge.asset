@@ -21,3 +21,4 @@ MonoBehaviour:
   icon: {fileID: 0}
   rarity: 0
   genomeCost: 40
+  _effectClassName: HugeEffect

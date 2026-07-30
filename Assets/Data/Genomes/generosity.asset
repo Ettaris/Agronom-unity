@@ -19,3 +19,4 @@ MonoBehaviour:
   icon: {fileID: 0}
   rarity: 0
   genomeCost: 10
+  _effectClassName: GenerosityEffect

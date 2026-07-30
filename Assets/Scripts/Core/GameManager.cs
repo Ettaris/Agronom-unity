@@ -90,6 +90,9 @@ public class GameManager : MonoBehaviour
         {
             ServiceLocator.Register(notificationSystem);
         }
+
+        var handView = FindAnyObjectByType<HandView>();
+        ServiceLocator.Register(handView);
     }
 
     /// <summary>

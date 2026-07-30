@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Systems;
 using Managers;
 using Data;
+using Infrastructure.Events;
 
 namespace GenomeEffects
 {
@@ -41,6 +42,7 @@ namespace GenomeEffects
                     {
                         clone.CurrentCell = cell;
                         resolver.RegisterPlant(clone);
+                        EventBus.Publish(new PlantPlacedEvent { Plant = clone, X = cell.X, Y = cell.Y });
                     }
                 }
             }

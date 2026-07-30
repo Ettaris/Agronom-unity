@@ -4,6 +4,7 @@ using Infrastructure;
 using Data;
 using Systems;
 using Infrastructure.Events;
+using UnityEngine;
 
 namespace GenomeEffects
 {
@@ -13,23 +14,29 @@ namespace GenomeEffects
 
         public void OnPlantPlaced(PlantInstance plant, int x, int y, GridBoard board)
         {
-            // Выращиваем растение слева (x-1, y)
+            // 1. Проверяем клетку слева (x-1, y)
             var leftCell = board.GetCell(x - 1, y);
-            if (leftCell != null && leftCell.Plant == null)
+            if (leftCell != null && leftCell.Plant != null)
             {
-                var clone = new PlantInstance(plant.PlantData, plant.Genome.MaxCapacity);
-                // Копируем свойства? Можно без них.
-                if (board.PlacePlant(clone, x - 1, y))
-                {
-                    clone.CurrentCell = leftCell;
-                    ServiceLocator.Get<PropertyResolverSystem>().RegisterPlant(clone);
-                }
+                // Левое растение существует – делаем его зрелым мгновенно
+                var leftPlant = leftCell.Plant;
+                leftPlant.GrowthProgress = 1f;
+                EventBus.Publish(new PlantGrownEvent { Plant = leftPlant });
+                Debug.Log($"Sacrifice: Left plant {leftPlant.PlantData.itemName} grown instantly.");
             }
+            else { return; }
 
-            // Умираем сами
+            // 2. Удаляем текущее растение (носитель) без выдачи калорий
             board.RemovePlant(x, y);
             plant.CurrentCell = null;
+
+            // Отписываем свойства от резолвера
+            var resolver = ServiceLocator.Get<PropertyResolverSystem>();
+            resolver.UnregisterPlant(plant);
+
+            // Публикуем событие уничтожения
             EventBus.Publish(new PlantKilledEvent { Plant = plant, X = x, Y = y, Reason = "Sacrifice" });
+            Debug.Log($"Sacrifice: Plant at ({x},{y}) sacrificed.");
         }
     }
 }

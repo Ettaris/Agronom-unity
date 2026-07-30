@@ -3,6 +3,8 @@ using Properties.Interfaces;
 using Infrastructure;
 using System.Collections.Generic;
 using Data;
+using UnityEngine;
+using Infrastructure.Events;
 
 namespace GenomeEffects
 {
@@ -31,9 +33,12 @@ namespace GenomeEffects
                     {
                         weed.CurrentCell = cell;
                         // Регистрируем свойства (у сорняка их нет)
+                        EventBus.Publish(new PlantPlacedEvent { Plant = weed, X = cell.X, Y = cell.Y });
+                        Debug.Log(weed + "Weed planted(hugeEf)");
                     }
                 }
             }
+            Debug.Log("Huge Effect Done");
         }
     }
 }

@@ -20,3 +20,4 @@ MonoBehaviour:
   icon: {fileID: 0}
   rarity: 0
   genomeCost: 30
+  _effectClassName: FruitingEffect

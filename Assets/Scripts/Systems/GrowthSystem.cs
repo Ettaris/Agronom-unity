@@ -78,7 +78,6 @@ namespace Systems
             foreach (var plant in grownPlants)
             {
                 EventBus.Publish(new PlantGrownEvent { Plant = plant });
-                UnityEngine.Debug.Log($"Plant {plant.PlantData.itemName} has grown!");
             }
 
             // Дополнительно можно опубликовать событие об обновлении роста (для UI)

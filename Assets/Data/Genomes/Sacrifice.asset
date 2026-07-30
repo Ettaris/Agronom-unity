@@ -19,4 +19,5 @@ MonoBehaviour:
     \u043D\u043E \u0443\u043C\u0438\u0440\u0430\u0435\u0442 \u0441\u0430\u043C\u043E"
   icon: {fileID: 0}
   rarity: 0
-  genomeCost: 30
+  genomeCost: 40
+  _effectClassName: SacrificeEffect

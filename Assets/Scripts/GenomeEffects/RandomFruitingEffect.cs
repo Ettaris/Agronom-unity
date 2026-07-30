@@ -4,6 +4,9 @@ using Infrastructure;
 using System.Collections.Generic;
 using Data;
 using Systems;
+using UnityEngine;
+using Infrastructure.Events;
+using Managers;
 
 namespace GenomeEffects
 {
@@ -13,6 +16,12 @@ namespace GenomeEffects
 
         public void OnDestroyed(PlantInstance plant, int x, int y, GridBoard board)
         {
+            var config = ServiceLocator.Get<GameConfig>();
+            var random = ServiceLocator.Get<RunManager>().CurrentRunData.Random;
+            var genomePool = config.genomePool;
+            var maxProperties = config.maxPropertiesPerPlant;
+
+
             // Найти случайную свободную клетку
             var freeCells = new List<Cell>();
             for (int i = 0; i < board.Width; i++)
@@ -22,11 +31,14 @@ namespace GenomeEffects
             if (freeCells.Count > 0)
             {
                 var cell = freeCells[UnityEngine.Random.Range(0, freeCells.Count)];
-                var sprout = new PlantInstance(plant.PlantData, plant.Genome.MaxCapacity);
+                var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, random, genomePool, maxProperties);
                 if (board.PlacePlant(sprout, cell.X, cell.Y))
                 {
                     sprout.CurrentCell = cell;
-                    ServiceLocator.Get<PropertyResolverSystem>().RegisterPlant(sprout);
+                    var resolver = ServiceLocator.Get<PropertyResolverSystem>();
+                    resolver.RegisterPlant(sprout);
+                    EventBus.Publish(new PlantPlacedEvent { Plant = sprout, X = cell.X, Y = cell.Y });
+                    Debug.Log("Random Fruiting Done");
                 }
             }
         }
