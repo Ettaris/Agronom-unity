@@ -45,12 +45,6 @@ namespace Systems
                 return;
             }
 
-            // Создаём пул
-            for (int i = 0; i < _poolSize; i++)
-            {
-                CreatePooledObject();
-            }
-
             _isInitialized = true;
 
             // Подписка на события
@@ -59,6 +53,30 @@ namespace Systems
             EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
             EventBus.Subscribe<PlantKilledEvent>(OnPlantKilled);
             EventBus.Subscribe<HandFullEvent>(OnHandFull);
+            EventBus.Subscribe<PlantKilledByCentrifugeEvent>(OnPlantKilledByCentrifuge);
+        }
+
+        private void TestNotification()
+        {
+            EnqueueNotification(new NotificationData("Тест уведомления!", null, Color.black, 3f));
+        }
+
+        private void Start()
+        {
+            Invoke(nameof(TestNotification), 2f);
+            EventBus.Subscribe<PlantGrownEvent>(OnPlantGrown);
+            EventBus.Subscribe<PlantHarvestedEvent>(OnPlantHarvested);
+            EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
+            EventBus.Subscribe<PlantKilledEvent>(OnPlantKilled);
+            EventBus.Subscribe<HandFullEvent>(OnHandFull);
+            EventBus.Subscribe<PlantKilledByCentrifugeEvent>(OnPlantKilledByCentrifuge);
+
+            Debug.Log(_container + " - container for NS");
+
+            for (int i = 0; i < _poolSize; i++)
+            {
+                CreatePooledObject();
+            }
         }
 
         public void Dispose()
@@ -68,6 +86,7 @@ namespace Systems
             EventBus.Unsubscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
             EventBus.Unsubscribe<PlantKilledEvent>(OnPlantKilled);
             EventBus.Unsubscribe<HandFullEvent>(OnHandFull);
+            EventBus.Unsubscribe<PlantKilledByCentrifugeEvent>(OnPlantKilledByCentrifuge);
 
             // Очищаем все активные уведомления
             foreach (var notification in _activeNotifications)
@@ -130,6 +149,7 @@ namespace Systems
 
         private void EnqueueNotification(NotificationData data)
         {
+            Debug.Log($"NotificationSystem: Enqueued notification: {data.Message}");
             _queue.Enqueue(data);
             if (!_isProcessing)
             {
@@ -148,6 +168,7 @@ namespace Systems
             if (_activeNotifications.Count >= _poolSize)
             {
                 _isProcessing = false;
+                Debug.LogError("Too much active notes");
                 return;
             }
 
@@ -156,6 +177,7 @@ namespace Systems
             NotificationView view = GetFromPool();
             if (view == null)
             {
+                Debug.LogError(view + " null view");
                 _isProcessing = false;
                 return;
             }
@@ -163,6 +185,7 @@ namespace Systems
             // Позиционирование (выравнивание сверху вниз)
             view.transform.SetAsFirstSibling();
             view.transform.localPosition = new Vector3(0, -_activeNotifications.Count * (60 + _spacing), 0);
+
 
             view.Show(data);
 
@@ -189,20 +212,31 @@ namespace Systems
 
         private void OnPlantGrown(PlantGrownEvent evt)
         {
+            //Debug.Log($"NotificationSystem: OnPlantGrown received for {evt.Plant.PlantData.itemName}");
+            //EnqueueNotification(new NotificationData(
+            //    $"{evt.Plant.PlantData.itemName} созрело!",
+            //    evt.Plant.PlantData.icon,
+            //    Color.green
+            //));
+        }
+
+        private void OnPlantKilledByCentrifuge(PlantKilledByCentrifugeEvent evt)
+        {
             EnqueueNotification(new NotificationData(
-                $"{evt.Plant.PlantData.itemName} созрело!",
+                $"{evt.Plant.PlantData.itemName} разложился в центрифуге!",
                 evt.Plant.PlantData.icon,
-                Color.green
+                Color.red,
+                3f
             ));
         }
 
         private void OnPlantHarvested(PlantHarvestedEvent evt)
         {
-            EnqueueNotification(new NotificationData(
-                $"+{evt.CaloriesGained} калорий!",
-                null,
-                Color.yellow
-            ));
+            //EnqueueNotification(new NotificationData(
+            //    $"+{evt.CaloriesGained} калорий!",
+            //    null,
+            //    Color.yellow
+            //));
         }
 
         private void OnGenomeDiscovered(GenomeDiscoveredEvent evt)

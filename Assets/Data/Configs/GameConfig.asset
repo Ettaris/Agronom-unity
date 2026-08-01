@@ -23,9 +23,9 @@ MonoBehaviour:
   - totalDays: 3
     requiredCalories: 30
   - totalDays: 7
-    requiredCalories: 140
+    requiredCalories: 200
   - totalDays: 14
-    requiredCalories: 300
+    requiredCalories: 1000
   weedPlantData: {fileID: 11400000, guid: 09bd4685723a618408b05247976e1452, type: 2}
   maxHandSize: 10
   initialHandSize: 5

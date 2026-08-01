@@ -11,7 +11,7 @@ public struct NotificationData
     {
         Message = message;
         Icon = icon;
-        Color = color ?? Color.white;
+        Color = color ?? Color.black;
         Duration = duration;
     }
 }

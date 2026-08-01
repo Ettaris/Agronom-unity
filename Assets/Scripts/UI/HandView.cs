@@ -166,37 +166,47 @@ public class HandView : MonoBehaviour, IDropHandler
         var item = card.Item;
         if (item == null) return;
 
-        // Посадка на поле
-        if (target.TryGetComponent<BoardCellView>(out var cellView))
+        Debug.Log($"HandView.HandleDrop: item={item.Data.itemName}, target={target.name}");
+
+        // Находим CellView на самом объекте или на родителе
+        var cellView = target.GetComponentInParent<CellView>();
+        if (cellView == null)
+            cellView = target.GetComponent<CellView>();
+
+        Debug.Log(cellView + " - cell view");
+
+        if (cellView != null)
         {
+            Debug.Log($"HandView: CellView found at ({cellView.X}, {cellView.Y})");
             if (item is PlantInstance plant)
             {
                 CommandProcessor.Execute(new PlacePlantCommand { Plant = plant, X = cellView.X, Y = cellView.Y });
-                // Карточка будет удалена через HandUpdatedEvent
+                // Карточка удалится через HandUpdatedEvent
             }
             return;
         }
+        else { Debug.Log("Cell view is null in HandView"); }
 
-        // Дроп в лабораторию (только если окно открыто)
-        if (target.TryGetComponent<LaboratorySlotView>(out var slotView))
+        // Проверяем лабораторию (слоты)
+        var slotView = target.GetComponent<LaboratorySlotView>();
+        if (slotView == null)
+            slotView = target.GetComponentInParent<LaboratorySlotView>();
+
+        if (slotView != null)
         {
             var labView = ServiceLocator.Get<LaboratoryView>();
-            if (labView != null && labView.gameObject.activeInHierarchy)
+            if (labView != null && labView.OnItemDropped(item))
             {
-                bool placed = labView.OnItemDropped(item);
-                if (placed)
-                {
-                    RemoveCard(card);
-                }
-                else
-                {
-                    card.CancelDrop(); // анимация возврата
-                }
+                RemoveCard(card);
+            }
+            else
+            {
+                card.CancelDrop();
             }
             return;
         }
 
-        // Если дроп на пустое место – карточка вернётся сама (в CardView)
+        // Если ничего не подошло – возвращаем карточку (она сама вернётся)
     }
 
     public void RemoveCard(CardView card)

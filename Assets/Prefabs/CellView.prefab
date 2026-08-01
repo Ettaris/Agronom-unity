@@ -11,14 +11,13 @@ GameObject:
   - component: {fileID: 7289311728469308680}
   - component: {fileID: 8621267505619426487}
   - component: {fileID: 5847985063245590646}
-  - component: {fileID: 781271372294955557}
-  - component: {fileID: 7697066652350475514}
   - component: {fileID: 6785786846598637381}
   - component: {fileID: 4867461816654963546}
   - component: {fileID: 3804746829287226224}
   - component: {fileID: 8467436457892197596}
+  - component: {fileID: 5006302069370875593}
   m_Layer: 5
-  m_Name: BoardCellView
+  m_Name: CellView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,7 +66,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 0.9245283, g: 0.9245283, b: 0.9245283, a: 0.17254902}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -84,39 +83,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &781271372294955557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1625019760259878603}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3333b7041271c7e43a9dbdb61b37251f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BoardCellView
-  _backgroundImage: {fileID: 0}
-  _plantImage: {fileID: 4691873368171483949}
-  _growthText: {fileID: 735330910969962809}
-  _highlightObject: {fileID: 6139869196183778694}
-  _cellAnimator: {fileID: 6785786846598637381}
---- !u!114 &7697066652350475514
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1625019760259878603}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5392d1089be6a740ad3ff7972a7e52e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MutationView
-  _plantImage: {fileID: 4691873368171483949}
-  _mutationOverlay: {fileID: 0}
-  _mutationAnimator: {fileID: 0}
-  _spriteTransitionDuration: 0.3
 --- !u!95 &6785786846598637381
 Animator:
   serializedVersion: 7
@@ -211,11 +177,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CellView
   _row: 0
   _column: 0
-  _background: {fileID: 0}
+  _background: {fileID: 5847985063245590646}
   _plantImage: {fileID: 4691873368171483949}
   _growthText: {fileID: 735330910969962809}
   _highlightObject: {fileID: 6139869196183778694}
   _cellAnimator: {fileID: 6785786846598637381}
+  _mutationView: {fileID: 5006302069370875593}
+--- !u!114 &5006302069370875593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1625019760259878603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5392d1089be6a740ad3ff7972a7e52e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MutationView
+  _plantImage: {fileID: 4691873368171483949}
+  _mutationOverlay: {fileID: 0}
+  _mutationAnimator: {fileID: 6785786846598637381}
+  _spriteTransitionDuration: 0.3
 --- !u!1 &3521002068516361524
 GameObject:
   m_ObjectHideFlags: 0

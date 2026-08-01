@@ -43,6 +43,8 @@ public class LaboratoryView : MonoBehaviour
         EventBus.Subscribe<FermentUsedEvent>(OnFermentUsed);
         EventBus.Subscribe<BatteryUsedEvent>(OnBatteryUsed);
         EventBus.Subscribe<GenomeTransferredEvent>(OnGenomeTransferred);
+        EventBus.Subscribe<PlantAnalyzedEvent>(OnPlantAnalyzed);
+
 
         _actionButton.onClick.AddListener(OnActionButtonClicked);
         _actionButton.interactable = false;
@@ -58,6 +60,7 @@ public class LaboratoryView : MonoBehaviour
         EventBus.Unsubscribe<FermentUsedEvent>(OnFermentUsed);
         EventBus.Unsubscribe<BatteryUsedEvent>(OnBatteryUsed);
         EventBus.Unsubscribe<GenomeTransferredEvent>(OnGenomeTransferred);
+        EventBus.Unsubscribe<PlantAnalyzedEvent>(OnPlantAnalyzed);
     }
 
     #region Открытие/закрытие
@@ -81,6 +84,20 @@ public class LaboratoryView : MonoBehaviour
     #endregion
 
     #region Обработчики событий
+
+    private void OnPlantAnalyzed(PlantAnalyzedEvent evt)
+    {
+        // Показать информацию о растении
+        var debugView = FindAnyObjectByType<DebugPlantInfoView>(FindObjectsInactive.Include);
+        if (debugView != null)
+        {
+            debugView.ShowInfo(evt.Plant);
+        }
+        else
+        {
+            Debug.LogWarning("DebugPlantInfoView not found in scene!");
+        }
+    }
 
     private void OnCardSelected(CardSelectedEvent evt)
     {
@@ -109,6 +126,17 @@ public class LaboratoryView : MonoBehaviour
     private void OnGenomeTransferred(GenomeTransferredEvent evt)
     {
         _labAnimator.SetTrigger("Success");
+
+        // Показать информацию о растении-получателе
+        var debugView = FindAnyObjectByType<DebugPlantInfoView>(FindObjectsInactive.Include);
+        if (debugView != null)
+        {
+            debugView.ShowInfo(evt.Target);
+        }
+        else
+        {
+            Debug.LogWarning("DebugPlantInfoView not found in scene!");
+        }
     }
 
     #endregion

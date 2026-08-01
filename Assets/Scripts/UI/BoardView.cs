@@ -1,126 +1,64 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 using DG.Tweening;
 using Infrastructure;
 using Infrastructure.Events;
 using Commands;
 using Gameplay;
+using Systems;
 using Managers;
 
 public class BoardView : MonoBehaviour
 {
-    [Header("UI References")]
-    [SerializeField] private GameObject _cellPrefab;
-    [SerializeField] private Transform _cellsContainer;
-    [SerializeField] private RectTransform _boardRect;
-
-    [Header("DOTween Settings")]
-    [SerializeField] private float _cellAppearDuration = 0.3f;
-    [SerializeField] private float _cellAppearBounceAmplitude = 0.2f;
-
-    [Header("Harvest Settings")]
-    [SerializeField] private float _harvestCooldown = 0.05f;
+    [Header("References")]
+    [SerializeField] private BoardRoot _boardRoot; // можно назначить в инспекторе или найти на сцене
 
     private RunData _runData;
     private GridBoard _board;
-    private BoardCellView[,] _cellViews;
-    private Vector2Int _boardSize;
-    private float _cellSize;
     private bool _isPointerDown;
     private Vector2Int _lastHarvestedCell = new Vector2Int(-1, -1);
     private float _lastHarvestTime;
-    private ItemInstance _selectedItem; // выбранная карточка из руки
+    private ItemInstance _selectedItem;
 
-    private void Awake()
+    private bool _useLegacy;
+
+    private void Start()
     {
+        if (_boardRoot == null)
+            _boardRoot = FindAnyObjectByType<BoardRoot>();
 
-        // Подписка на события
+        if (_boardRoot == null)
+        {
+            Debug.LogError("BoardView: BoardRoot not found in scene!");
+            return;
+        }
+
+        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
+        if (_runData == null) return;
+
+        _board = _boardRoot.GridBoard;
+        if (_board == null)
+        {
+            Debug.LogError("BoardView: GridBoard is null!");
+            return;
+        }
+
         EventBus.Subscribe<PlantPlacedEvent>(OnPlantPlaced);
         EventBus.Subscribe<PlantHarvestedEvent>(OnPlantHarvested);
         EventBus.Subscribe<PlantKilledEvent>(OnPlantKilled);
         EventBus.Subscribe<CardSelectedEvent>(OnCardSelected);
-        EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
-        EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
-        Debug.Log("BoardView subscribed");
-
-    }
-
-    private void OnServicesInitialized(ServicesInitializedEvent evt)
-    {
-        Debug.Log("BoardView initialized");
-    }
-
-    private void OnRunStarted(RunStartedEvent evt)
-    {
-        Debug.Log("BoardView OnRunStarted");
-        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-        if (_runData == null)
-        {
-            Debug.LogError("RunData is null in BoardView!");
-            return;
-        }
-        _board = _runData.Board;
-        _boardSize = new Vector2Int(_board.Width, _board.Height);
-        InitializeBoard();
     }
 
     private void OnDestroy()
     {
-        EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
         EventBus.Unsubscribe<PlantPlacedEvent>(OnPlantPlaced);
         EventBus.Unsubscribe<PlantHarvestedEvent>(OnPlantHarvested);
         EventBus.Unsubscribe<PlantKilledEvent>(OnPlantKilled);
         EventBus.Unsubscribe<CardSelectedEvent>(OnCardSelected);
     }
 
-    private void InitializeBoard()
-    {
-        foreach (Transform child in _cellsContainer)
-            Destroy(child.gameObject);
-
-        _cellViews = new BoardCellView[_boardSize.x, _boardSize.y];
-
-        Rect rect = _boardRect.rect;
-        float cellWidth = rect.width / _boardSize.x;
-        float cellHeight = rect.height / _boardSize.y;
-        _cellSize = Mathf.Min(cellWidth, cellHeight);
-
-        for (int x = 0; x < _boardSize.x; x++)
-        {
-            for (int y = 0; y < _boardSize.y; y++)
-            {
-                GameObject cellObj = Instantiate(_cellPrefab, _cellsContainer);
-                RectTransform cellRect = cellObj.GetComponent<RectTransform>();
-                cellRect.sizeDelta = new Vector2(_cellSize, _cellSize);
-
-                float posX = -rect.width / 2f + x * _cellSize + _cellSize / 2f;
-                float posY = rect.height / 2f - y * _cellSize - _cellSize / 2f;
-                cellRect.anchoredPosition = new Vector2(posX, posY);
-
-                BoardCellView cellView = cellObj.GetComponent<BoardCellView>();
-                cellView.Initialize(x, y, this);
-                _cellViews[x, y] = cellView;
-
-                cellObj.transform.localScale = Vector3.zero;
-                cellObj.transform.DOScale(Vector3.one, _cellAppearDuration)
-                    .SetDelay((x + y) * 0.02f)
-                    .SetEase(Ease.OutBack, _cellAppearBounceAmplitude);
-
-                UpdateCellView(x, y);
-            }
-        }
-    }
-
-    public void UpdateCellView(int x, int y)
-    {
-        if (x < 0 || x >= _boardSize.x || y < 0 || y >= _boardSize.y) return;
-        Cell cell = _board.GetCell(x, y);
-        BoardCellView view = _cellViews[x, y];
-        view.SetPlant(cell.Plant);
-        view.SetState(BoardCellView.CellState.Default);
-    }
-
-    // Обработчики событий – адресное обновление
+    // Обработчики событий
     private void OnPlantPlaced(PlantPlacedEvent evt)
     {
         UpdateCellView(evt.X, evt.Y);
@@ -141,37 +79,29 @@ public class BoardView : MonoBehaviour
         _selectedItem = evt.Item;
     }
 
-    // Методы ввода (вызываются из BoardCellView)
+    private void UpdateCellView(int x, int y)
+    {
+        Debug.Log($"BoardView: UpdateCellView at ({x},{y})");
+        var cellView = _boardRoot.GetCellView(x, y);
+        if (cellView != null)
+        {
+            var plant = _board.GetCell(x, y)?.Plant;
+            Debug.Log($"BoardView: Setting plant on cell view: {(plant != null ? plant.PlantData.itemName : "null")}");
+            cellView.SetPlant(plant);
+        }
+        else
+        {
+            Debug.LogWarning($"BoardView: CellView not found at ({x},{y})");
+        }
+    }
+
+    // Методы ввода (вызываются из CellView через события или через IPointer)
     public void OnCellPointerDown(int x, int y, PointerEventData eventData)
     {
-        // Правый клик – открыть отладку
-        if (eventData.button == PointerEventData.InputButton.Right)
-        {
-            var cell = _board.GetCell(x, y);
-            if (cell != null && cell.Plant != null)
-            {
-                OpenDebugInfo(cell.Plant);
-                return;
-            }
-        }
-
-        // Левый клик – посадка/сбор
-        if (eventData.button != PointerEventData.InputButton.Left) return; // только ЛКМ
+        if (eventData.button != PointerEventData.InputButton.Left) return;
         _isPointerDown = true;
         _lastHarvestedCell = new Vector2Int(-1, -1);
         TryPlantOrHarvest(x, y);
-    }
-
-    //TODO: delete after debug.
-    private void OpenDebugInfo(PlantInstance plant)
-    {
-        var debugView = FindAnyObjectByType<DebugPlantInfoView>(FindObjectsInactive.Include);
-        if (debugView == null)
-        {
-            Debug.LogWarning("DebugPlantInfoView not found in scene!");
-            return;
-        }
-        debugView.ShowInfo(plant);
     }
 
     public void OnCellPointerUp(int x, int y, PointerEventData eventData)
@@ -185,28 +115,23 @@ public class BoardView : MonoBehaviour
     {
         if (_isPointerDown)
         {
-            // Если кнопка зажата – пытаемся собрать
-            if (Time.time - _lastHarvestTime >= _harvestCooldown)
-            {
+            if (Time.time - _lastHarvestTime >= 0.05f)
                 TryHarvest(x, y);
-            }
         }
         else
         {
-            // Без зажатия – просто подсветка
             HighlightCell(x, y, true);
         }
     }
 
     public void OnCellPointerExit(int x, int y)
     {
-        // Всегда снимаем хайлайт при выходе с клетки
         HighlightCell(x, y, false);
     }
 
     private void TryPlantOrHarvest(int x, int y)
     {
-        Cell cell = _board.GetCell(x, y);
+        var cell = _board.GetCell(x, y);
         if (cell != null && cell.Plant != null)
         {
             if (cell.Plant.IsGrown)
@@ -216,26 +141,17 @@ public class BoardView : MonoBehaviour
             }
             else
             {
-                _cellViews[x, y].SetState(BoardCellView.CellState.Unavailable);
+                SetCellState(x, y, CellState.Unavailable);
                 return;
             }
         }
 
-        // Посадка: проверяем, что выбран предмет и он растение
         if (_selectedItem is PlantInstance plant)
         {
-            // Проверяем, что клетка свободна
             if (_board.IsFree(x, y))
             {
-                // Удаляем карточку из руки (это делает HandView, но мы отправляем команду)
-                CommandProcessor.Execute(new PlacePlantCommand
-                {
-                    Plant = plant,
-                    X = x,
-                    Y = y
-                });
-                // После успешной посадки HandView получит событие обновления руки и удалит карточку
-                _selectedItem = null; // <-- СБРОС
+                CommandProcessor.Execute(new PlacePlantCommand { Plant = plant, X = x, Y = y });
+                _selectedItem = null;
             }
         }
     }
@@ -246,34 +162,34 @@ public class BoardView : MonoBehaviour
         _lastHarvestedCell = new Vector2Int(x, y);
         _lastHarvestTime = Time.time;
 
-        var harvestSystem = ServiceLocator.Get<Systems.HarvestSystem>();
-        int calories = harvestSystem.HarvestPlantAt(x, y);
-        if (calories > 0)
-        {
-            _cellViews[x, y].PlayHarvestAnimation();
-        }
+        var harvestSystem = ServiceLocator.Get<HarvestSystem>();
+        harvestSystem.HarvestPlantAt(x, y);
     }
 
     private void HighlightCell(int x, int y, bool highlight)
     {
-        if (x < 0 || x >= _boardSize.x || y < 0 || y >= _boardSize.y) return;
         var cell = _board.GetCell(x, y);
         if (cell == null) return;
+        var cellView = _boardRoot.GetCellView(x, y);
+        if (cellView == null) return;
 
         if (highlight)
         {
-            if (cell.Plant != null)
-                _cellViews[x, y].SetState(BoardCellView.CellState.Occupied);
-            else
-                _cellViews[x, y].SetState(BoardCellView.CellState.Highlighted);
+            cellView.SetState(cell.Plant != null ? CellState.Occupied : CellState.Highlighted);
         }
         else
         {
-            _cellViews[x, y].SetState(BoardCellView.CellState.Default);
+            cellView.SetState(CellState.Default);
         }
     }
 
-    // Для Drag&Drop (карточка брошена на клетку) – вызывается из CardView через HandView
+    private void SetCellState(int x, int y, CellState state)
+    {
+        var cellView = _boardRoot.GetCellView(x, y);
+        if (cellView != null) cellView.SetState(state);
+    }
+
+    // Метод для дропа с карточки
     public void HandleDropOnCell(int x, int y, ItemInstance item)
     {
         if (item is PlantInstance plant)

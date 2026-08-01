@@ -102,6 +102,9 @@ namespace Systems
                 Ferment = ferment
             });
 
+            EventBus.Publish(new HandUpdatedEvent());
+            EventBus.Publish(new PlantAnalyzedEvent { Plant = plant });
+
             UnityEngine.Debug.Log($"Plant {plant.PlantData.itemName} analyzed. {plant.Genome.Properties.Count} properties discovered.");
             return true;
         }

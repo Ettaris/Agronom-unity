@@ -103,7 +103,7 @@ public class GameOverView : MonoBehaviour
         _propertiesText.text = "0";
 
         _resultText.text = resultMessage;
-        _resultText.color = Color.white; // будет переопределён в обработчиках
+        _resultText.color = Color.black; // будет переопределён в обработчиках
 
         AnimateNumber(_dayText, daysSurvived, 0f);
         AnimateNumber(_caloriesText, totalCalories, 0.2f);

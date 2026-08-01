@@ -26,6 +26,7 @@ public class NotificationView : MonoBehaviour
     /// </summary>
     public void Show(NotificationData data)
     {
+        _canvasGroup.alpha = 1;
         if (data.Icon != null)
         {
             _iconImage.sprite = data.Icon;
@@ -51,6 +52,8 @@ public class NotificationView : MonoBehaviour
         _sequence.AppendInterval(_duration);
         _sequence.AppendCallback(() => Hide());
         _sequence.Play();
+
+        transform.SetAsLastSibling();
     }
 
     /// <summary>

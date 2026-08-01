@@ -7,7 +7,7 @@ namespace Gameplay
     {
         public int Seed { get; }
         public SeedGenerator Random { get; }
-        public GridBoard Board { get; }
+        public GridBoard Board { get; set; }
         public Hand Hand { get; }
         public Deck Deck { get; }
         public PlayerInventory Inventory { get; }

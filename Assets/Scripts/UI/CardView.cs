@@ -6,6 +6,7 @@ using DG.Tweening;
 using Infrastructure;
 using Gameplay;
 using Data;
+using System.Collections.Generic;
 
 public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -165,27 +166,19 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     }
     private bool CheckDropTarget(PointerEventData eventData)
     {
-        var results = new System.Collections.Generic.List<RaycastResult>();
+        var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
-        Debug.Log($"Raycast results count: {results.Count}");
         foreach (var result in results)
         {
-            Debug.Log($"Hit: {result.gameObject.name}");
-            if (result.gameObject.GetComponent<BoardCellView>() != null ||
-            result.gameObject.GetComponent<LaboratorySlotView>() != null)
+            // Пропускаем объекты, принадлежащие этой карточке
+            if (result.gameObject == gameObject || result.gameObject.transform.IsChildOf(transform))
+                continue;
+
+            var handView = ServiceLocator.TryGet<HandView>(out var hv) ? hv : null;
+            if (handView != null)
             {
-                var handView = ServiceLocator.TryGet<HandView>(out var hv) ? hv : null;
-                Debug.Log(handView + " - hand view");
-                if (handView == null)
-                {
-                    handView = FindAnyObjectByType<HandView>();
-                    ServiceLocator.Register(handView);
-                }
-                if (handView != null)
-                {
-                    handView.HandleDrop(this, result.gameObject);
-                    return true;
-                }
+                handView.HandleDrop(this, result.gameObject);
+                return true;
             }
         }
         return false;

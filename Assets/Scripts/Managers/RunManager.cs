@@ -40,7 +40,7 @@ namespace Managers
         public void EndRun()
         {
             if (!_isRunActive || CurrentRunData == null) return;
-            bool isWin = CurrentRunData.IsTotalGoalReached;
+            bool isWin = CurrentRunData.IsAllStagesCompleted; 
             EventBus.Publish(new RunEndedEvent { FinalRunData = CurrentRunData, IsWin = isWin });
             _isRunActive = false;
         }

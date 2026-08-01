@@ -59,12 +59,12 @@ public class JournalEntryView : MonoBehaviour
     {
         switch (rarity)
         {
-            case Rarity.Common: return Color.white;
+            case Rarity.Common: return Color.black;
             case Rarity.Uncommon: return Color.green;
             case Rarity.Rare: return Color.blue;
             case Rarity.Epic: return Color.magenta;
             case Rarity.Legendary: return Color.yellow;
-            default: return Color.white;
+            default: return Color.black;
         }
     }
 }

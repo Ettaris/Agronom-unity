@@ -189,4 +189,15 @@ namespace Infrastructure.Events
     public struct StageChangedEvent { public int StageIndex; public RunData RunData; }
     public struct StageFailedEvent { public int StageIndex; public int RequiredCalories; public int CurrentCalories; }
     public struct GameWinEvent { }
+
+    public struct PlantKilledByCentrifugeEvent
+    {
+        public PlantInstance Plant;
+    }
+
+    public struct PlantAnalyzedEvent
+    {
+        public PlantInstance Plant;
+    }
+
 }

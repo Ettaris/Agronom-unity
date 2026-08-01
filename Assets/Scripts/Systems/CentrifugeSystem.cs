@@ -132,11 +132,7 @@ namespace Systems
                 // Свойство уже удалено у донора и не добавлено получателю -> исчезает
                 ServiceLocator.Get<PropertyResolverSystem>().UnregisterPlant(target);
                 _hand.Remove(target);
-                EventBus.Publish(new PlantKilledEvent
-                {
-                    Plant = target,
-                    Reason = "Genome overload"
-                });
+                EventBus.Publish(new PlantKilledByCentrifugeEvent { Plant = target });
                 UnityEngine.Debug.Log($"Target plant {target.PlantData.itemName} died due to genome overload. Both plants are destroyed.");
             }
 
