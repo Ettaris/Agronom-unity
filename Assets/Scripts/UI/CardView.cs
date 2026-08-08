@@ -4,9 +4,12 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using Infrastructure;
-using Gameplay;
-using Data;
+using Commands;
 using System.Collections.Generic;
+using System.Collections;
+using Data;
+using Gameplay;
+using Infrastructure.Events;
 
 public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -26,8 +29,10 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     [SerializeField] private float _appearDuration = 0.4f;
     [SerializeField] private float _hoverScale = 1.05f;
     [SerializeField] private float _dragScale = 1.1f;
-    [SerializeField] private float _dragLift = 0.3f;   // относительный подъём (30% от высоты)
+    [SerializeField] private float _dragLift = 0.3f;
     [SerializeField] private float _returnDuration = 0.3f;
+    [SerializeField] private float _shakeDuration = 0.2f;
+    [SerializeField] private float _shakeStrength = 5f;
 
     private ItemInstance _item;
     private bool _isDragging;
@@ -36,6 +41,9 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private Vector3 _originalScale;
     private Tween _currentTween;
     private Canvas _canvas;
+    private Coroutine _returnCoroutine;
+    private BoardView _boardView;
+    private bool _servicesReady;
 
     public System.Action<CardView> OnCardClick;
     public System.Action<CardView> OnDragStart;
@@ -52,7 +60,19 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         if (_canvas == null) Debug.LogError("CardView: Canvas not found!");
     }
 
-    private void OnDestroy() => _currentTween?.Kill();
+    private void Start()
+    {
+        _servicesReady = true;
+        _boardView = ServiceLocator.TryGet<BoardView>(out var bv) ? bv : null;
+        if (_boardView == null)
+            Debug.LogWarning("CardView: BoardView not found!");
+    }
+
+
+    private void OnDestroy()
+    {
+        _currentTween?.Kill();
+    }
 
     public void Setup(ItemInstance item, bool animateAppear = true)
     {
@@ -83,9 +103,9 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _cardAnimator.Rebind();
         _cardAnimator.SetTrigger("Show");
 
+        transform.localScale = Vector3.zero;
         if (animateAppear)
         {
-            transform.localScale = Vector3.zero;
             _currentTween = transform.DOScale(_originalScale, _appearDuration).SetEase(Ease.OutQuad);
         }
         else
@@ -94,22 +114,81 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         }
     }
 
-    // ----- Анимации состояний (Animator) -----
-    public void Select() => _cardAnimator.SetTrigger("Select");
-    public void Deselect() => _cardAnimator.SetTrigger("Deselect");
-    public void Highlight() => _cardAnimator.SetTrigger("Highlight");
-    public void Unhighlight() => _cardAnimator.SetTrigger("Unhighlight");
-    public void Use() => _cardAnimator.SetTrigger("Use");
-    public void Receive() => _cardAnimator.SetTrigger("Receive");
-    public void Hide() => _cardAnimator.SetTrigger("Hide");
-    public void CancelDrop() => _cardAnimator.SetTrigger("Cancel");
+    // ----- Анимации состояний -----
+    public void Select()
+    {
+        KillCurrentTween();
+        transform.localScale = _originalScale;
+        _currentTween = transform.DOScale(_originalScale * 1.1f, 0.15f).SetEase(Ease.OutQuad);
+        _cardAnimator.SetTrigger("Select");
+    }
+
+    public void Deselect()
+    {
+        KillCurrentTween();
+        transform.localScale = _originalScale * 1.1f;
+        _currentTween = transform.DOScale(_originalScale, 0.15f).SetEase(Ease.OutQuad);
+        _cardAnimator.SetTrigger("Deselect");
+    }
+
+    public void Highlight()
+    {
+        if (!_isDragging)
+        {
+            KillCurrentTween();
+            transform.localScale = _originalScale;
+            _currentTween = transform.DOScale(_originalScale * _hoverScale, 0.15f).SetEase(Ease.OutQuad);
+        }
+        _cardAnimator.SetBool("IsHovered", true);
+    }
+
+    public void Unhighlight()
+    {
+        if (!_isDragging)
+        {
+            KillCurrentTween();
+            transform.localScale = _originalScale * _hoverScale;
+            _currentTween = transform.DOScale(_originalScale, 0.15f).SetEase(Ease.OutQuad);
+        }
+        _cardAnimator.SetBool("IsHovered", false);
+    }
+
+    public void Use()
+    {
+        _cardAnimator.SetTrigger("Use");
+    }
+
+    public void Receive()
+    {
+        _cardAnimator.SetTrigger("Receive");
+    }
+
+    public void Hide()
+    {
+        _cardAnimator.SetTrigger("Hide");
+    }
+
+    public void CancelDrop()
+    {
+        _cardAnimator.SetTrigger("Cancel");
+        if (_returnCoroutine != null) StopCoroutine(_returnCoroutine);
+        _returnCoroutine = StartCoroutine(ReturnToPosition(_originalAnchoredPosition, _returnDuration));
+    }
+
+    private void KillCurrentTween()
+    {
+        _currentTween?.Kill();
+        _currentTween = null;
+        DOTween.Kill(transform);
+        DOTween.Kill(_rectTransform);
+    }
 
     // ----- Drag & Drop -----
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (_item == null) return;
 
-        _currentTween?.Kill();
+        KillCurrentTween();
         DOTween.Kill(transform);
         DOTween.Kill(_rectTransform);
 
@@ -117,7 +196,6 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _originalAnchoredPosition = _rectTransform.anchoredPosition;
         _originalScale = transform.localScale;
 
-        // Поднимаем карточку (без изменения масштаба)
         float lift = _rectTransform.rect.height * _dragLift;
         _rectTransform.DOAnchorPosY(_originalAnchoredPosition.y + lift, 0.15f);
         _rectTransform.SetAsLastSibling();
@@ -139,6 +217,12 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         float lift = _rectTransform.rect.height * _dragLift;
         _rectTransform.anchoredPosition = new Vector2(localPoint.x, localPoint.y + lift);
+
+        // Обновляем превью на поле
+        if (_servicesReady && _item is PlantInstance plant && _boardView != null)
+        {
+            _boardView.UpdatePreviewFromScreen(eventData.position, plant.PlantData);
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -147,60 +231,75 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _isDragging = false;
         _cardAnimator.SetBool("IsDragging", false);
 
-        bool validDrop = CheckDropTarget(eventData);
+        bool planted = false;
 
-        if (validDrop)
+        Debug.Log(_servicesReady + " - services ready in CardView");
+
+        if (_servicesReady && _boardView != null)
         {
-            _cardAnimator.SetTrigger("Used");
-            OnDragEnd?.Invoke(this);
+            Debug.Log($"CardView.OnEndDrag: PreviewCanPlace = {_boardView._previewCanPlace}, PreviewPosition = {_boardView._previewPosition}");
+            if (_boardView._previewCanPlace && _item is PlantInstance plant)
+            {
+                // Отправляем команду посадки
+                CommandProcessor.Execute(new PlacePlantCommand
+                {
+                    Plant = plant,
+                    X = _boardView._previewPosition.x,
+                    Y = _boardView._previewPosition.y
+                });
+                planted = true;
+                // Карточка будет удалена через HandUpdatedEvent
+                // Можно сразу скрыть, чтобы избежать мигания
+                _cardAnimator.SetTrigger("Hide");
+            }
+            else
+            {
+                // Не удалось посадить – возвращаем карточку
+                CancelDrop();
+            }
+            _boardView.ClearPreviewFromDrag();
         }
         else
         {
-            // Возврат на место без прыжков
-            _rectTransform.DOAnchorPos(_originalAnchoredPosition, _returnDuration)
-                .SetEase(Ease.OutQuad);
-            transform.DOScale(_originalScale, _returnDuration).SetEase(Ease.OutQuad);
-            _cardAnimator.SetTrigger("Cancel");
+            // BoardView не доступен – возвращаем
+            CancelDrop();
+        }
+
+        if (!planted)
+        {
             OnDragCancel?.Invoke(this);
         }
-    }
-    private bool CheckDropTarget(PointerEventData eventData)
-    {
-        var results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, results);
-        foreach (var result in results)
+        else
         {
-            // Пропускаем объекты, принадлежащие этой карточке
-            if (result.gameObject == gameObject || result.gameObject.transform.IsChildOf(transform))
-                continue;
-
-            var handView = ServiceLocator.TryGet<HandView>(out var hv) ? hv : null;
-            if (handView != null)
-            {
-                handView.HandleDrop(this, result.gameObject);
-                return true;
-            }
+            OnDragEnd?.Invoke(this);
         }
-        return false;
+    }
+
+    private IEnumerator ReturnToPosition(Vector2 target, float duration)
+    {
+        Vector2 startPos = _rectTransform.anchoredPosition;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            float smoothT = t * t * (3f - 2f * t);
+            _rectTransform.anchoredPosition = Vector2.Lerp(startPos, target, smoothT);
+            yield return null;
+        }
+        _rectTransform.anchoredPosition = target;
+        _returnCoroutine = null;
     }
 
     // ----- События указателя -----
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!_isDragging)
-        {
-            _cardAnimator.SetBool("IsHovered", true);
-            transform.DOScale(_originalScale * _hoverScale, 0.15f);
-        }
+        Highlight();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (!_isDragging)
-        {
-            _cardAnimator.SetBool("IsHovered", false);
-            transform.DOScale(_originalScale, 0.15f);
-        }
+        Unhighlight();
     }
 
     public void OnPointerDown(PointerEventData eventData) { }
@@ -210,11 +309,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         if (!_isDragging && !eventData.dragging)
         {
             Select();
-            // Лёгкая анимация нажатия – просто уменьшение и возврат (без прыжка)
-            transform.DOScale(_originalScale * 0.9f, 0.1f).OnComplete(() =>
-            {
-                if (!_isDragging) transform.DOScale(_originalScale, 0.1f);
-            });
+            transform.DOPunchScale(Vector3.one * 0.1f, 0.15f);
             OnCardClick?.Invoke(this);
         }
     }
@@ -237,8 +332,10 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         _item = null;
         gameObject.SetActive(false);
-        _currentTween?.Kill();
+        KillCurrentTween();
         DOTween.Kill(transform);
         DOTween.Kill(_rectTransform);
+        transform.localScale = _originalScale;
+        _rectTransform.anchoredPosition = _originalAnchoredPosition;
     }
 }

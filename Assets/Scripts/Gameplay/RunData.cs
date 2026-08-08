@@ -1,27 +1,28 @@
 using Infrastructure;
 using Data;
+using System.Collections.Generic;
 
 namespace Gameplay
 {
     public class RunData
     {
-        public int Seed { get; }
         public SeedGenerator Random { get; }
-        public GridBoard Board { get; set; }
+        public GridBoard Board { get; private set; }
         public Hand Hand { get; }
         public Deck Deck { get; }
         public PlayerInventory Inventory { get; }
+        public JournalData Journal { get; private set; }
+        public int Seed { get; }
         public int CurrentDay { get; set; }
         public int DailyQuota { get; set; }
         public bool IsQuotaReached { get; set; }
-        public JournalData Journal { get; set; }
-        public int TotalCaloriesGoal { get; set; }
         public bool IsTotalGoalReached { get; set; }
         public int CurrentStageIndex { get; set; }
         public int StageStartDay { get; set; }
-        public StageData[] Stages { get; set; }
+        public StageData[] Stages { get; }
+        public Dictionary<PlantData, GenomePropertyData> PermanentModifiers { get; set; }
 
-        public RunData(int seed, int boardWidth, int boardHeight, int handMaxSize, JournalData journal)
+        public RunData(int seed, int boardWidth, int boardHeight, int handMaxSize, JournalData journal, StageData[] stages)
         {
             Seed = seed;
             Random = new SeedGenerator(seed);
@@ -32,6 +33,7 @@ namespace Gameplay
             CurrentDay = 0;
             IsQuotaReached = false;
             Journal = journal;
+            Stages = stages;
         }
 
         public StageData GetCurrentStage()
@@ -40,6 +42,9 @@ namespace Gameplay
                 return default;
             return Stages[CurrentStageIndex];
         }
+
+        public void SetJournalData(JournalData journalData) => Journal = journalData;
+        public void SetBoard(GridBoard board) => Board = board;
 
         public bool IsAllStagesCompleted => CurrentStageIndex >= Stages.Length;
     }

@@ -7,7 +7,7 @@ using Infrastructure.Events;
 using Commands;
 using Gameplay;
 
-public class HUDView : MonoBehaviour
+public class HUDView : MonoBehaviour, IGameSystem
 {
     [Header("UI References (TextMeshPro)")]
     [SerializeField] private TMP_Text _dayText;
@@ -30,7 +30,7 @@ public class HUDView : MonoBehaviour
     private int _currentCalories;
     private Coroutine _caloriesCoroutine;
 
-    private void Awake()
+    public void Initialize()
     {
         EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
         EventBus.Subscribe<DayStartedEvent>(OnDayStarted);
@@ -47,7 +47,7 @@ public class HUDView : MonoBehaviour
         if (_stageProgressSlider != null) _stageProgressSlider.value = 0;
     }
 
-    private void OnDestroy()
+    public void Dispose()
     {
         EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
         EventBus.Unsubscribe<DayStartedEvent>(OnDayStarted);
@@ -218,4 +218,6 @@ public class HUDView : MonoBehaviour
         _caloriesText.text = $"{calories}/{requiredCalories}";
         UpdateStageProgress();
     }
+
+
 }

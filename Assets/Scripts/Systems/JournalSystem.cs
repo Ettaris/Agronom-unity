@@ -15,30 +15,29 @@ namespace Systems
         {
             _journal = new JournalData();
             _isLoaded = false;
-            EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
+            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
+            EventBus.Subscribe<GenomeDiscoveredEvent>(DiscoverProperty);
         }
 
         public async void Dispose()
         {
-            EventBus.Unsubscribe<ServicesInitializedEvent>(OnServicesInitialized);
+            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
             if (_journal != null)
                 await ServiceLocator.Get<SaveManager>().SaveJournalAsync(_journal);
         }
 
-        private async void OnServicesInitialized(ServicesInitializedEvent evt)
+        private async void OnRunStarted(RunStartedEvent evt)
         {
             var journal = await ServiceLocator.Get<SaveManager>().LoadJournalAsync();
             if (journal != null) _journal = journal;
             _isLoaded = true;
         }
 
-
-        public void DiscoverProperty(GenomePropertyData property)
+        public void DiscoverProperty(GenomeDiscoveredEvent evt)
         {
-            if (property == null) return;
+            if (evt.Property == null) return;
             if (_journal == null) _journal = new JournalData();
-            _journal.AddEntry(property);
-            // ћожно публиковать событие, если нужно
+            _journal.AddEntry(evt.Property.Data);
         }
 
         public bool IsPropertyDiscovered(GenomePropertyData property)

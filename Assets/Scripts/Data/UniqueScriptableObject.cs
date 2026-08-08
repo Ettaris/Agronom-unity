@@ -1,8 +1,12 @@
 using UnityEngine;
 
+
+/// <summary>
+/// Необходим для присваивания уникального ID всем экземплярам растений, батареек и ферментов. Используется для сохранений забега(RunData)
+/// </summary>
 public abstract class UniqueScriptableObject : ScriptableObject
 {
-    [SerializeField] private string _id; // приватное поле, не отображается в инспекторе по умолчанию
+    [SerializeField] private string _id; 
 
     public string Id
     {

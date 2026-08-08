@@ -13,12 +13,17 @@ using Systems;
 /// ќтображает список геномов, обнаруженных игроком.
 /// »спользует пул записей дл€ минимизации аллокаций.
 /// </summary>
-public class JournalView : MonoBehaviour
+
+public class JournalView : MonoBehaviour, IGameSystem
 {
+
+    //TODO: If there will be a good reason, make different interfaces for UI and Systems, or general like IInitializble and IDisposable.
+
     [Header("UI References")]
     [SerializeField] private Transform _entriesContainer;
     [SerializeField] private GameObject _entryPrefab;
     [SerializeField] private Button _closeButton;
+    [SerializeField] private Button _openButton;
     [SerializeField] private TMP_Text _emptyLabel;
 
     [Header("Animator")]
@@ -34,24 +39,22 @@ public class JournalView : MonoBehaviour
     private Queue<JournalEntryView> _entryPool = new Queue<JournalEntryView>();
     private bool _isOpen;
 
-    private void Awake()
+    public void Initialize()
     {
         _closeButton.onClick.AddListener(CloseJournal);
-        EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
+        _openButton.onClick.AddListener(OpenJournal);
         EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
 
         gameObject.SetActive(false);
         _isOpen = false;
-    }
 
-    private void OnServicesInitialized(ServicesInitializedEvent evt)
-    {
         _journalSystem = ServiceLocator.Get<JournalSystem>();
         if (_journalSystem == null)
             Debug.LogError("JournalSystem not found!");
+
     }
 
-    private void OnDestroy()
+    public void Dispose()
     {
         EventBus.Unsubscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
         _closeButton.onClick.RemoveAllListeners();
@@ -84,6 +87,7 @@ public class JournalView : MonoBehaviour
     {
         var journalData = _journalSystem.GetJournal();
         var entries = journalData.GetAllEntries();
+        
 
         // —крываем все активные записи с анимацией
         foreach (var entry in _activeEntries)
@@ -138,4 +142,6 @@ public class JournalView : MonoBehaviour
         entry.gameObject.SetActive(false);
         _entryPool.Enqueue(entry);
     }
+
+
 }

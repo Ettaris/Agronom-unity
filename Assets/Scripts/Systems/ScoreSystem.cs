@@ -9,26 +9,23 @@ namespace Systems
     /// <summary>
     /// Система учёта калорий и проверки выполнения дневной квоты.
     /// </summary>
-    public class ScoreSystem : IGameSystem
+    public class ScoreSystem : IGameSystem, IRunAware
     {
         private RunData _runData;
 
         public void Initialize()
         {
-            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<DayStartedEvent>(OnDayStarted);
         }
 
         public void Dispose()
         {
             EventBus.Unsubscribe<DayStartedEvent>(OnDayStarted);
-            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
         }
 
-        private void OnRunStarted(RunStartedEvent evt)
+        public void OnRunDataSetup(RunData runData)
         {
-            _runData = evt.RunData;
-            Debug.Log(_runData + " - score system run data");
+            _runData = runData;
         }
 
         /// <summary>

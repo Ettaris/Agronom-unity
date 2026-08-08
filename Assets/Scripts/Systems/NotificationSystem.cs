@@ -21,7 +21,6 @@ namespace Systems
         private List<NotificationView> _activeNotifications = new List<NotificationView>();
         private Stack<NotificationView> _pool = new Stack<NotificationView>();
 
-        private bool _isInitialized;
         private bool _isProcessing;
 
         public void Initialize()
@@ -45,8 +44,6 @@ namespace Systems
                 return;
             }
 
-            _isInitialized = true;
-
             // Подписка на события
             EventBus.Subscribe<PlantGrownEvent>(OnPlantGrown);
             EventBus.Subscribe<PlantHarvestedEvent>(OnPlantHarvested);
@@ -56,22 +53,8 @@ namespace Systems
             EventBus.Subscribe<PlantKilledByCentrifugeEvent>(OnPlantKilledByCentrifuge);
         }
 
-        private void TestNotification()
-        {
-            EnqueueNotification(new NotificationData("Тест уведомления!", null, Color.black, 3f));
-        }
-
         private void Start()
         {
-            Invoke(nameof(TestNotification), 2f);
-            EventBus.Subscribe<PlantGrownEvent>(OnPlantGrown);
-            EventBus.Subscribe<PlantHarvestedEvent>(OnPlantHarvested);
-            EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
-            EventBus.Subscribe<PlantKilledEvent>(OnPlantKilled);
-            EventBus.Subscribe<HandFullEvent>(OnHandFull);
-            EventBus.Subscribe<PlantKilledByCentrifugeEvent>(OnPlantKilledByCentrifuge);
-
-            Debug.Log(_container + " - container for NS");
 
             for (int i = 0; i < _poolSize; i++)
             {
@@ -272,6 +255,5 @@ namespace Systems
         #endregion
     }
 
-    // Событие для уведомления о заполненной руке (публикуется из HandView или Hand)
-    public struct HandFullEvent { }
+
 }

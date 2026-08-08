@@ -1,9 +1,13 @@
 using Infrastructure;
+using Infrastructure.Events;
 using System.Collections.Generic;
 using Systems;
 
 namespace Gameplay
 {
+    /// <summary>
+    /// Хранит и оперирует итемами в руке
+    /// </summary>
     public class Hand
     {
         private readonly List<ItemInstance> _items = new List<ItemInstance>();
@@ -50,7 +54,7 @@ namespace Gameplay
 
         public void Clear() => _items.Clear();
 
-        // Метод для получения всех растений (удобно)
+        // Метод для получения всех растений
         public IEnumerable<PlantInstance> GetPlants()
         {
             foreach (var item in _items)

@@ -29,7 +29,7 @@ namespace GenomeEffects
                 if (cell.Plant == null)
                 {
                     var weed = new PlantInstance(weedData, 0);
-                    if (board.PlacePlant(weed, cell.X, cell.Y))
+                    if (board.PlacePlant(weed, new Vector2Int(cell.X, cell.Y)))
                     {
                         weed.CurrentCell = cell;
                         // Регистрируем свойства (у сорняка их нет)

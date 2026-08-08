@@ -1,4 +1,3 @@
-// GameEvents.cs
 using Data;
 using Gameplay;
 using System.Collections.Generic;
@@ -59,7 +58,6 @@ namespace Infrastructure.Events
         public string Reason;
     }
 
-
     public struct PlantRemovedEvent
     {
         public PlantInstance Plant;
@@ -105,9 +103,6 @@ namespace Infrastructure.Events
         public int CurrentCalories;
     }
 
-    public struct TotalGoalReachedEvent { }
-
-
     // ---------- Сохранение ----------
     public struct SaveRequestedEvent
     {
@@ -120,7 +115,6 @@ namespace Infrastructure.Events
         public PlantInstance Plant;
         public int ModifiedCalories;
     }
-
 
     public struct GenomeChangedEvent
     {
@@ -173,6 +167,9 @@ namespace Infrastructure.Events
 
     public struct HandUpdatedEvent { }
 
+    // Событие для уведомления о заполненной руке (публикуется из HandView или Hand)
+    public struct HandFullEvent { }
+
     public struct OfferGeneratedEvent
     {
         public List<ItemInstance> Offer;
@@ -186,8 +183,19 @@ namespace Infrastructure.Events
 
     public struct ServicesInitializedEvent { }
 
-    public struct StageChangedEvent { public int StageIndex; public RunData RunData; }
-    public struct StageFailedEvent { public int StageIndex; public int RequiredCalories; public int CurrentCalories; }
+    public struct StageChangedEvent
+    {
+        public int StageIndex;
+        public RunData RunData;
+    }
+
+    public struct StageFailedEvent
+    {
+        public int StageIndex;
+        public int RequiredCalories;
+        public int CurrentCalories;
+    }
+
     public struct GameWinEvent { }
 
     public struct PlantKilledByCentrifugeEvent

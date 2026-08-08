@@ -8,7 +8,7 @@ using Gameplay;
 using Data;
 using Managers;
 
-public class LaboratoryView : MonoBehaviour
+public class LaboratoryView : MonoBehaviour, IGameSystem
 {
     [Header("Slots")]
     [SerializeField] private LaboratorySlotView _consumableSlot;
@@ -33,11 +33,9 @@ public class LaboratoryView : MonoBehaviour
     private PlantInstance _plantB;
     private bool _isCentrifugeMode;
 
-    private void Start()
+
+    public void Initialize()
     {
-
-
-        // Подписка на события (только когда окно открыто)
         EventBus.Subscribe<CardSelectedEvent>(OnCardSelected);
         EventBus.Subscribe<HandUpdatedEvent>(OnHandUpdated);
         EventBus.Subscribe<FermentUsedEvent>(OnFermentUsed);
@@ -53,7 +51,7 @@ public class LaboratoryView : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void OnDestroy()
+    public void Dispose()
     {
         EventBus.Unsubscribe<CardSelectedEvent>(OnCardSelected);
         EventBus.Unsubscribe<HandUpdatedEvent>(OnHandUpdated);
@@ -281,6 +279,7 @@ public class LaboratoryView : MonoBehaviour
 
         ClearSlots();
     }
+
 
     #endregion
 }

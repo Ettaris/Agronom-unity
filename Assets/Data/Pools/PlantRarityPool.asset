@@ -22,7 +22,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a62c42b2ec491a446800d6674be79769, type: 2}
   - {fileID: 11400000, guid: 88528d01974bfac4eb004179b15247a8, type: 2}
   - {fileID: 11400000, guid: d32e0d6983889d3438c655418cb1d272, type: 2}
-  - {fileID: 11400000, guid: 6c4653944938456458ef66e4cf0fe3c8, type: 2}
   uncommonPlants:
   - {fileID: 11400000, guid: 90f37cda85b2f984385f36bd4476951d, type: 2}
   - {fileID: 11400000, guid: 3c7cca18a6ad56846860dc6a20ef10e9, type: 2}
@@ -30,6 +29,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 753cadc18a7f6604ea5560eb1c26c32b, type: 2}
   - {fileID: 11400000, guid: d956940ae40450041bd00718d7aae746, type: 2}
   - {fileID: 11400000, guid: 85adca3ec1dbc6b4aadf9b10c57036ed, type: 2}
-  rarePlants: []
-  epicPlants: []
-  legendaryPlants: []
+  rarePlants:
+  - {fileID: 11400000, guid: 6c4653944938456458ef66e4cf0fe3c8, type: 2}
+  epicPlants:
+  - {fileID: 11400000, guid: d956940ae40450041bd00718d7aae746, type: 2}
+  legendaryPlants:
+  - {fileID: 11400000, guid: a62c42b2ec491a446800d6674be79769, type: 2}

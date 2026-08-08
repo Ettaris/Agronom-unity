@@ -1,9 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using Data;
 using Gameplay;
 using Infrastructure;
 using Infrastructure.Events;
 using Managers;
+using UnityEngine;
+using static UnityEditor.Tilemaps.RuleTileTemplate;
 
 namespace Systems
 {
@@ -12,17 +15,13 @@ namespace Systems
         private GameConfig _config;
         private RunManager _runManager;
         private SaveManager _saveManager;
-        private PropertyResolverSystem _propertyResolver;
 
         public void Initialize()
         {
+            EventBus.Subscribe<RunGenerationRequestedEvent>(OnRunGenerationRequested);
             _config = ServiceLocator.Get<GameConfig>();
             _runManager = ServiceLocator.Get<RunManager>();
             _saveManager = ServiceLocator.Get<SaveManager>();
-            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
-
-
-            EventBus.Subscribe<RunGenerationRequestedEvent>(OnRunGenerationRequested);
         }
 
         public void Dispose()
@@ -37,94 +36,28 @@ namespace Systems
 
         public void GenerateRun(int seed)
         {
-            var journal = _saveManager.LoadJournal() ?? new JournalData();
             var random = new SeedGenerator(seed);
-
-            var plantPool = _config.plantPool;
-            var genomePool = _config.genomePool;
-            var fermentPool = _config.fermentPool;
-            var batteryPool = _config.batteryPool;
-
-            if (plantPool == null || plantPool.plants.Count == 0)
-            {
-                UnityEngine.Debug.LogError("PlantPool is empty!");
-                return;
-            }
 
             int deckSize = _config.startingDeckSize;
             int handSize = _config.initialHandSize;
-            int totalPlantsNeeded = deckSize + handSize;
 
-            // 1. Генерация растений
-            var availablePlants = new List<PlantData>(plantPool.plants);
-            ShuffleList(availablePlants, random);
+            var runData = CreateRunData(seed);
 
-            while (availablePlants.Count < totalPlantsNeeded)
-                availablePlants.Add(availablePlants[random.NextInt(0, availablePlants.Count)]);
+            var allPlantTypes = GetAllPlantTypes();
 
-            var allPlantInstances = new List<PlantInstance>(totalPlantsNeeded);
-            var genomeList = genomePool.genomeProperties;
+            AssignPermanentModifiersForPlants(allPlantTypes, runData, random);
 
-            for (int i = 0; i < totalPlantsNeeded; i++)
-            {
-                var plantData = availablePlants[i];
-                int maxCap = plantData.maxGenomeCapacity > 0 ? plantData.maxGenomeCapacity : _config.defaultMaxGenomeCapacity;
-                var plant = PlantFactory.CreatePlantWithProperties(plantData, random, genomePool, _config.maxPropertiesPerPlant);
+            var allPlantInstances = CreatePlantInstances(allPlantTypes, runData, random);
 
-                // Назначаем свойства
-                PlantGeneratorHelper.AssignRandomProperties(plant, random, genomePool, _config.maxPropertiesPerPlant);
+            var extraItems = CreateBatteriesAndFerments();
 
-                allPlantInstances.Add(plant);
-                // Регистрируем свойства в PropertyResolverSystem
-                _propertyResolver.RegisterPlant(plant);
-            }
+            var (handPlants, deckPlants) = SeparateHandAndDeckPlants(allPlantInstances, handSize, deckSize);
 
-            // 2. Другие предметы (ферменты, батарейки)
-            var extraItems = new List<ItemInstance>();
-            if (fermentPool != null)
-                foreach (var f in fermentPool.ferments)
-                    extraItems.Add(new ItemInstance(f));
-            if (batteryPool != null)
-                foreach (var b in batteryPool.batteries)
-                    extraItems.Add(new ItemInstance(b));
-
-            // 3. Разделение на руку и колоду
-            var handPlants = new List<PlantInstance>(handSize);
-            var deckPlants = new List<PlantInstance>(deckSize);
-            for (int i = 0; i < allPlantInstances.Count; i++)
-            {
-                if (i < handSize)
-                    handPlants.Add(allPlantInstances[i]);
-                else
-                    deckPlants.Add(allPlantInstances[i]);
-            }
-
-            // 4. Создание RunData
-            var runData = new RunData(seed, _config.boardWidth, _config.boardHeight, _config.maxHandSize, journal);
-
-            runData.TotalCaloriesGoal = _config.totalCaloriesGoal;
-            runData.IsTotalGoalReached = false;
-
-            runData.Stages = _config.stages;
-            runData.CurrentStageIndex = 0;
-            runData.StageStartDay = 1;
-
-            // 5. Заполнение руки
-            foreach (var plant in handPlants)
-                runData.Hand.Add(plant);
-
-            // 6. Заполнение колоды
-            foreach (var plant in deckPlants)
-                runData.Deck.Add(plant);
-            foreach (var item in extraItems)
-                runData.Deck.Add(item);
+            FillHandAndDeckWithItems(runData, handPlants, deckPlants, extraItems);
 
             runData.Deck.Shuffle(random);
             runData.CurrentDay = 1;
-            _runManager.CurrentRunData = runData;
-
-            EventBus.Publish(new RunStartedEvent { Seed = seed, RunData = runData });
-            UnityEngine.Debug.Log($"Run generated. Hand: {runData.Hand.Count}, Deck: {runData.Deck.Count}");
+            _runManager.SetupRunData(runData, seed);
         }
 
         private void ShuffleList<T>(List<T> list, SeedGenerator random)
@@ -136,6 +69,116 @@ namespace Systems
                 list[i] = list[j];
                 list[j] = temp;
             }
+        }
+
+        
+        
+        //Generate Run Methods
+
+        private RunData CreateRunData(int seed)
+        {
+            var journal = _saveManager.LoadJournal() ?? new JournalData();
+
+            var runData = new RunData(seed, _config.boardWidth, _config.boardHeight, _config.maxHandSize, journal, _config.stages);
+
+            runData.CurrentStageIndex = 0;
+            runData.StageStartDay = 1;
+
+            runData.PermanentModifiers = new Dictionary<PlantData, GenomePropertyData>();
+
+            return runData;
+        }
+
+        private HashSet<PlantData> GetAllPlantTypes()
+        {
+            var allPlantTypes = new HashSet<PlantData>();
+            var rarityPool = _config.plantRarityPool;
+
+            if (rarityPool != null)
+            {
+                allPlantTypes.UnionWith(rarityPool.commonPlants);
+                allPlantTypes.UnionWith(rarityPool.uncommonPlants);
+                allPlantTypes.UnionWith(rarityPool.rarePlants);
+                allPlantTypes.UnionWith(rarityPool.epicPlants);
+                allPlantTypes.UnionWith(rarityPool.legendaryPlants);
+            }
+            return allPlantTypes;
+        }
+
+        private void AssignPermanentModifiersForPlants(HashSet<PlantData> allPlantTypes, RunData runData, SeedGenerator seedRandom)
+        {
+            foreach (var plantData in allPlantTypes)
+            {
+                var perm = ModifierAssigner.SelectPermanentModifier(seedRandom, _config.modifierConfig, _config.genomeRarityPool);
+                if (perm != null)
+                    runData.PermanentModifiers[plantData] = perm;
+                else
+                    Debug.LogWarning($"No permanent modifier assigned for {plantData.itemName}");
+            }
+        }
+
+        private List<PlantInstance> CreatePlantInstances(HashSet<PlantData> allPlantTypes, RunData runData, SeedGenerator random)
+        {
+            int totalPlantsNeeded = _config.startingDeckSize + _config.initialHandSize;
+
+            var shuffledPlantList = new List<PlantData>(allPlantTypes);
+            ShuffleList(shuffledPlantList, random);
+
+            while (shuffledPlantList.Count < totalPlantsNeeded)
+            {
+                var extra = shuffledPlantList[random.NextInt(0, shuffledPlantList.Count)];
+                shuffledPlantList.Add(extra);
+            }
+
+            var selectedPlants = shuffledPlantList.Take(totalPlantsNeeded).ToList();
+
+            var allPlantInstances = new List<PlantInstance>(totalPlantsNeeded);
+            foreach (var plantData in selectedPlants)
+            {
+                var plant = PlantFactory.CreatePlantWithProperties(plantData, random, _config, runData);
+                allPlantInstances.Add(plant);
+            }
+            return allPlantInstances;
+        }
+
+        private List<ItemInstance> CreateBatteriesAndFerments()
+        {
+            var fermentPool = _config.fermentPool;
+            var batteryPool = _config.batteryPool;
+
+            var extraItems = new List<ItemInstance>();
+            if (fermentPool != null)
+                foreach (var f in fermentPool.ferments)
+                    extraItems.Add(new ItemInstance(f));
+            if (batteryPool != null)
+                foreach (var b in batteryPool.batteries)
+                    extraItems.Add(new ItemInstance(b));
+            return extraItems;
+        }
+
+        private (List<PlantInstance>, List<PlantInstance>) SeparateHandAndDeckPlants(List<PlantInstance> allPlantInstances, int handSize, int deckSize)
+        {
+            var handPlants = new List<PlantInstance>(handSize);
+            var deckPlants = new List<PlantInstance>(deckSize);
+            for (int i = 0; i < allPlantInstances.Count; i++)
+            {
+                if (i < handSize)
+                    handPlants.Add(allPlantInstances[i]);
+                else
+                    deckPlants.Add(allPlantInstances[i]);
+            }
+            return (handPlants, deckPlants);
+        }
+
+        private void FillHandAndDeckWithItems(RunData runData, List<PlantInstance> handPlants, List<PlantInstance> deckPlants, List<ItemInstance> extraItems)
+        {
+            foreach (var plant in handPlants)
+                runData.Hand.Add(plant);
+
+            foreach (var plant in deckPlants)
+                runData.Deck.Add(plant);
+            foreach (var item in extraItems)
+                runData.Deck.Add(item);
         }
     }
 

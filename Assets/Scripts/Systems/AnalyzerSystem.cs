@@ -10,34 +10,18 @@ namespace Systems
     /// Система анализа растений с помощью фермента.
     /// Может работать как с посаженными растениями (на поле), так и с карточками в руке.
     /// </summary>
-    public class AnalyzerSystem : IGameSystem
+    public class AnalyzerSystem : IRunAware
     {
-        private RunData _runData;
-        private JournalSystem _journalSystem;
         private Hand _hand;
 
-        public void Initialize()
+        public void OnRunDataSetup(RunData runData)
         {
-            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
-
-        }
-
-        public void Dispose()
-        {
-            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
-
-        }
-
-        private void OnRunStarted(RunStartedEvent evt)
-        {
-            _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (_runData == null)
+            _hand = runData.Hand;
+            if (runData == null)
             {
                 UnityEngine.Debug.LogError("RunData is null in AnalyzerSystem!");
                 return;
             }
-            _journalSystem = ServiceLocator.Get<JournalSystem>();
-            _hand = _runData.Hand;
         }
 
         /// <summary>
@@ -84,12 +68,12 @@ namespace Systems
             // Открываем все свойства растения (добавляем в журнал)
             foreach (var prop in plant.Genome.Properties)
             {
-                _journalSystem.DiscoverProperty(prop.Data);
                 EventBus.Publish(new GenomeDiscoveredEvent
                 {
                     Plant = plant,
                     Property = prop
                 });
+                //Journal подписан на GenomeDiscoveredEvent
             }
 
             // Удаляем фермент из руки

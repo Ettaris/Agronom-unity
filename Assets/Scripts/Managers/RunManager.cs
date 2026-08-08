@@ -7,7 +7,8 @@ namespace Managers
 {
     public class RunManager : IGameSystem
     {
-        public RunData CurrentRunData { get; set; }
+        public RunData CurrentRunData { get; private set; }
+        public int CurrentRunSeed { get; private set; }
         private bool _isRunActive;
 
         public void Initialize()
@@ -21,6 +22,11 @@ namespace Managers
         {
             EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Unsubscribe<RunEndedEvent>(OnRunEnded);
+        }
+
+        private void OnRunStarted(RunStartedEvent evt)
+        {
+            _isRunActive = true;
         }
 
         public void LoadRunData(RunData runData)
@@ -45,21 +51,23 @@ namespace Managers
             _isRunActive = false;
         }
 
-        private void OnRunStarted(RunStartedEvent evt)
-        {
-            CurrentRunData = evt.RunData;
-            _isRunActive = true;
-            Debug.Log("OnRunStarted runManager");
-            // Можно также инициализировать первый день
-        }
-
         private void OnRunEnded(RunEndedEvent evt)
         {
             _isRunActive = false;
             // Сохраняем мета-прогресс
             ServiceLocator.Get<SaveManager>().SaveJournal(CurrentRunData.Journal);
         }
-    }
 
-    // События уже определены в GameEvents.cs
+        public void SetupRunData(RunData runData, int seed)
+        {
+            CurrentRunData = runData;
+            CurrentRunSeed = seed;
+            SendRunDataToGameManager(runData);
+        }
+
+        private void SendRunDataToGameManager(RunData runData)
+        {
+            ServiceLocator.Get<GameManager>().InitializeAndActivateRun(runData);
+        }
+    }
 }

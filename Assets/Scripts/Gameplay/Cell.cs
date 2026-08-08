@@ -1,5 +1,8 @@
 namespace Gameplay
 {
+    /// <summary>
+    /// Данные логической клетки(Позиция, растение, оккупировано)
+    /// </summary>
     public class Cell
     {
         public int X { get; }

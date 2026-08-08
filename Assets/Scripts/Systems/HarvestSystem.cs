@@ -8,7 +8,7 @@ namespace Systems
     /// <summary>
     /// Система сбора урожая. Позволяет собрать одно растение по координатам.
     /// </summary>
-    public class HarvestSystem : IGameSystem
+    public class HarvestSystem : IGameSystem, IRunAware
     {
         private RunData _runData;
         private PropertyResolverSystem _propertyResolver;
@@ -16,22 +16,16 @@ namespace Systems
 
         public void Initialize()
         {
-            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
-        }
-
-        public void Dispose()
-        {
-            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
-        }
-
-        private void OnRunStarted(RunStartedEvent evt)
-        {
-            _runData = evt.RunData;
             _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
             _scoreSystem = ServiceLocator.Get<ScoreSystem>();
         }
 
+        public void Dispose() { }
 
+        public void OnRunDataSetup(RunData runData)
+        {
+            _runData = runData;
+        }
 
         /// <summary>
         /// Собирает растение в указанной клетке, если оно зрелое.

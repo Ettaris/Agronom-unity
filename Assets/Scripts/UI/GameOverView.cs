@@ -11,7 +11,7 @@ using Data;
 using Managers;
 using Systems;
 
-public class GameOverView : MonoBehaviour
+public class GameOverView : MonoBehaviour, IGameSystem
 {
     [Header("UI References")]
     [SerializeField] private TMP_Text _dayText;
@@ -36,9 +36,8 @@ public class GameOverView : MonoBehaviour
     private JournalSystem _journalSystem;
     private List<GameObject> _statEntries = new List<GameObject>();
 
-    private void Awake()
+    public void Initialize()
     {
-        _journalSystem = ServiceLocator.Get<JournalSystem>();
         _restartButton.onClick.AddListener(OnRestartClicked);
         _mainMenuButton.onClick.AddListener(OnMainMenuClicked);
 
@@ -46,10 +45,11 @@ public class GameOverView : MonoBehaviour
         EventBus.Subscribe<StageFailedEvent>(OnStageFailed);
         EventBus.Subscribe<GameWinEvent>(OnGameWin);
 
+        _journalSystem = ServiceLocator.Get<JournalSystem>();
         gameObject.SetActive(false);
     }
 
-    private void OnDestroy()
+    public void Dispose()
     {
         EventBus.Unsubscribe<RunEndedEvent>(OnRunEnded);
         EventBus.Unsubscribe<StageFailedEvent>(OnStageFailed);
@@ -163,4 +163,6 @@ public class GameOverView : MonoBehaviour
             gameObject.SetActive(false);
         });
     }
+
+
 }

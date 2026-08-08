@@ -15,7 +15,7 @@ using System;
 /// <summary>
 /// Окно ежедневного выбора карточек.
 /// </summary>
-public class CardDrawView : MonoBehaviour
+public class CardDrawView : MonoBehaviour, IGameSystem, IRunAware
 {
     [Header("UI References")]
     [SerializeField] private Transform _cardsContainer;
@@ -40,26 +40,24 @@ public class CardDrawView : MonoBehaviour
     private int _maxSelectable;
     private bool _isProcessing;
 
-    private void Awake()
+    public void Initialize()
     {
-
         _confirmButton.onClick.AddListener(OnConfirmClicked);
         if (_skipButton != null) _skipButton.onClick.AddListener(OnSkipClicked);
 
         EventBus.Subscribe<OfferGeneratedEvent>(OnOfferGenerated);
-        EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
-        EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
-
     }
 
-    private void OnServicesInitialized(ServicesInitializedEvent evt)
+    public void Dispose()
     {
-
+        EventBus.Unsubscribe<OfferGeneratedEvent>(OnOfferGenerated);
+        _confirmButton.onClick.RemoveAllListeners();
+        if (_skipButton != null) _skipButton.onClick.RemoveAllListeners();
     }
 
-    private void OnRunStarted(RunStartedEvent evt)
+    public void OnRunDataSetup(RunData runData)
     {
-        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
+        _runData = runData;
         if (_runData == null)
         {
             Debug.LogError("CardDrawView: RunData is null");
@@ -75,13 +73,6 @@ public class CardDrawView : MonoBehaviour
         gameObject.SetActive(false);
         _isProcessing = false;
         Debug.Log("CardDrawView OnRunStarted");
-    }
-
-    private void OnDestroy()
-    {
-        EventBus.Unsubscribe<OfferGeneratedEvent>(OnOfferGenerated);
-        _confirmButton.onClick.RemoveAllListeners();
-        if (_skipButton != null) _skipButton.onClick.RemoveAllListeners();
     }
 
     private void OnOfferGenerated(OfferGeneratedEvent evt)
@@ -228,4 +219,5 @@ public class CardDrawView : MonoBehaviour
             DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
         }
     }
+
 }

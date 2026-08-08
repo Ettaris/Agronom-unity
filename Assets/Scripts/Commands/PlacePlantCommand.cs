@@ -14,22 +14,16 @@ namespace Commands
 
         public void Execute()
         {
-            Debug.Log($"PlacePlantCommand: planting {Plant.PlantData.itemName} at ({X},{Y})");
             var runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (runData == null) { Debug.LogError("RunData is null!"); return; }
+            if (runData == null) return;
 
-            if (runData.Board.PlacePlant(Plant, X, Y))
+            Vector2Int pos = new Vector2Int(X, Y);
+            if (runData.Board.CanPlace(pos, Plant.PlantData.size))
             {
-                Plant.CurrentCell = runData.Board.GetCell(X, Y);
-                bool removed = runData.Hand.Remove(Plant);
-                Debug.Log($"PlacePlantCommand: Plant removed from hand: {removed}");
+                runData.Board.PlacePlant(Plant, pos);
+                runData.Hand.Remove(Plant);
                 EventBus.Publish(new PlantPlacedEvent { Plant = Plant, X = X, Y = Y });
                 EventBus.Publish(new HandUpdatedEvent());
-                Debug.Log("PlacePlantCommand: Success");
-            }
-            else
-            {
-                Debug.LogWarning($"PlacePlantCommand: Failed to place plant at ({X},{Y})");
             }
         }
     }

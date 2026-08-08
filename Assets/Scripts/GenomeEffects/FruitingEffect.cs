@@ -16,11 +16,11 @@ namespace GenomeEffects
         public void OnDestroyed(PlantInstance plant, int x, int y, GridBoard board)
         {
             var config = ServiceLocator.Get<GameConfig>();
-            var random = ServiceLocator.Get<RunManager>().CurrentRunData.Random;
+            var runData = ServiceLocator.Get<RunManager>().CurrentRunData;
             var genomePool = config.genomePool;
             var maxProperties = config.maxPropertiesPerPlant;
 
-            var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, random, genomePool, maxProperties);
+            var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, runData.Random, config, runData);
 
 
             if (board.PlacePlant(sprout, x, y))

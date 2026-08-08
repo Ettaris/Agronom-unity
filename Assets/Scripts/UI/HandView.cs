@@ -8,7 +8,7 @@ using Commands;
 using Gameplay;
 using Managers;
 
-public class HandView : MonoBehaviour, IDropHandler
+public class HandView : MonoBehaviour, IDropHandler, IGameSystem
 {
     [Header("UI References")]
     [SerializeField] private RectTransform _cardsContainer; // родительский RectTransform для карточек
@@ -29,38 +29,25 @@ public class HandView : MonoBehaviour, IDropHandler
     private bool _isSelectionMode; // режим выбора карточек (для CardDrawSystem)
 
 
-    private void Awake()
+    public void Initialize()
     {
         // Подписываемся на события обновления руки
         EventBus.Subscribe<HandUpdatedEvent>(OnHandUpdated);
         EventBus.Subscribe<OfferGeneratedEvent>(OnOfferGenerated); // для режима выбора
-        EventBus.Subscribe<ServicesInitializedEvent>(OnServicesInitialized);
         EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
-
     }
 
-    private void OnServicesInitialized(ServicesInitializedEvent evt)
-    {
-
-    }
-
-    private void OnRunStarted(RunStartedEvent evt)
-    {
-        Debug.Log("HandView OnRunStarted");
-        _runData = evt.RunData;
-        if (_runData != null)
-        {
-            _hand = _runData.Hand;
-            RefreshHand();
-        }
-        Debug.Log(_runData + " - HandView run data");
-    }
-
-    private void OnDestroy()
+    public void Dispose()
     {
         EventBus.Unsubscribe<HandUpdatedEvent>(OnHandUpdated);
         EventBus.Unsubscribe<OfferGeneratedEvent>(OnOfferGenerated);
         EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
+    }
+
+    private void OnRunStarted(RunStartedEvent evt)
+    {
+        _hand = evt.RunData.Hand;
+        RefreshHand();
     }
 
     // Обработчики событий
@@ -251,4 +238,5 @@ public class HandView : MonoBehaviour, IDropHandler
             }
         }
     }
+
 }

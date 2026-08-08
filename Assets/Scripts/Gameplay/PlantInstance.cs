@@ -1,4 +1,5 @@
 using Data;
+using UnityEngine;
 
 namespace Gameplay
 {
@@ -9,6 +10,8 @@ namespace Gameplay
         public float GrowthProgress { get; set; }
         public bool IsGrown => GrowthProgress >= 1f;
         public Cell CurrentCell { get; set; }
+        public Vector2Int Position { get; set; }
+        public GenomePropertyInstance PermanentModifier { get; set; }
 
         public PlantInstance(PlantData data, int maxGenomeCapacity) : base(data)
         {

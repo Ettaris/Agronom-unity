@@ -5,7 +5,7 @@ namespace Gameplay
     public class ItemInstance
     {
         public ItemData Data { get; protected set; }
-        public int Quantity { get; set; } // для стакаемости, но пока не используется
+        public int Quantity { get; set; } // для стакаемости, но пока не используется TODO: Remove if there will be no need.
 
         public ItemInstance(ItemData data, int quantity = 1)
         {
@@ -13,6 +13,5 @@ namespace Gameplay
             Quantity = quantity;
         }
 
-        // Можно добавить виртуальные методы, если потребуется переопределять поведение
     }
 }

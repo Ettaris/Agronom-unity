@@ -12,7 +12,10 @@ public class OfferGenerationConfig : ScriptableObject
     [Header("Гарантированное количество растений")]
     public int guaranteedPlants = 2;
 
-    [Header("Веса типов предметов")]
+    /// <summary>
+    /// Используются в WeightRandom в качестве процентов(шанс) выпадения.
+    /// </summary>
+    [Header("Веса типов предметов(Шанс выпадения)")]
     public int plantWeight = 70;
     public int fermentWeight = 20;
     public int batteryWeight = 10;

@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using TMPro;
-using DG.Tweening;
+using Infrastructure.Events;
+using Infrastructure;
 using Gameplay;
 
 public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
@@ -13,143 +13,93 @@ public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, I
 
     [Header("Visuals")]
     [SerializeField] private Image _background;
-    [SerializeField] private Image _plantImage;
-    [SerializeField] private TMP_Text _growthText;
-    [SerializeField] private GameObject _highlightObject;
-
-    [Header("Animator")]
+    [SerializeField] private Image _highlightImage;
     [SerializeField] private Animator _cellAnimator;
 
-    [Header("Mutation")]
-    [SerializeField] private MutationView _mutationView;
-
     private Cell _logicCell;
-    private PlantInstance _currentPlant;
     private BoardView _boardView;
+    private bool _servicesReady;
 
     public int Row => _row;
     public int Column => _column;
     public int X => _column;
     public int Y => _row;
-    public Cell LogicCell => _logicCell;
-    public PlantInstance CurrentPlant => _currentPlant;
 
     private void Awake()
     {
-        _boardView = FindAnyObjectByType<BoardView>();
+        if (_highlightImage != null)
+            _highlightImage.gameObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        Debug.Log("CellView Services Initialized");
+        _servicesReady = true;
+        _boardView = ServiceLocator.TryGet<BoardView>(out var bv) ? bv : null;
+        if (_boardView == null)
+            Debug.LogError("CellView: BoardView not found!");
+    }
+
+
+    private void OnDestroy()
+    {
     }
 
     public void Initialize(Cell logicCell)
     {
         _logicCell = logicCell;
-        UpdateView();
-    }
-
-    public void SetPlant(PlantInstance plant)
-    {
-        Debug.Log($"CellView.SetPlant: plant={(plant?.PlantData?.itemName ?? "null")} at ({_column},{_row})");
-        _currentPlant = plant;
-        if (_logicCell != null)
-            _logicCell.Plant = plant;
-
-        if (_mutationView != null)
-        {
-            Debug.Log("CellView: Using MutationView");
-            _mutationView.Initialize(plant);
-            if (plant != null)
-                _mutationView.Refresh();
-        }
-        else
-        {
-            Debug.Log("CellView: MutationView is null, using fallback");
-            if (plant != null)
-            {
-                _plantImage.sprite = plant.PlantData.icon;
-                _plantImage.gameObject.SetActive(true);
-                _plantImage.color = Color.white;
-                _plantImage.transform.localScale = Vector3.one;
-                _growthText.text = Mathf.RoundToInt(plant.GrowthProgress * 100f) + "%";
-            }
-            else
-            {
-                _plantImage.sprite = null;
-                _plantImage.gameObject.SetActive(false);
-                _growthText.text = "";
-            }
-        }
-
-        UpdateGrowthText();
-    }
-
-    private void UpdateGrowthText()
-    {
-        if (_currentPlant != null)
-        {
-            int growthPercent = Mathf.RoundToInt(_currentPlant.GrowthProgress * 100f);
-            _growthText.text = growthPercent + "%";
-        }
-        else
-        {
-            _growthText.text = "";
-        }
     }
 
     public void SetState(CellState state)
     {
-        _cellAnimator?.SetInteger("State", (int)state);
-    }
-
-    public void SetHighlight(bool active, Color? color = null)
-    {
-        if (_highlightObject != null)
+        Debug.Log("Cellview SetState");
+        if (_cellAnimator != null)
         {
-            _highlightObject.SetActive(active);
-            if (color.HasValue)
-                _highlightObject.GetComponent<Image>().color = color.Value;
+            _cellAnimator.SetInteger("State", (int)state);
         }
-    }
-
-    private void UpdateView()
-    {
-        if (_currentPlant != null)
+        else if (_highlightImage != null)
         {
-            _plantImage.sprite = _currentPlant.PlantData.icon; // или growthSprites[0]
-            _plantImage.gameObject.SetActive(true);
-            _plantImage.transform.localScale = Vector3.one;
-            int growthPercent = Mathf.RoundToInt(_currentPlant.GrowthProgress * 100f);
-            _growthText.text = growthPercent + "%";
-        }
-        else
-        {
-            _plantImage.sprite = null;
-            _plantImage.gameObject.SetActive(false);
-            _growthText.text = "";
+            switch (state)
+            {
+                case CellState.Highlighted:
+                    Debug.Log("Cellview SetState highlited");
+                    _highlightImage.gameObject.SetActive(true);
+                    _highlightImage.color = Color.green;
+                    break;
+                case CellState.Unavailable:
+                    _highlightImage.gameObject.SetActive(true);
+                    _highlightImage.color = Color.red;
+                    break;
+                case CellState.Occupied:
+                    _highlightImage.gameObject.SetActive(true);
+                    _highlightImage.color = Color.yellow;
+                    break;
+                default:
+                    _highlightImage.gameObject.SetActive(false);
+                    break;
+            }
         }
     }
 
     // ---------- IPointer Handlers ----------
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (_boardView != null)
-            _boardView.OnCellPointerDown(_column, _row, eventData);
+        _boardView?.OnCellPointerDown(_column, _row, eventData);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (_boardView != null)
-            _boardView.OnCellPointerUp(_column, _row, eventData);
+        _boardView?.OnCellPointerUp(_column, _row, eventData);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (_boardView != null)
-            _boardView.OnCellPointerEnter(_column, _row);
+        _boardView?.OnCellPointerEnter(_column, _row);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (_boardView != null)
-            _boardView.OnCellPointerExit(_column, _row);
+        _boardView?.OnCellPointerExit(_column, _row);
     }
 }
 

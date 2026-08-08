@@ -11,33 +11,26 @@ namespace Systems
     /// Работает ТОЛЬКО с карточками растений (непосаженными) в лаборатории.
     /// Если у получателя превышен лимит генома — оба растения уничтожаются, свойство исчезает.
     /// </summary>
-    public class CentrifugeSystem : IGameSystem
+    public class CentrifugeSystem : IGameSystem, IRunAware
     {
-        private RunData _runData;
         private Hand _hand;
 
         public void Initialize()
         {
-            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
-
-           
         }
 
         public void Dispose()
         {
-            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
         }
 
-        private void OnRunStarted(RunStartedEvent evt)
+        public void OnRunDataSetup(RunData runData)
         {
-            _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (_runData == null)
+            if (runData == null)
             {
                 UnityEngine.Debug.LogError("RunData is null in CentrifugeSystem!");
                 return;
             }
-
-            _hand = _runData.Hand;
+            _hand = runData.Hand;
         }
 
         /// <summary>
@@ -114,6 +107,7 @@ namespace Systems
                 Reason = "Donor extracted"
             });
 
+            //TODO: лишние события
             // Если получатель может принять свойство — добавляем
             if (canAccept)
             {

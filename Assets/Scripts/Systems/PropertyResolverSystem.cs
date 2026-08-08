@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    public class PropertyResolverSystem : IGameSystem
+    public class PropertyResolverSystem : IGameSystem, IRunAware
     {
         private readonly Dictionary<Type, List<GenomePropertyInstance>> _propertyCacheByInterface = new Dictionary<Type, List<GenomePropertyInstance>>();
         private readonly Dictionary<PlantInstance, List<GenomePropertyInstance>> _plantProperties = new Dictionary<PlantInstance, List<GenomePropertyInstance>>();
@@ -18,8 +18,6 @@ namespace Systems
 
         public void Initialize()
         {
-
-
             EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<PlantPlacedEvent>(OnPlantPlaced);
             EventBus.Subscribe<PlantKilledEvent>(OnPlantKilled);
@@ -41,9 +39,13 @@ namespace Systems
             ClearCache();
         }
 
+        public void OnRunDataSetup(RunData runData)
+        {
+            _runData = runData;
+        }
+
         private void OnRunStarted(RunStartedEvent evt)
         {
-            _runData = evt.RunData;
             if (_runData == null)
             {
                 UnityEngine.Debug.LogError("RunData is null in PropertyResolverSystem!");
@@ -219,18 +221,6 @@ namespace Systems
                             handler.OnDestroyed(plant, x, y, _runData.Board);
                             UnityEngine.Debug.Log($"  Called {prop.GetType().Name} for {plant.PlantData.itemName}");
                         }
-                    }
-                }
-            }
-            // Можно также вызвать старый IOnDestroyed
-            if (_propertyCacheByInterface.TryGetValue(typeof(IOnDestroyed), out var oldList))
-            {
-                foreach (var prop in oldList)
-                {
-                    if (prop is IOnDestroyed handler)
-                    {
-                        if (_plantProperties.TryGetValue(plant, out var props) && props.Contains(prop))
-                            handler.OnDestroyed(plant);
                     }
                 }
             }

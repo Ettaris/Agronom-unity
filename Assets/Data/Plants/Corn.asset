@@ -19,7 +19,7 @@ MonoBehaviour:
   rarity: 0
   growthTime: 4
   baseCalories: 13
-  size: {x: 1, y: 2}
+  size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
   - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}

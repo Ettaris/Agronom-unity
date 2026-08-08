@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Managers
 {
-    public class DayManager : IGameSystem
+    public class DayManager : IGameSystem, IRunAware
     {
         private RunData _runData;
         private int _currentDay;
@@ -16,7 +16,6 @@ namespace Managers
 
         public void Initialize()
         {
-
             EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<EndDayCommand>(OnEndDayCommand); // команда от игрока
         }
@@ -27,31 +26,27 @@ namespace Managers
             EventBus.Unsubscribe<EndDayCommand>(OnEndDayCommand);
         }
 
+        public void OnRunDataSetup(RunData runData)
+        {
+            _runData = runData;
+        }
+
         private void OnRunStarted(RunStartedEvent evt)
         {
-
-            _runData = evt.RunData;
-
-            _totalDays = ServiceLocator.Get<GameConfig>().totalDays;
             _currentDay = 0;
 
             if (!evt.IsLoaded)
             {
                 _currentDay = 1;
                 _runData.CurrentDay = _currentDay;
-                DOVirtual.DelayedCall(0.1f, () => EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay }));
-                DOVirtual.DelayedCall(0.1f, () => Debug.Log("Publish OnDayStarted from OnRunStarted(DayManager) - new game"));
-
+                EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay });
             }
             else
             {
                 _currentDay = _runData.CurrentDay;
-                // Публикуем событие загрузки дня для UI
-                Debug.Log("Publish OnDayStarted from OnRunStarted(DayManager) - loaded game");
-                DOVirtual.DelayedCall(0.01f, () => EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay }));
+                EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay });
             }
 
-            Debug.Log(_runData + " - DayManager run data from OnRunStarted");
         }
 
         private void OnEndDayCommand(EndDayCommand command)
@@ -115,7 +110,7 @@ namespace Managers
             _runData.CurrentDay = _currentDay;
             EventBus.Publish(new DayStartedEvent { DayNumber = _currentDay });
         }
-    }
 
-    // Команда для завершения дня (игрок нажимает кнопку)
+
+    }
 }

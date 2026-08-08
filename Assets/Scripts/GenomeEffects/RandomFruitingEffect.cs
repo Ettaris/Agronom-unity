@@ -17,12 +17,11 @@ namespace GenomeEffects
         public void OnDestroyed(PlantInstance plant, int x, int y, GridBoard board)
         {
             var config = ServiceLocator.Get<GameConfig>();
-            var random = ServiceLocator.Get<RunManager>().CurrentRunData.Random;
+            var runData = ServiceLocator.Get<RunManager>().CurrentRunData;
             var genomePool = config.genomePool;
             var maxProperties = config.maxPropertiesPerPlant;
 
 
-            // Найти случайную свободную клетку
             var freeCells = new List<Cell>();
             for (int i = 0; i < board.Width; i++)
                 for (int j = 0; j < board.Height; j++)
@@ -31,7 +30,7 @@ namespace GenomeEffects
             if (freeCells.Count > 0)
             {
                 var cell = freeCells[UnityEngine.Random.Range(0, freeCells.Count)];
-                var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, random, genomePool, maxProperties);
+                var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, runData.Random, config, runData);
                 if (board.PlacePlant(sprout, cell.X, cell.Y))
                 {
                     sprout.CurrentCell = cell;

@@ -10,31 +10,27 @@ namespace Systems
     /// <summary>
     /// Система роста растений. Обновляет прогресс роста всех растений на поле в конце каждого дня.
     /// </summary>
-    public class GrowthSystem : IGameSystem
+    public class GrowthSystem : IGameSystem, IRunAware
     {
         private RunData _runData;
         private PropertyResolverSystem _propertyResolver;
 
         public void Initialize()
         {
-
-            // Подписываемся на событие окончания дня
-            EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<DayEndedEvent>(OnDayEnded);
+            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
         }
 
         public void Dispose()
         {
-            EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Unsubscribe<DayEndedEvent>(OnDayEnded);
         }
 
-
-        private void OnRunStarted(RunStartedEvent evt)
+        public void OnRunDataSetup(RunData runData)
         {
-            _runData = evt.RunData;
-            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
+            _runData = runData;
         }
+
         /// <summary>
         /// Обработчик события окончания дня.
         /// Обновляет рост всех растений на поле.

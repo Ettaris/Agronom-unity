@@ -279,7 +279,8 @@ namespace Managers
                 config.boardWidth,
                 config.boardHeight,
                 config.maxHandSize,
-                data.journal ?? new JournalData()
+                data.journal ?? new JournalData(),
+                config.stages
             );
 
             // Восстанавливаем поле (с проверками)
@@ -328,7 +329,7 @@ namespace Managers
             runData.CurrentDay = data.currentDay;
             runData.Inventory.Calories = data.calories;
             runData.IsQuotaReached = data.isQuotaReached;
-            runData.Journal = data.journal ?? new JournalData();
+            runData.SetJournalData(data.journal ?? new JournalData());
 
             return runData;
         }

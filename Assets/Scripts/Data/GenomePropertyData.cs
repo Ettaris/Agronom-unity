@@ -26,7 +26,7 @@ namespace Data
         {
             if (string.IsNullOrEmpty(_effectClassName))
             {
-                Debug.Log($"CreateEffect: {propertyName} has no effect class, using base instance");
+                Debug.LogError($"CreateEffect: {propertyName} has no effect class, using base instance");
                 return new GenomePropertyInstance(this, stacks);
             }
 
@@ -44,7 +44,6 @@ namespace Data
             }
 
             var instance = Activator.CreateInstance(type, this, stacks) as GenomePropertyInstance;
-            Debug.Log($"CreateEffect: Created {instance.GetType().Name} for {propertyName}");
             return instance ?? new GenomePropertyInstance(this, stacks);
         }
 

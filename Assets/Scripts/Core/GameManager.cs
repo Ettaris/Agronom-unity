@@ -4,6 +4,8 @@ using Managers;
 using Systems;
 using Data;
 using Infrastructure.Events;
+using System.Collections.Generic;
+using Gameplay;
 
 /// <summary>
 /// Главный менеджер игры. Отвечает за инициализацию всех систем и управление состоянием игры.
@@ -14,35 +16,34 @@ public class GameManager : MonoBehaviour
     [Header("Configs")]
     [SerializeField] private GameConfig _gameConfig;
 
+    [Header("SceneContext")]
+    [SerializeField] private BoardRoot _boardRoot;
+    [SerializeField] private NotificationSystem _notificationSystem;
+    [SerializeField] private HandView _handView;
+    [SerializeField] private BoardView _boardView;
+    [SerializeField] private GameOverView _gameOverView;
+    [SerializeField] private JournalView _journalView;
+    [SerializeField] private HUDView _HUDView;
+    [SerializeField] private LaboratoryView _laboratoryView;
+    [SerializeField] private CardDrawView _cardDrawView;
+
     private bool _isInitialized = false;
+    private readonly List<IRunAware> _runAwares = new();
 
     public static bool IsNewGame = false;
     public static int NewGameSeed = -1;
 
     void Awake()
     {
-        Debug.Log("GameManager Awake preSTART");
         if (_isInitialized) return;
-
-        Debug.Log("GameManager Awake START");
 
         _isInitialized = true;
         ServiceLocator.Register(_gameConfig);
+        ServiceLocator.Register(this);
         RegisterServices();
-        InitializeServices();
-
-       
 
     }
 
-    private void Start()
-    {
-        // Публикуем событие, что сервисы готовы
-        EventBus.Publish(new ServicesInitializedEvent());
-        Debug.Log("ServicesInitializedEvent published");
-
-        StartGame();
-    }
 
     /// <summary>
     /// Регистрирует все сервисы в ServiceLocator.
@@ -56,9 +57,11 @@ public class GameManager : MonoBehaviour
         var runManager = new RunManager();
         var dayManager = new DayManager();
 
-        ServiceLocator.Register(saveManager);
-        ServiceLocator.Register(runManager);
-        ServiceLocator.Register(dayManager);
+
+        RegisterService(saveManager);
+        RegisterService(runManager);
+        RegisterService(dayManager);
+
 
         // Системы
         var propertyResolver = new PropertyResolverSystem();
@@ -71,28 +74,27 @@ public class GameManager : MonoBehaviour
         var cardDrawSystem = new CardDrawSystem();
         var journalSystem = new JournalSystem();
 
-        ServiceLocator.Register(propertyResolver);
-        ServiceLocator.Register(runGeneration);
-        ServiceLocator.Register(growthSystem);
-        ServiceLocator.Register(harvestSystem);
-        ServiceLocator.Register(scoreSystem);
-        ServiceLocator.Register(analyzerSystem);
-        ServiceLocator.Register(centrifugeSystem);
-        ServiceLocator.Register(cardDrawSystem);
-        ServiceLocator.Register(journalSystem);
+        RegisterService(propertyResolver);
+        RegisterService(runGeneration);
+        RegisterService(growthSystem);
+        RegisterService(harvestSystem);
+        RegisterService(scoreSystem);
+        RegisterService(analyzerSystem);
+        RegisterService(centrifugeSystem);
+        RegisterService(cardDrawSystem);
+        RegisterService(journalSystem);
 
-        var notificationSystem = FindAnyObjectByType<NotificationSystem>();
-        if (notificationSystem == null)
-        {
-            Debug.LogError("NotificationSystem not found in scene! Please add it to GameScene.");
-        }
-        else
-        {
-            ServiceLocator.Register(notificationSystem);
-        }
+        RegisterService(_notificationSystem);
+        RegisterService(_handView);
+        RegisterService(_boardRoot);
+        RegisterService(_boardView);
+        RegisterService(_gameOverView);
+        RegisterService(_HUDView);
+        RegisterService(_journalView);
+        RegisterService(_laboratoryView);
+        RegisterService(_cardDrawView);
 
-        var handView = FindAnyObjectByType<HandView>();
-        ServiceLocator.Register(handView);
+        InitializeServices();
     }
 
     /// <summary>
@@ -113,17 +115,42 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Get<GrowthSystem>().Initialize();
         ServiceLocator.Get<HarvestSystem>().Initialize();
         ServiceLocator.Get<ScoreSystem>().Initialize();
-        ServiceLocator.Get<AnalyzerSystem>().Initialize();
         ServiceLocator.Get<CentrifugeSystem>().Initialize();
         ServiceLocator.Get<CardDrawSystem>().Initialize();
         ServiceLocator.Get<JournalSystem>().Initialize();
+        ServiceLocator.Get<BoardRoot>().Initialize();
+        ServiceLocator.Get<BoardView>().Initialize();
+        ServiceLocator.Get<HandView>().Initialize();
+        ServiceLocator.Get<NotificationSystem>().Initialize();
+        ServiceLocator.Get<JournalView>().Initialize();
+        ServiceLocator.Get<HUDView>().Initialize();
+        ServiceLocator.Get<GameOverView>().Initialize();
+        ServiceLocator.Get<LaboratoryView>().Initialize();
+        ServiceLocator.Get<CardDrawView>().Initialize();
+
+
+        StartGame();
+    }
+
+    public void InitializeAndActivateRun(RunData runData)
+    {
+        foreach (var runInterface in _runAwares)
+        {
+            runInterface.OnRunDataSetup(runData);
+        }
+        Debug.Log("RunStarted Event");
+        EventBus.Publish(new RunStartedEvent { RunData = runData });
+
+        EventBus.Publish(new ServicesInitializedEvent());
+
     }
 
     /// <summary>
-    /// Запускает игровой процесс. Для прототипа сразу создаёт новый забег.
+    /// Запускает игровой процесс.
     /// </summary>
     private async void StartGame()
     {
+        Debug.Log("StartGame");
         if (IsNewGame)
         {
             int seed = NewGameSeed >= 0 ? NewGameSeed : Random.Range(0, int.MaxValue);
@@ -158,6 +185,17 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Общий метод для регистрации
+    /// </summary>
+    private void RegisterService<T>(T service) where T : class
+    {
+        ServiceLocator.Register(service);
+
+        if (service is IRunAware aware)
+            _runAwares.Add(aware);
+    }
+
+    /// <summary>
     /// Вызывает Dispose для всех систем в обратном порядке инициализации.
     /// </summary>
     private void DisposeServices()
@@ -166,7 +204,6 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Get<JournalSystem>().Dispose();
         ServiceLocator.Get<CardDrawSystem>().Dispose();
         ServiceLocator.Get<CentrifugeSystem>().Dispose();
-        ServiceLocator.Get<AnalyzerSystem>().Dispose();
         ServiceLocator.Get<ScoreSystem>().Dispose();
         ServiceLocator.Get<HarvestSystem>().Dispose();
         ServiceLocator.Get<GrowthSystem>().Dispose();

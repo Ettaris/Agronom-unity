@@ -8,19 +8,15 @@ using UnityEngine;
 
 namespace Systems
 {
-    public class CardDrawSystem : IGameSystem
+    public class CardDrawSystem : IGameSystem, IRunAware
     {
         private RunData _runData;
         private GameConfig _config;
         private List<ItemInstance> _currentOffer;
         private int _cardsToSelect;
-        private PropertyResolverSystem _propertyResolver;
-        private GenomePool _genomePool;
-        private int _maxPropertiesPerPlant;
 
         public void Initialize()
         {
-
             EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Subscribe<DayStartedEvent>(OnDayStarted);
         }
@@ -30,6 +26,31 @@ namespace Systems
             EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
             EventBus.Unsubscribe<DayStartedEvent>(OnDayStarted);
             _currentOffer.Clear();
+        }
+
+        public void OnRunDataSetup(RunData runData)
+        {
+            _runData = runData;
+        }
+
+        private void OnRunStarted(RunStartedEvent evt)
+        {
+            if (_runData == null)
+            {
+                UnityEngine.Debug.LogError("RunData is null in CardDrawSystem!");
+                return;
+            }
+
+            _config = ServiceLocator.Get<GameConfig>();
+            _currentOffer = new List<ItemInstance>();
+
+            if (_config.offerGenerationConfig != null)
+                _cardsToSelect = _config.offerGenerationConfig.selectableCards;
+            else
+                _cardsToSelect = 2;
+
+            if (!evt.IsLoaded)
+                GenerateOffer();
         }
 
         public IReadOnlyList<ItemInstance> GetCurrentOffer() => _currentOffer.AsReadOnly();
@@ -133,6 +154,7 @@ namespace Systems
 
                 if (item != null)
                     _currentOffer.Add(item);
+                else { Debug.LogError($"Item {item} in GenerateOffer from CardDrawSystem is null"); }
             }
 
             // Перемешивание
@@ -176,32 +198,7 @@ namespace Systems
             var plantData = plantList[plantIdx];
 
             // Используем фабрику
-            return PlantFactory.CreatePlantWithProperties(plantData, random, _genomePool, _maxPropertiesPerPlant);
-        }
-
-        private void OnRunStarted(RunStartedEvent evt)
-        {
-            _runData = evt.RunData;
-            if (_runData == null)
-            {
-                UnityEngine.Debug.LogError("RunData is null in CardDrawSystem!");
-                return;
-            }
-
-            _config = ServiceLocator.Get<GameConfig>();
-            _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
-            _genomePool = _config.genomePool;
-            _maxPropertiesPerPlant = _config.maxPropertiesPerPlant;
-
-            _currentOffer = new List<ItemInstance>();
-
-            if (_config.offerGenerationConfig != null)
-                _cardsToSelect = _config.offerGenerationConfig.selectableCards;
-            else
-                _cardsToSelect = 2;
-
-            if (!evt.IsLoaded)
-                GenerateOffer();
+            return PlantFactory.CreatePlantWithProperties(plantData, random, _config, _runData);
         }
 
         private void OnDayStarted(DayStartedEvent evt)
