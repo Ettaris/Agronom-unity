@@ -20,11 +20,13 @@ namespace GenomeEffects
             _daysLeft--;
             if (_daysLeft <= 0)
             {
-                _daysLeft = 3; // сброс для повторения
-                // Находим владельца (растение) через PropertyResolverSystem
+                _daysLeft = 3; 
                 var resolver = ServiceLocator.Get<PropertyResolverSystem>();
                 var owner = resolver.GetOwner(this);
                 if (owner == null || owner.CurrentCell == null) return;
+
+                var config = ServiceLocator.Get<GameConfig>();
+                var runData = ServiceLocator.Get<RunManager>().CurrentRunData;
 
                 var board = ServiceLocator.Get<RunManager>().CurrentRunData.Board;
                 var neighbors = board.GetNeighbors(owner.CurrentCell.X, owner.CurrentCell.Y, false);
@@ -36,12 +38,10 @@ namespace GenomeEffects
                 if (freeCells.Count > 0)
                 {
                     var cell = freeCells[UnityEngine.Random.Range(0, freeCells.Count)];
-                    var clone = new PlantInstance(owner.PlantData, owner.Genome.MaxCapacity);
-                    // Копируем свойства (можно без них, для простоты) TODO:
+                    var clone = PlantFactory.CreatePlantWithProperties(owner.PlantData, runData.Random, config, runData);
                     if (board.PlacePlant(clone, cell.X, cell.Y))
                     {
                         clone.CurrentCell = cell;
-                        resolver.RegisterPlant(clone);
                         EventBus.Publish(new PlantPlacedEvent { Plant = clone, X = cell.X, Y = cell.Y });
                     }
                 }

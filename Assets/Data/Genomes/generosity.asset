@@ -16,7 +16,7 @@ MonoBehaviour:
   propertyName: generosity
   description: "+20% \u043A\u0430\u043B\u043E\u0440\u0438\u0439 \u043A\u043B\u0435\u0442\u043A\u0435
     \u0441\u0432\u0435\u0440\u0445\u0443"
-  icon: {fileID: 0}
+  icon: {fileID: 7043426141862731076, guid: 0704e633098396f4ba64909a96ec8d1e, type: 3}
   rarity: 0
   genomeCost: 10
   _effectClassName: GenerosityEffect

@@ -32,13 +32,11 @@ namespace GenomeEffects
                     if (board.PlacePlant(weed, new Vector2Int(cell.X, cell.Y)))
                     {
                         weed.CurrentCell = cell;
-                        // Регистрируем свойства (у сорняка их нет)
                         EventBus.Publish(new PlantPlacedEvent { Plant = weed, X = cell.X, Y = cell.Y });
                         Debug.Log(weed + "Weed planted(hugeEf)");
                     }
                 }
             }
-            Debug.Log("Huge Effect Done");
         }
     }
 }

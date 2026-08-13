@@ -38,10 +38,8 @@ public class GameManager : MonoBehaviour
         if (_isInitialized) return;
 
         _isInitialized = true;
-        ServiceLocator.Register(_gameConfig);
-        ServiceLocator.Register(this);
-        RegisterServices();
 
+        RegisterServices();
     }
 
 
@@ -50,7 +48,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void RegisterServices()
     {
-        Debug.Log("RegisterServices START");
+        ServiceLocator.Register(_gameConfig);
+        ServiceLocator.Register(this);
 
         // Менеджеры (сервисы)
         var saveManager = new SaveManager();
@@ -73,6 +72,7 @@ public class GameManager : MonoBehaviour
         var centrifugeSystem = new CentrifugeSystem();
         var cardDrawSystem = new CardDrawSystem();
         var journalSystem = new JournalSystem();
+        var dropHandler = new DropHandler();
 
         RegisterService(propertyResolver);
         RegisterService(runGeneration);
@@ -83,6 +83,7 @@ public class GameManager : MonoBehaviour
         RegisterService(centrifugeSystem);
         RegisterService(cardDrawSystem);
         RegisterService(journalSystem);
+        RegisterService(dropHandler);
 
         RegisterService(_notificationSystem);
         RegisterService(_handView);
@@ -97,19 +98,12 @@ public class GameManager : MonoBehaviour
         InitializeServices();
     }
 
-    /// <summary>
-    /// Инициализирует все зарегистрированные сервисы (вызывает Initialize()).
-    /// </summary>
     private void InitializeServices()
     {
-        Debug.Log("InitializeServices START");
-        // Менеджеры
         ServiceLocator.Get<SaveManager>().Initialize();
         ServiceLocator.Get<RunManager>().Initialize();
         ServiceLocator.Get<DayManager>().Initialize();
 
-        // Системы (порядок не важен, но PropertyResolver должен быть раньше других, если они используют его в Initialize)
-        // Но так как все зависимости получаются через ServiceLocator в момент вызова, порядок не критичен.
         ServiceLocator.Get<PropertyResolverSystem>().Initialize();
         ServiceLocator.Get<RunGenerationSystem>().Initialize();
         ServiceLocator.Get<GrowthSystem>().Initialize();
@@ -127,6 +121,7 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Get<GameOverView>().Initialize();
         ServiceLocator.Get<LaboratoryView>().Initialize();
         ServiceLocator.Get<CardDrawView>().Initialize();
+        ServiceLocator.Get<DropHandler>().Initialize();
 
 
         StartGame();
@@ -141,13 +136,8 @@ public class GameManager : MonoBehaviour
         Debug.Log("RunStarted Event");
         EventBus.Publish(new RunStartedEvent { RunData = runData });
 
-        EventBus.Publish(new ServicesInitializedEvent());
-
     }
 
-    /// <summary>
-    /// Запускает игровой процесс.
-    /// </summary>
     private async void StartGame()
     {
         Debug.Log("StartGame");
@@ -176,9 +166,6 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Get<RunManager>().StartNewRun(newSeed);
     }
 
-    /// <summary>
-    /// Вызывается при уничтожении объекта. Освобождает ресурсы всех систем.
-    /// </summary>
     void OnDestroy()
     {
         DisposeServices();
@@ -200,7 +187,6 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void DisposeServices()
     {
-        // Системы
         ServiceLocator.Get<JournalSystem>().Dispose();
         ServiceLocator.Get<CardDrawSystem>().Dispose();
         ServiceLocator.Get<CentrifugeSystem>().Dispose();
@@ -210,32 +196,29 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Get<RunGenerationSystem>().Dispose();
         ServiceLocator.Get<PropertyResolverSystem>().Dispose();
 
-        // Менеджеры
         ServiceLocator.Get<DayManager>().Dispose();
         ServiceLocator.Get<RunManager>().Dispose();
         ServiceLocator.Get<SaveManager>().Dispose();
     }
 
-    /// <summary>
-    /// Публичный метод для перезапуска игры (например, по кнопке "Новая игра").
-    /// </summary>
     public void RestartGame()
     {
-        // Завершаем текущий забег, если он активен
         var runManager = ServiceLocator.Get<RunManager>();
-        if (runManager.CurrentRunData != null)
-        {
-            runManager.EndRun();
-        }
+        runManager.ResetRun();
 
-        // Запускаем новый забег
+        _boardView.ClearBoard();
+        _boardView.ClearGridBoard();
+
+        _handView.ClearHand();
+
+        _laboratoryView.ClearSlots();
+
+        ServiceLocator.Get<PropertyResolverSystem>().ClearCache();
+
         int seed = Random.Range(0, int.MaxValue);
         runManager.StartNewRun(seed);
     }
 
-    /// <summary>
-    /// Публичный метод для выхода из игры.
-    /// </summary>
     public void QuitGame()
     {
 #if UNITY_EDITOR

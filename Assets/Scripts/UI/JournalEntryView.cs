@@ -3,19 +3,24 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using Data;
+using Gameplay;
 
 /// <summary>
 /// Отдельная запись в журнале.
 /// </summary>
 public class JournalEntryView : MonoBehaviour
 {
-    [Header("UI")]
-    [SerializeField] private Image _iconImage;
-    [SerializeField] private TMP_Text _nameText;
-    [SerializeField] private TMP_Text _rarityText;
-    [SerializeField] private TMP_Text _costText;
-    [SerializeField] private TMP_Text _countText;
+    [Header("Plant Info")]
+    [SerializeField] private Image _plantIcon;
+    [SerializeField] private TextMeshProUGUI _plantName;
+    [SerializeField] private TextMeshProUGUI _baseCaloriesText;
+    [SerializeField] private TextMeshProUGUI _growthTimeText;
+    [SerializeField] private TextMeshProUGUI _discoveredCount;
+    [SerializeField] private GameObject _permanentBadge;
     [SerializeField] private Image _rarityFrame;
+
+    [SerializeField] private Transform _propertiesContainer;
+    [SerializeField] private GameObject _genomeIconPrefab;
 
     private CanvasGroup _canvasGroup;
     private bool _isHidden;
@@ -29,14 +34,34 @@ public class JournalEntryView : MonoBehaviour
         }
     }
 
-    public void Setup(GenomePropertyData property, int discoveryCount)
+    public void Setup(JournalPlantEntry entry)
     {
-        _iconImage.sprite = property.icon;
-        _nameText.text = property.propertyName;
-        _rarityText.text = property.rarity.ToString();
-        _costText.text = "Cost: " + property.genomeCost;
-        _countText.text = "×" + discoveryCount;
-        _rarityFrame.color = GetRarityColor(property.rarity);
+        if (entry == null || entry.plantData == null) return;
+
+        _plantIcon.sprite = entry.plantData.icon;
+        _plantName.text = entry.plantData.itemName;
+        _baseCaloriesText.text = "Calories: " + entry.plantData.baseCalories.ToString();
+        _growthTimeText.text = "Growth Time: " + entry.plantData.growthTime.ToString();
+        _discoveredCount.text = "x" + entry.discoveryCount.ToString();
+        Debug.Log(entry.discoveryCount + " - disc count");
+
+        foreach (Transform child in _propertiesContainer)
+            Destroy(child.gameObject);
+
+        foreach (var prop in entry.discoveredProperties)
+        {
+            GameObject go = Instantiate(_genomeIconPrefab, _propertiesContainer);
+            var iconView = go.GetComponent<GenomeIconView>();
+            iconView.Setup(prop);
+
+            // Если это перманентное свойство, добавляем визуальную пометку (например, звёздочку). TODO: 
+            if (entry.permanentProperty != null && prop == entry.permanentProperty)
+            {
+                // Добавляем бейдж (или меняем цвет рамки)
+                var badge = go.transform.Find("PermanentBadge");
+                if (badge != null) badge.gameObject.SetActive(true);
+            }
+        }
 
         _isHidden = false;
         gameObject.SetActive(true);
@@ -51,10 +76,13 @@ public class JournalEntryView : MonoBehaviour
         CanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
         {
             gameObject.SetActive(false);
+            transform.localScale = Vector3.one;
+            CanvasGroup.alpha = 1f;
             onComplete?.Invoke();
         });
     }
 
+    //TODO: create rarity realization.
     private Color GetRarityColor(Rarity rarity)
     {
         switch (rarity)

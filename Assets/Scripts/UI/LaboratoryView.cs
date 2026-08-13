@@ -8,12 +8,15 @@ using Gameplay;
 using Data;
 using Managers;
 
-public class LaboratoryView : MonoBehaviour, IGameSystem
+public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
 {
     [Header("Slots")]
     [SerializeField] private LaboratorySlotView _consumableSlot;
     [SerializeField] private LaboratorySlotView _plantSlotA;
     [SerializeField] private LaboratorySlotView _plantSlotB;
+
+    [Header("Background")]
+    [SerializeField] private GameObject _backgroundBlockPanel;
 
     [Header("Buttons")]
     [SerializeField] private Button _actionButton;
@@ -38,9 +41,8 @@ public class LaboratoryView : MonoBehaviour, IGameSystem
     {
         EventBus.Subscribe<CardSelectedEvent>(OnCardSelected);
         EventBus.Subscribe<HandUpdatedEvent>(OnHandUpdated);
-        EventBus.Subscribe<FermentUsedEvent>(OnFermentUsed);
-        EventBus.Subscribe<BatteryUsedEvent>(OnBatteryUsed);
         EventBus.Subscribe<GenomeTransferredEvent>(OnGenomeTransferred);
+        EventBus.Subscribe<GenomeTransferFailedEvent>(OnGenomeTransferFailed);
         EventBus.Subscribe<PlantAnalyzedEvent>(OnPlantAnalyzed);
 
 
@@ -55,27 +57,34 @@ public class LaboratoryView : MonoBehaviour, IGameSystem
     {
         EventBus.Unsubscribe<CardSelectedEvent>(OnCardSelected);
         EventBus.Unsubscribe<HandUpdatedEvent>(OnHandUpdated);
-        EventBus.Unsubscribe<FermentUsedEvent>(OnFermentUsed);
-        EventBus.Unsubscribe<BatteryUsedEvent>(OnBatteryUsed);
         EventBus.Unsubscribe<GenomeTransferredEvent>(OnGenomeTransferred);
         EventBus.Unsubscribe<PlantAnalyzedEvent>(OnPlantAnalyzed);
+        EventBus.Unsubscribe<GenomeTransferFailedEvent>(OnGenomeTransferFailed);
+    }
+
+    public void OnRunDataSetup(RunData runData)
+    {
+        _runData = runData;
+        if (_runData == null) Debug.LogError("LaboratoryView: RunData is null");
     }
 
     #region Открытие/закрытие
 
     public void OpenLab()
     {
-        _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-        if (_runData == null) Debug.LogError("LaboratoryView: RunData is null");
         gameObject.SetActive(true);
         _labAnimator.SetTrigger("Open");
         ClearSlots();
+        _plantInfo.Clear();
+        _backgroundBlockPanel.SetActive(true);
     }
 
     public void CloseLab()
     {
         _labAnimator.SetTrigger("Close");
         ClearSlots();
+        _plantInfo.Clear();
+        _backgroundBlockPanel.SetActive(true);
         DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
     }
 
@@ -85,16 +94,15 @@ public class LaboratoryView : MonoBehaviour, IGameSystem
 
     private void OnPlantAnalyzed(PlantAnalyzedEvent evt)
     {
-        // Показать информацию о растении
-        var debugView = FindAnyObjectByType<DebugPlantInfoView>(FindObjectsInactive.Include);
-        if (debugView != null)
-        {
-            debugView.ShowInfo(evt.Plant);
-        }
-        else
-        {
-            Debug.LogWarning("DebugPlantInfoView not found in scene!");
-        }
+        Debug.Log($"plant analyzed event with {evt.Plant}");
+        Debug.Log($"{evt.Plant.PlantData.itemName}");
+        _plantInfo.ShowPlant(evt.Plant);
+    }
+
+    private void OnGenomeTransferFailed(GenomeTransferFailedEvent evt)
+    {
+        ClearSlots();
+        _labAnimator.SetTrigger("Fail");
     }
 
     private void OnCardSelected(CardSelectedEvent evt)
@@ -119,22 +127,10 @@ public class LaboratoryView : MonoBehaviour, IGameSystem
         }
     }
 
-    private void OnFermentUsed(FermentUsedEvent evt) { }
-    private void OnBatteryUsed(BatteryUsedEvent evt) { }
     private void OnGenomeTransferred(GenomeTransferredEvent evt)
     {
         _labAnimator.SetTrigger("Success");
-
-        // Показать информацию о растении-получателе
-        var debugView = FindAnyObjectByType<DebugPlantInfoView>(FindObjectsInactive.Include);
-        if (debugView != null)
-        {
-            debugView.ShowInfo(evt.Target);
-        }
-        else
-        {
-            Debug.LogWarning("DebugPlantInfoView not found in scene!");
-        }
+        _plantInfo.ShowPlant(_plantB);
     }
 
     #endregion
@@ -202,7 +198,7 @@ public class LaboratoryView : MonoBehaviour, IGameSystem
         _plantA = plant;
         _plantSlotA.SetItem(plant);
         _plantSlotA.Pulse();
-        _plantInfo.ShowPlant(plant);
+        _plantInfo.ShowPlantName(plant);
         UpdateActionButton();
     }
 
@@ -211,10 +207,11 @@ public class LaboratoryView : MonoBehaviour, IGameSystem
         _plantB = plant;
         _plantSlotB.SetItem(plant);
         _plantSlotB.Pulse();
+        _plantInfo.ShowPlantName(plant);
         UpdateActionButton();
     }
 
-    private void ClearSlots()
+    public void ClearSlots()
     {
         _consumableItem = null;
         _plantA = null;
@@ -222,7 +219,6 @@ public class LaboratoryView : MonoBehaviour, IGameSystem
         _consumableSlot.Clear();
         _plantSlotA.Clear();
         _plantSlotB.Clear();
-        _plantInfo.Clear();
         _actionButton.interactable = false;
         _labAnimator.SetTrigger("Clear");
     }
@@ -279,6 +275,8 @@ public class LaboratoryView : MonoBehaviour, IGameSystem
 
         ClearSlots();
     }
+
+
 
 
     #endregion

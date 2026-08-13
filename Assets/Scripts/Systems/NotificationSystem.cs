@@ -50,7 +50,6 @@ namespace Systems
             EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
             EventBus.Subscribe<PlantKilledEvent>(OnPlantKilled);
             EventBus.Subscribe<HandFullEvent>(OnHandFull);
-            EventBus.Subscribe<PlantKilledByCentrifugeEvent>(OnPlantKilledByCentrifuge);
         }
 
         private void Start()
@@ -69,7 +68,6 @@ namespace Systems
             EventBus.Unsubscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
             EventBus.Unsubscribe<PlantKilledEvent>(OnPlantKilled);
             EventBus.Unsubscribe<HandFullEvent>(OnHandFull);
-            EventBus.Unsubscribe<PlantKilledByCentrifugeEvent>(OnPlantKilledByCentrifuge);
 
             // Очищаем все активные уведомления
             foreach (var notification in _activeNotifications)
@@ -201,16 +199,6 @@ namespace Systems
             //    evt.Plant.PlantData.icon,
             //    Color.green
             //));
-        }
-
-        private void OnPlantKilledByCentrifuge(PlantKilledByCentrifugeEvent evt)
-        {
-            EnqueueNotification(new NotificationData(
-                $"{evt.Plant.PlantData.itemName} разложился в центрифуге!",
-                evt.Plant.PlantData.icon,
-                Color.red,
-                3f
-            ));
         }
 
         private void OnPlantHarvested(PlantHarvestedEvent evt)

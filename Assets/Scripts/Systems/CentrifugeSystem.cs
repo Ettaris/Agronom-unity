@@ -49,21 +49,18 @@ namespace Systems
                 return false;
             }
 
-            // ѕровер€ем, что оба растени€ Ч карточки (не посажены)
             if (donor.CurrentCell != null || target.CurrentCell != null)
             {
                 UnityEngine.Debug.LogWarning("TransferGenome: Both plants must be cards (not planted).");
                 return false;
             }
 
-            // ѕровер€ем, что донор и получатель Ч разные растени€
             if (donor == target)
             {
                 UnityEngine.Debug.LogWarning("TransferGenome: donor and target cannot be the same plant.");
                 return false;
             }
 
-            // ѕровер€ем, есть ли батарейка в руке
             ItemInstance batteryItem = null;
             foreach (var item in _hand.GetAll())
             {
@@ -80,27 +77,21 @@ namespace Systems
                 return false;
             }
 
-            // ѕровер€ем, есть ли у донора свойства
             if (donor.Genome.Properties.Count == 0)
             {
                 UnityEngine.Debug.Log($"Donor plant {donor.PlantData.itemName} has no properties to transfer.");
                 return false;
             }
 
-            // ЅерЄм первое свойство донора
             var propertyToTransfer = donor.Genome.Properties[0];
 
-            // ѕровер€ем, может ли получатель прин€ть это свойство
             bool canAccept = target.CanAddGenomeProperty(propertyToTransfer);
 
-            // ”дал€ем свойство у донора (даже если не примет получатель, донор тер€ет свойство)
             donor.Genome.RemoveProperty(propertyToTransfer.Data, donor);
 
-            // ”дал€ем донора из руки (он уничтожаетс€)
             ServiceLocator.Get<PropertyResolverSystem>().UnregisterPlant(donor);
             _hand.Remove(donor);
 
-            // ѕубликуем событие об уничтожении донора
             EventBus.Publish(new PlantKilledEvent
             {
                 Plant = donor,
@@ -108,7 +99,6 @@ namespace Systems
             });
 
             //TODO: лишние событи€
-            // ≈сли получатель может прин€ть свойство Ч добавл€ем
             if (canAccept)
             {
                 target.AddGenomeProperty(propertyToTransfer);
@@ -122,25 +112,15 @@ namespace Systems
             }
             else
             {
-                // ѕолучатель не может прин€ть свойство Ч он погибает
-                // —войство уже удалено у донора и не добавлено получателю -> исчезает
                 ServiceLocator.Get<PropertyResolverSystem>().UnregisterPlant(target);
                 _hand.Remove(target);
-                EventBus.Publish(new PlantKilledByCentrifugeEvent { Plant = target });
+                EventBus.Publish(new GenomeTransferFailedEvent { Donor = donor, Target = target });
                 UnityEngine.Debug.Log($"Target plant {target.PlantData.itemName} died due to genome overload. Both plants are destroyed.");
             }
 
-            // ”дал€ем батарейку из руки
             _hand.Remove(batteryItem);
 
-            // ѕубликуем событие об использовании батарейки
-            EventBus.Publish(new BatteryUsedEvent
-            {
-                Donor = donor,
-                Target = target,
-                Battery = battery
-            });
-
+            EventBus.Publish(new HandUpdatedEvent());
             return true;
         }
     }

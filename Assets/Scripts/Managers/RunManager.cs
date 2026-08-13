@@ -69,5 +69,11 @@ namespace Managers
         {
             ServiceLocator.Get<GameManager>().InitializeAndActivateRun(runData);
         }
+
+        public void ResetRun()
+        {
+            _isRunActive = false;
+            CurrentRunData = null;
+        }
     }
 }

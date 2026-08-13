@@ -6,11 +6,10 @@ namespace Commands
     {
         public void Execute()
         {
-            var runManager = ServiceLocator.Get<Managers.RunManager>();
-            if (runManager != null)
+            var gameManager = ServiceLocator.Get<GameManager>();
+            if (gameManager != null)
             {
-                int newSeed = UnityEngine.Random.Range(0, int.MaxValue);
-                runManager.StartNewRun(newSeed);
+                gameManager.RestartGame();
             }
         }
     }

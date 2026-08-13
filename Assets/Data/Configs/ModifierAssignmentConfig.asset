@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ModifierAssignmentConfig
   m_EditorClassIdentifier: Assembly-CSharp::ModifierAssignmentConfig
   assignPermanent: 1
-  secondModifierChance: 0.5
+  secondModifierChance: 0.356
   allowDuplicate: 0
   commonWeight: 50
   uncommonWeight: 30

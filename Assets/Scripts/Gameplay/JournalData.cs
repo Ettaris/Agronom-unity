@@ -1,28 +1,37 @@
+using System;
 using System.Collections.Generic;
 using Data;
 
 namespace Gameplay
 {
-    [System.Serializable]
+    [Serializable]
     public class JournalData
     {
-        private readonly Dictionary<GenomePropertyData, int> _discoveredProperties = new Dictionary<GenomePropertyData, int>();
+        public List<JournalPlantEntry> plantEntries = new List<JournalPlantEntry>();
 
-        public void AddEntry(GenomePropertyData property)
+        public void AddOrUpdatePlant(PlantInstance plant, GenomePropertyData property, bool isPermanent)
         {
-            if (_discoveredProperties.ContainsKey(property))
-                _discoveredProperties[property]++;
-            else
-                _discoveredProperties[property] = 1;
+            if (plant == null || property == null) return;
+            var entry = plantEntries.Find(e => e.plantData == plant.PlantData);
+            if (entry == null)
+            {
+                entry = new JournalPlantEntry(plant.PlantData);
+                plantEntries.Add(entry);
+            }
+            entry.AddProperty(property, isPermanent);
         }
 
-        public bool IsPropertyDiscovered(GenomePropertyData property) => _discoveredProperties.ContainsKey(property);
-
-        public void Clear() => _discoveredProperties.Clear();
-
-        public Dictionary<GenomePropertyData, int> GetAllEntries()
+        public bool IsPropertyDiscovered(PlantData plant, GenomePropertyData property)
         {
-            return new Dictionary<GenomePropertyData, int>(_discoveredProperties);
+            var entry = plantEntries.Find(e => e.plantData == plant);
+            return entry != null && entry.HasProperty(property);
         }
+
+        public JournalPlantEntry GetPlantEntry(PlantData plant)
+        {
+            return plantEntries.Find(e => e.plantData == plant);
+        }
+
+        public void Clear() => plantEntries.Clear();
     }
 }

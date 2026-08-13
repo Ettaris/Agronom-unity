@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "\u0412\u044B\u0440\u0430\u0449\u0438\u0432\u0430\u0435\u0442 \u0441\u0440\u0430\u0437\u0443
     \u0440\u0430\u0441\u0442\u0435\u043D\u0438\u0435 \u0441\u043B\u0435\u0432\u0430,
     \u043D\u043E \u0443\u043C\u0438\u0440\u0430\u0435\u0442 \u0441\u0430\u043C\u043E"
-  icon: {fileID: 0}
+  icon: {fileID: -4577320816690741403, guid: fe47a972be3cd9c489fdaf5636bf84de, type: 3}
   rarity: 0
   genomeCost: 40
   _effectClassName: SacrificeEffect

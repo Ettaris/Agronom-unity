@@ -16,7 +16,7 @@ namespace Systems
             _journal = new JournalData();
             _isLoaded = false;
             EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
-            EventBus.Subscribe<GenomeDiscoveredEvent>(DiscoverProperty);
+            EventBus.Subscribe<GenomeDiscoveredEvent>(DiscoverPlantProperties);
         }
 
         public async void Dispose()
@@ -33,16 +33,14 @@ namespace Systems
             _isLoaded = true;
         }
 
-        public void DiscoverProperty(GenomeDiscoveredEvent evt)
+        public void DiscoverPlantProperties(GenomeDiscoveredEvent evt)
         {
-            if (evt.Property == null) return;
-            if (_journal == null) _journal = new JournalData();
-            _journal.AddEntry(evt.Property.Data);
-        }
-
-        public bool IsPropertyDiscovered(GenomePropertyData property)
-        {
-            return _journal != null && _journal.IsPropertyDiscovered(property);
+            if (evt.Plant == null) return;
+            foreach (var prop in evt.Plant.Genome.Properties)
+            {
+                bool perm = evt.isPermanent || (evt.Plant.PermanentModifier != null && evt.Plant.PermanentModifier.Data == prop.Data) ;
+                _journal.AddOrUpdatePlant(evt.Plant, prop.Data, perm);
+            }
         }
 
         public JournalData GetJournal() => _journal;

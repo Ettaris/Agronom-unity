@@ -15,20 +15,23 @@ namespace GenomeEffects
 
         public void OnDestroyed(PlantInstance plant, int x, int y, GridBoard board)
         {
-            var config = ServiceLocator.Get<GameConfig>();
             var runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            var genomePool = config.genomePool;
-            var maxProperties = config.maxPropertiesPerPlant;
+            if (runData == null) return;
 
-            var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, runData.Random, config, runData);
+            var config = ServiceLocator.Get<GameConfig>();
+            var random = runData.Random;
 
+            var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, random, config, runData);
 
-            if (board.PlacePlant(sprout, x, y))
+            Vector2Int pos = new Vector2Int(x, y);
+            if (board.CanPlace(pos, sprout.PlantData.size))
             {
-                sprout.CurrentCell = board.GetCell(x, y);
-                var resolver = ServiceLocator.Get<PropertyResolverSystem>();
-                resolver.RegisterPlant(sprout);
+                board.PlacePlant(sprout, pos);
                 EventBus.Publish(new PlantPlacedEvent { Plant = sprout, X = x, Y = y });
+            }
+            else
+            {
+                Debug.LogWarning("FruitingEffect: Cannot place sprout at original position");
             }
         }
     }

@@ -13,6 +13,8 @@ using Systems;
 
 public class GameOverView : MonoBehaviour, IGameSystem
 {
+    //TODO: clear dependencies and make API for getting all needed stats.
+
     [Header("UI References")]
     [SerializeField] private TMP_Text _dayText;
     [SerializeField] private TMP_Text _caloriesText;
@@ -92,7 +94,6 @@ public class GameOverView : MonoBehaviour, IGameSystem
 
         int daysSurvived = runData.CurrentDay;
         int totalCalories = runData.Inventory.Calories;
-        int discoveredProperties = _journalSystem.GetJournal().GetAllEntries().Count;
 
         // Заглушки (можно расширить RunData позже)
         int plantsPlanted = 0;
@@ -107,13 +108,11 @@ public class GameOverView : MonoBehaviour, IGameSystem
 
         AnimateNumber(_dayText, daysSurvived, 0f);
         AnimateNumber(_caloriesText, totalCalories, 0.2f);
-        AnimateNumber(_propertiesText, discoveredProperties, 0.4f);
 
         foreach (var entry in _statEntries)
             Destroy(entry);
         _statEntries.Clear();
 
-        AddStatEntry("Свойств открыто", discoveredProperties.ToString(), 0.4f);
         AddStatEntry("Посажено растений", plantsPlanted.ToString(), 0.6f);
         AddStatEntry("Собрано растений", plantsHarvested.ToString(), 0.8f);
     }

@@ -15,7 +15,7 @@ public class BoardView : MonoBehaviour, IGameSystem
 {
     [Header("References")]
     [SerializeField] private BoardRoot _boardRoot;
-    [SerializeField] private GameObject _mutationViewPrefab; // префаб с MutationView
+    [SerializeField] private GameObject _mutationViewPrefab;
     [SerializeField] private Transform _plantContainer;
 
     private RunData _runData;
@@ -85,11 +85,14 @@ public class BoardView : MonoBehaviour, IGameSystem
         _selectedItem = evt.Item;
     }
 
-    // ---------- Визуал растения ----------
     private void CreatePlantVisual(PlantInstance plant)
     {
-        if (plant == null) return;
-        if (_plantViews.ContainsKey(plant)) return;
+        if (plant == null) {
+            Debug.LogError($"Plant in createVisual is null {plant}");
+            return; }
+        if (_plantViews.ContainsKey(plant)) {
+            Debug.LogError($"{_plantViews.ContainsKey(plant)} - plantViews already contain plant for plant {plant}");
+            return; }
 
         Vector2Int pos = plant.Position;
         var anchorCell = _boardRoot.GetCellView(pos.x, pos.y);
@@ -99,7 +102,6 @@ public class BoardView : MonoBehaviour, IGameSystem
             return;
         }
 
-        // Создаём как дочерний объект опорной клетки
         GameObject go = Instantiate(_mutationViewPrefab, anchorCell.transform);
         MutationView view = go.GetComponent<MutationView>();
         view.Initialize(plant);
@@ -310,15 +312,14 @@ public class BoardView : MonoBehaviour, IGameSystem
         if (view != null) view.SetState(state);
     }
 
-    // ---------- Превью при Drag&Drop ----------
 
-    // ---------- Ввод ----------
     public void OnCellPointerDown(int x, int y, PointerEventData eventData)
     {
         if (eventData.button != PointerEventData.InputButton.Left) return;
         _isPointerDown = true;
         _lastHarvestedCell = new Vector2Int(-1, -1);
         TryPlantOrHarvest(x, y);
+        
     }
 
     public void OnCellPointerUp(int x, int y, PointerEventData eventData)
@@ -373,5 +374,31 @@ public class BoardView : MonoBehaviour, IGameSystem
         harvestSystem.HarvestPlantAt(x, y);
     }
 
+    public void ClearBoard()
+    {
+        foreach (var kvp in _plantViews)
+        {
+            if (kvp.Value != null) Destroy(kvp.Value.gameObject);
+        }
+        _plantViews.Clear();
+
+        if (_boardRoot != null)
+        {
+            foreach (var cell in _boardRoot.CellViews.Values)
+            {
+                cell.SetState(CellState.Default);
+            }
+        }
+
+        _selectedItem = null;
+        _isPointerDown = false;
+        _lastHarvestedCell = new Vector2Int(-1, -1);
+        ClearPreview();
+    }
+
+    public void ClearGridBoard()
+    {
+        _boardRoot.GridBoard.Clear();
+    }
 
 }

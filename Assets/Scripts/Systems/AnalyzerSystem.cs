@@ -24,6 +24,17 @@ namespace Systems
             }
         }
 
+        private bool IsPropertyPermanent(PlantInstance plant, GenomePropertyInstance prop)
+        {
+            if (plant.PermanentModifier != null && plant.PermanentModifier.Data == prop.Data)
+                return true;
+
+            if (plant.PlantData.fixedPermanentModifier == prop.Data)
+                return true;
+
+            return false;
+        }
+
         /// <summary>
         /// Анализирует растение с использованием фермента.
         /// </summary>
@@ -38,7 +49,6 @@ namespace Systems
                 return false;
             }
 
-            // Проверяем, есть ли фермент в руке
             ItemInstance fermentItem = null;
             foreach (var item in _hand.GetAll())
             {
@@ -61,30 +71,21 @@ namespace Systems
                 UnityEngine.Debug.Log($"Plant {plant.PlantData.itemName} has no properties to discover.");
                 // Всё равно считаем, что анализ прошёл, фермент тратится
                 _hand.Remove(fermentItem);
-                EventBus.Publish(new FermentUsedEvent { Target = plant, Ferment = ferment });
                 return true;
             }
 
-            // Открываем все свойства растения (добавляем в журнал)
             foreach (var prop in plant.Genome.Properties)
             {
+                bool isPermanent = IsPropertyPermanent(plant, prop);
                 EventBus.Publish(new GenomeDiscoveredEvent
                 {
                     Plant = plant,
-                    Property = prop
+                    Property = prop,
+                    isPermanent = isPermanent
                 });
-                //Journal подписан на GenomeDiscoveredEvent
             }
 
-            // Удаляем фермент из руки
             _hand.Remove(fermentItem);
-
-            // Публикуем событие об использовании фермента
-            EventBus.Publish(new FermentUsedEvent
-            {
-                Target = plant,
-                Ferment = ferment
-            });
 
             EventBus.Publish(new HandUpdatedEvent());
             EventBus.Publish(new PlantAnalyzedEvent { Plant = plant });

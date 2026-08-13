@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "\u041F\u0440\u0438 \u0441\u0431\u043E\u0440\u0435, \u043E\u0441\u0442\u0430\u0432\u043B\u044F\u0435\u0442
     \u0440\u043E\u0441\u0442\u043E\u043A\t\u043D\u043E \u0432 \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u043E\u043C
     \u043C\u0435\u0441\u0442\u0435"
-  icon: {fileID: 0}
+  icon: {fileID: -880375290909094120, guid: daf6d4d4b08a7a04bbcf4b432f81f0ab, type: 3}
   rarity: 0
   genomeCost: 20
   _effectClassName: RandomFruitingEffect

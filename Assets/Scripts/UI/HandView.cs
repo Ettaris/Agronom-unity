@@ -8,7 +8,7 @@ using Commands;
 using Gameplay;
 using Managers;
 
-public class HandView : MonoBehaviour, IDropHandler, IGameSystem
+public class HandView : MonoBehaviour, IGameSystem
 {
     [Header("UI References")]
     [SerializeField] private RectTransform _cardsContainer; // родительский RectTransform для карточек
@@ -24,16 +24,13 @@ public class HandView : MonoBehaviour, IDropHandler, IGameSystem
     [SerializeField] private float _appearBounceAmplitude = 0.3f;
 
     private List<CardView> _cardViews = new List<CardView>();
-    private RunData _runData;
     private Hand _hand;
-    private bool _isSelectionMode; // режим выбора карточек (для CardDrawSystem)
 
 
     public void Initialize()
     {
-        // Подписываемся на события обновления руки
         EventBus.Subscribe<HandUpdatedEvent>(OnHandUpdated);
-        EventBus.Subscribe<OfferGeneratedEvent>(OnOfferGenerated); // для режима выбора
+        EventBus.Subscribe<OfferGeneratedEvent>(OnOfferGenerated);
         EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
     }
 
@@ -59,12 +56,9 @@ public class HandView : MonoBehaviour, IDropHandler, IGameSystem
 
     private void OnOfferGenerated(OfferGeneratedEvent evt)
     {
-        // Включаем режим выбора: отображаем предложение вместо руки
-        _isSelectionMode = true;
-        //RefreshHand(evt.Offer);
+
     }
 
-    // Обновление руки (из Hand)
     private void RefreshHand()
     {
         if (_hand == null) return;
@@ -74,7 +68,6 @@ public class HandView : MonoBehaviour, IDropHandler, IGameSystem
     // Обновление с переданным списком предметов (для режима выбора)
     private void RefreshHand(IEnumerable<ItemInstance> items)
     {
-        // Удаляем старые карточки
         foreach (var card in _cardViews)
         {
             card.Clear();
@@ -86,7 +79,7 @@ public class HandView : MonoBehaviour, IDropHandler, IGameSystem
         foreach (var item in items)
         {
             if (index >= _maxCards) break;
-            CreateCard(item, index, false); // без анимации появления
+            CreateCard(item, index, false);
             index++;
         }
 
@@ -142,60 +135,6 @@ public class HandView : MonoBehaviour, IDropHandler, IGameSystem
         _handAnimator.SetBool("Dragging", false);
     }
 
-    public void OnDrop(PointerEventData eventData)
-    {
-        // Если кто-то бросает объект на руку – можно добавить в руку, но пока игнорируем.
-    }
-
-    // Метод для дропа из руки на другие объекты (вызывается из CardView или через Raycast)
-    public void HandleDrop(CardView card, GameObject target)
-    {
-        var item = card.Item;
-        if (item == null) return;
-
-        Debug.Log($"HandView.HandleDrop: item={item.Data.itemName}, target={target.name}");
-
-        // Находим CellView на самом объекте или на родителе
-        var cellView = target.GetComponentInParent<CellView>();
-        if (cellView == null)
-            cellView = target.GetComponent<CellView>();
-
-        Debug.Log(cellView + " - cell view");
-
-        if (cellView != null)
-        {
-            Debug.Log($"HandView: CellView found at ({cellView.X}, {cellView.Y})");
-            if (item is PlantInstance plant)
-            {
-                CommandProcessor.Execute(new PlacePlantCommand { Plant = plant, X = cellView.X, Y = cellView.Y });
-                // Карточка удалится через HandUpdatedEvent
-            }
-            return;
-        }
-        else { Debug.Log("Cell view is null in HandView"); }
-
-        // Проверяем лабораторию (слоты)
-        var slotView = target.GetComponent<LaboratorySlotView>();
-        if (slotView == null)
-            slotView = target.GetComponentInParent<LaboratorySlotView>();
-
-        if (slotView != null)
-        {
-            var labView = ServiceLocator.Get<LaboratoryView>();
-            if (labView != null && labView.OnItemDropped(item))
-            {
-                RemoveCard(card);
-            }
-            else
-            {
-                card.CancelDrop();
-            }
-            return;
-        }
-
-        // Если ничего не подошло – возвращаем карточку (она сама вернётся)
-    }
-
     public void RemoveCard(CardView card)
     {
         if (_cardViews.Contains(card))
@@ -229,9 +168,7 @@ public class HandView : MonoBehaviour, IDropHandler, IGameSystem
     {
         if (card.Item != null)
         {
-            // Публикуем событие о выборе карточки
             EventBus.Publish(new CardSelectedEvent { Item = card.Item });
-            // Снимаем выделение с других карточек
             foreach (var c in _cardViews)
             {
                 if (c != card) c.Deselect();

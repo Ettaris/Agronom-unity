@@ -1,6 +1,7 @@
 using Data;
 using Gameplay;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Infrastructure.Events
 {
@@ -79,22 +80,32 @@ namespace Infrastructure.Events
     }
 
     // ---------- —войства и анализ ----------
-    public struct PropertyDiscoveredEvent
-    {
-        public GenomePropertyInstance Property;
-        public PlantInstance Plant;
-    }
 
-    public struct PropertyAssignedEvent
-    {
-        public PlantInstance Plant;
-        public GenomePropertyInstance Property;
-    }
-
-    public struct PropertyExtractedEvent
+    public struct GenomeTransferredEvent
     {
         public PlantInstance Donor;
+        public PlantInstance Target;
         public GenomePropertyInstance Property;
+    }
+
+    public struct GenomeDiscoveredEvent
+    {
+        public PlantInstance Plant;
+        public GenomePropertyInstance Property;
+        public bool isPermanent;
+    }
+
+    public struct GenomeChangedEvent
+    {
+        public PlantInstance Plant;
+        public GenomePropertyInstance Property;
+        public bool IsAdded;
+    }
+
+    public struct GenomeTransferFailedEvent
+    {
+        public PlantInstance Donor;
+        public PlantInstance Target;
     }
 
     // ---------- —чЄт и прогресс ----------
@@ -109,18 +120,10 @@ namespace Infrastructure.Events
         public bool IsMetaSave; // true Ц сохранить журнал, false Ц сохранить забег
     }
 
-    // ---------- ƒополнительное событие дл€ модификации калорий (используетс€ в PropertyResolverSystem) ----------
     public struct HarvestModifiedEvent
     {
         public PlantInstance Plant;
         public int ModifiedCalories;
-    }
-
-    public struct GenomeChangedEvent
-    {
-        public PlantInstance Plant;
-        public GenomePropertyInstance Property;
-        public bool IsAdded; // true Ц добавлено, false Ц удалено
     }
 
     public struct PlantMutatedEvent
@@ -134,32 +137,6 @@ namespace Infrastructure.Events
         public ItemInstance Item;
     }
 
-    public struct FermentUsedEvent
-    {
-        public PlantInstance Target;
-        public FermentData Ferment;
-    }
-
-    public struct BatteryUsedEvent
-    {
-        public PlantInstance Donor;
-        public PlantInstance Target;
-        public BatteryData Battery;
-    }
-
-    public struct GenomeTransferredEvent
-    {
-        public PlantInstance Donor;
-        public PlantInstance Target;
-        public GenomePropertyInstance Property;
-    }
-
-    public struct GenomeDiscoveredEvent
-    {
-        public PlantInstance Plant;
-        public GenomePropertyInstance Property;
-    }
-
     public struct RunGenerationRequestedEvent
     {
         public int Seed;
@@ -167,7 +144,6 @@ namespace Infrastructure.Events
 
     public struct HandUpdatedEvent { }
 
-    // —обытие дл€ уведомлени€ о заполненной руке (публикуетс€ из HandView или Hand)
     public struct HandFullEvent { }
 
     public struct OfferGeneratedEvent
@@ -180,8 +156,6 @@ namespace Infrastructure.Events
     {
         public RunData RunData;
     }
-
-    public struct ServicesInitializedEvent { }
 
     public struct StageChangedEvent
     {
@@ -198,14 +172,15 @@ namespace Infrastructure.Events
 
     public struct GameWinEvent { }
 
-    public struct PlantKilledByCentrifugeEvent
+    public struct PlantAnalyzedEvent
     {
         public PlantInstance Plant;
     }
 
-    public struct PlantAnalyzedEvent
+    public struct CardDropEvent
     {
-        public PlantInstance Plant;
+        public CardView Card;
+        public GameObject Target;
     }
 
 }

@@ -1500,6 +1500,10 @@ MonoBehaviour:
   _closeButton: {fileID: 1084627769}
   _openButton: {fileID: 0}
   _emptyLabel: {fileID: 1322863318}
+  _prevButton: {fileID: 0}
+  _nextButton: {fileID: 0}
+  _pageText: {fileID: 0}
+  _entriesPerPage: 3
   _journalAnimator: {fileID: 134021978}
   _entryAppearDuration: 0.3
   _entryAppearDelayOffset: 0.05
@@ -2534,6 +2538,10 @@ PrefabInstance:
       value: 15.35
       objectReference: {fileID: 0}
     - target: {fileID: 8415638060911953065, guid: c2aeae3af19d3df45afc4b30696c692e, type: 3}
+      propertyPath: m_Color.a
+      value: 0.101960786
+      objectReference: {fileID: 0}
+    - target: {fileID: 8415638060911953065, guid: c2aeae3af19d3df45afc4b30696c692e, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
@@ -2769,11 +2777,6 @@ PrefabInstance:
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7289311728469308680, guid: 33ab24e05935d6f4f94aa42207c85aa0, type: 3}
   m_PrefabInstance: {fileID: 508316095}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &512022879 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5333378958346043871, guid: 6dbe9d3279ac15a4f9103d9f6ede54e0, type: 3}
-  m_PrefabInstance: {fileID: 5729858446892158022}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &512022880 stripped
 RectTransform:
@@ -6630,6 +6633,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8415638060911953065, guid: c2aeae3af19d3df45afc4b30696c692e, type: 3}
+      propertyPath: m_Color.a
+      value: 0.101960786
+      objectReference: {fileID: 0}
+    - target: {fileID: 8415638060911953065, guid: c2aeae3af19d3df45afc4b30696c692e, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
@@ -7105,11 +7112,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlantInfoView
   _plantName: {fileID: 1422032950}
-  _growthText: {fileID: 736362314}
-  _genomeSlider: {fileID: 696441182}
+  _growthTimeText: {fileID: 0}
   _genomeWeightText: {fileID: 781654708}
+  _baseCaloriesText: {fileID: 0}
+  _modifiedCaloriesText: {fileID: 0}
   _propertiesContainer: {fileID: 1124665699}
-  _propertyPrefab: {fileID: 512022879}
+  _genomeIconPrefab: {fileID: 0}
   _infoAnimator: {fileID: 1337885092}
 --- !u!95 &1337885092
 Animator:

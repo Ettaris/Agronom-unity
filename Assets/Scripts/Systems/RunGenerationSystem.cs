@@ -109,9 +109,17 @@ namespace Systems
         {
             foreach (var plantData in allPlantTypes)
             {
-                var perm = ModifierAssigner.SelectPermanentModifier(seedRandom, _config.modifierConfig, _config.genomeRarityPool);
-                if (perm != null)
-                    runData.PermanentModifiers[plantData] = perm;
+                GenomePropertyData permanent = null;
+                if (plantData.fixedPermanentModifier != null)
+                {
+                    permanent = plantData.fixedPermanentModifier;
+                }
+                else
+                {
+                    permanent = ModifierAssigner.SelectPermanentModifier(seedRandom, _config.modifierConfig, _config.genomeRarityPool);
+                }
+                if (permanent != null)
+                    runData.PermanentModifiers[plantData] = permanent;
                 else
                     Debug.LogWarning($"No permanent modifier assigned for {plantData.itemName}");
             }
@@ -181,5 +189,8 @@ namespace Systems
                 runData.Deck.Add(item);
         }
     }
+
+
+
 
 }

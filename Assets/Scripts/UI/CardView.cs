@@ -126,7 +126,6 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void Deselect()
     {
         KillCurrentTween();
-        transform.localScale = _originalScale * 1.1f;
         _currentTween = transform.DOScale(_originalScale, 0.15f).SetEase(Ease.OutQuad);
         _cardAnimator.SetTrigger("Deselect");
     }
@@ -231,47 +230,15 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _isDragging = false;
         _cardAnimator.SetBool("IsDragging", false);
 
-        bool planted = false;
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+        foreach (var result in results)
+        {
+            if (result.gameObject == gameObject || result.gameObject.transform.IsChildOf(transform))
+                continue;
 
-        Debug.Log(_servicesReady + " - services ready in CardView");
-
-        if (_servicesReady && _boardView != null)
-        {
-            Debug.Log($"CardView.OnEndDrag: PreviewCanPlace = {_boardView._previewCanPlace}, PreviewPosition = {_boardView._previewPosition}");
-            if (_boardView._previewCanPlace && _item is PlantInstance plant)
-            {
-                // Отправляем команду посадки
-                CommandProcessor.Execute(new PlacePlantCommand
-                {
-                    Plant = plant,
-                    X = _boardView._previewPosition.x,
-                    Y = _boardView._previewPosition.y
-                });
-                planted = true;
-                // Карточка будет удалена через HandUpdatedEvent
-                // Можно сразу скрыть, чтобы избежать мигания
-                _cardAnimator.SetTrigger("Hide");
-            }
-            else
-            {
-                // Не удалось посадить – возвращаем карточку
-                CancelDrop();
-            }
-            _boardView.ClearPreviewFromDrag();
-        }
-        else
-        {
-            // BoardView не доступен – возвращаем
-            CancelDrop();
-        }
-
-        if (!planted)
-        {
-            OnDragCancel?.Invoke(this);
-        }
-        else
-        {
-            OnDragEnd?.Invoke(this);
+            EventBus.Publish(new CardDropEvent { Card = this, Target = result.gameObject });
+            break;
         }
     }
 

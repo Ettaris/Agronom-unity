@@ -151,5 +151,12 @@ namespace Gameplay
             }
             return plants;
         }
+
+        public void Clear()
+        {
+            for (int x = 0; x < Width; x++)
+                for (int y = 0; y < Height; y++)
+                    _cells[x, y].Plant = null;
+        }
     }
 }

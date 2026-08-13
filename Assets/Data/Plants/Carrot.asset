@@ -19,6 +19,7 @@ MonoBehaviour:
   rarity: 0
   growthTime: 1
   baseCalories: 10
+  fixedPermanentModifier: {fileID: 11400000, guid: 8d704a6a7f456e74fb96f5d87ecea239, type: 2}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
