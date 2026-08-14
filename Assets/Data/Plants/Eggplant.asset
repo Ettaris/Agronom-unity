@@ -15,13 +15,17 @@ MonoBehaviour:
   _id: 
   itemName: Eggplant
   description: 
-  icon: {fileID: 7043426141862731076, guid: 0704e633098396f4ba64909a96ec8d1e, type: 3}
+  icon: {fileID: -784206225, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 17
+  fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
-  - {fileID: -6905139553319271647, guid: 75c385dfdfb4f644bb5a48cbb6b139b8, type: 3}
+  - {fileID: -6905139553319271647, guid: 21ae41b7af69a2c449f3fc1150806b89, type: 3}
+  - {fileID: -1414401220342530014, guid: 21ae41b7af69a2c449f3fc1150806b89, type: 3}
+  - {fileID: 5265256098166310276, guid: 21ae41b7af69a2c449f3fc1150806b89, type: 3}
+  - {fileID: 8761193796750372442, guid: 21ae41b7af69a2c449f3fc1150806b89, type: 3}
+  - {fileID: 6760512655499572333, guid: 21ae41b7af69a2c449f3fc1150806b89, type: 3}
   mutationStages: []

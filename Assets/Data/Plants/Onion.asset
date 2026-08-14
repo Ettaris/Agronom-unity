@@ -15,13 +15,17 @@ MonoBehaviour:
   _id: 
   itemName: Onion
   description: 
-  icon: {fileID: -8188024232169336312, guid: 4e53180d2f9004748859e208b9206bc0, type: 3}
+  icon: {fileID: 1065249391, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}
   rarity: 0
   growthTime: 1
   baseCalories: 10
+  fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
-  - {fileID: 5465580561085644368, guid: 37ab4094709334c4586c32093660cbe1, type: 3}
+  - {fileID: 5465580561085644368, guid: da0b7f7f3f0a54142bd4adc2466129d6, type: 3}
+  - {fileID: -9063029999227916591, guid: da0b7f7f3f0a54142bd4adc2466129d6, type: 3}
+  - {fileID: -2332356855530425355, guid: da0b7f7f3f0a54142bd4adc2466129d6, type: 3}
+  - {fileID: 3899546548142004079, guid: da0b7f7f3f0a54142bd4adc2466129d6, type: 3}
+  - {fileID: -3390221917031993903, guid: da0b7f7f3f0a54142bd4adc2466129d6, type: 3}
   mutationStages: []

@@ -15,13 +15,17 @@ MonoBehaviour:
   _id: 
   itemName: Sunflower
   description: 
-  icon: {fileID: -55543728212381692, guid: a65f738437d93264f8d8c8147ca88085, type: 3}
+  icon: {fileID: -2775338862639486183, guid: ea95b6a2c5cb98248a6a1a95494d6c73, type: 3}
   rarity: 0
   growthTime: 1
   baseCalories: 5
+  fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
-  - {fileID: -256329436847572505, guid: 2834b3fc76e8dda4792c2ed9251747e9, type: 3}
+  - {fileID: 3606243134133044992, guid: da925e58537328e47987d5659ec96f4c, type: 3}
+  - {fileID: -4782665449679226813, guid: da925e58537328e47987d5659ec96f4c, type: 3}
+  - {fileID: 466263913694700217, guid: da925e58537328e47987d5659ec96f4c, type: 3}
+  - {fileID: -7039873942469640697, guid: da925e58537328e47987d5659ec96f4c, type: 3}
+  - {fileID: 8782663904212672053, guid: da925e58537328e47987d5659ec96f4c, type: 3}
   mutationStages: []

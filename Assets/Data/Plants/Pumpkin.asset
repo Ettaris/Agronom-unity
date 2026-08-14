@@ -15,13 +15,17 @@ MonoBehaviour:
   _id: 
   itemName: Pumpkin
   description: 
-  icon: {fileID: -4577320816690741403, guid: fe47a972be3cd9c489fdaf5636bf84de, type: 3}
+  icon: {fileID: -984040803269576920, guid: ea95b6a2c5cb98248a6a1a95494d6c73, type: 3}
   rarity: 0
   growthTime: 3
   baseCalories: 30
+  fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
-  - {fileID: -3545189308076068758, guid: 26781a8f394cf4b4080e16b12148916f, type: 3}
+  - {fileID: -3545189308076068758, guid: 7043c95f503c8cd4e910f3c483818543, type: 3}
+  - {fileID: -2762191624333622873, guid: 7043c95f503c8cd4e910f3c483818543, type: 3}
+  - {fileID: -1681876278535725790, guid: 7043c95f503c8cd4e910f3c483818543, type: 3}
+  - {fileID: 4907745874458294902, guid: 7043c95f503c8cd4e910f3c483818543, type: 3}
+  - {fileID: -8333431928182952089, guid: 7043c95f503c8cd4e910f3c483818543, type: 3}
   mutationStages: []

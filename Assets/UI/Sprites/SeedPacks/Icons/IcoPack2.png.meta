@@ -1,0 +1,399 @@
+fileFormatVersion: 2
+guid: ea95b6a2c5cb98248a6a1a95494d6c73
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5356901266734854476
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_0
+  - first:
+      213: 7872859621862266531
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_1
+  - first:
+      213: -984040803269576920
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_2
+  - first:
+      213: 9020281031575092608
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_3
+  - first:
+      213: -2775338862639486183
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_4
+  - first:
+      213: -3223033112136670086
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_5
+  - first:
+      213: -3042585340055564282
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_6
+  - first:
+      213: -8839192010065024826
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_7
+  - first:
+      213: 7278091147797105035
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_8
+  - first:
+      213: 4857817110498995939
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_9
+  - first:
+      213: -7183826288803168801
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_10
+  - first:
+      213: -164654816287753135
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_11
+  - first:
+      213: -1698290750400732839
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_12
+  - first:
+      213: 734986916772755939
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_13
+  - first:
+      213: 1184981126274457491
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_14
+  - first:
+      213: -5249685356033716094
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_15
+  - first:
+      213: 6359325011188550411
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_16
+  - first:
+      213: 5781143818113399091
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_17
+  - first:
+      213: -5212806780599769332
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_18
+  - first:
+      213: -3566729389570873093
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_19
+  - first:
+      213: 1716157604700647418
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_20
+  - first:
+      213: -5264433949869187094
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_21
+  - first:
+      213: -3939439018232690017
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_22
+  - first:
+      213: 7202415760886269987
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_23
+  - first:
+      213: 3837700284656278586
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_24
+  - first:
+      213: -806588016644769234
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_25
+  - first:
+      213: 764527391804463504
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_26
+  - first:
+      213: -701334556107843585
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_27
+  - first:
+      213: -1448313948754922252
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_28
+  - first:
+      213: -4797811142105139124
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_29
+  - first:
+      213: -8041041770603112280
+    second: dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_30
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Potato
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 836
+        width: 418
+        height: 418
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4becd631ea678a5b0800000000000000
+      internalID: -5356901266734854476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\u0422\u0440\u0430\u0432\u0430 \u043A\u0430\u043A\u0430\u044F-\u0442\u043E"
+      rect:
+        serializedVersion: 2
+        x: 418
+        y: 836
+        width: 418
+        height: 418
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a6dd972d14024d60800000000000000
+      internalID: 7872859621862266531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pumpkin
+      rect:
+        serializedVersion: 2
+        x: 836
+        y: 829
+        width: 418
+        height: 418
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82770a46a1cf752f0800000000000000
+      internalID: -984040803269576920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Strawberry
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 418
+        width: 418
+        height: 418
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 08d3a358ec97e2d70800000000000000
+      internalID: 9020281031575092608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sunflower
+      rect:
+        serializedVersion: 2
+        x: 418
+        y: 418
+        width: 418
+        height: 418
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91b690142040c79d0800000000000000
+      internalID: -2775338862639486183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SweetPotato
+      rect:
+        serializedVersion: 2
+        x: 836
+        y: 418
+        width: 418
+        height: 418
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a74a5cbf57c7543d0800000000000000
+      internalID: -3223033112136670086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tomato
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 21
+        width: 418
+        height: 418
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6005d27e0c096c5d0800000000000000
+      internalID: -3042585340055564282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Watermelon
+      rect:
+        serializedVersion: 2
+        x: 680
+        y: 15
+        width: 418
+        height: 418
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b898c538659f00560800000000000000
+      internalID: 7278091147797105035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 764e5005a1fed6a4b8a2a8a47aa852c7
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceOnImport
+        value: False
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":3.0,"y":3.0},"gridSpriteSize":{"x":418.0,"y":418.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Potato: -5356901266734854476
+      Pumpkin: -984040803269576920
+      Strawberry: 9020281031575092608
+      Sunflower: -2775338862639486183
+      SweetPotato: -3223033112136670086
+      Tomato: -3042585340055564282
+      Watermelon: 7278091147797105035
+      dc7b2b2e-a18c-47b6-9e30-a3811e9f56d0_7: -8839192010065024826
+      "\u0422\u0440\u0430\u0432\u0430 \u043A\u0430\u043A\u0430\u044F-\u0442\u043E": 7872859621862266531
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

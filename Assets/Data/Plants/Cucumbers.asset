@@ -15,13 +15,17 @@ MonoBehaviour:
   _id: 
   itemName: Cucumbers
   description: 
-  icon: {fileID: 6455089648793706954, guid: 30c7dccef94766842886a6a21518f610, type: 3}
+  icon: {fileID: 2079635591, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 20
+  fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
-  - {fileID: -3513379549867885781, guid: b5ac525af9e981448a77c216e193c755, type: 3}
+  - {fileID: -3513379549867885781, guid: 2d74a82ec26d4904c978a80b5716fd29, type: 3}
+  - {fileID: -4912337978787708444, guid: 2d74a82ec26d4904c978a80b5716fd29, type: 3}
+  - {fileID: 1830322065892676842, guid: 2d74a82ec26d4904c978a80b5716fd29, type: 3}
+  - {fileID: 1303925818, guid: 2d74a82ec26d4904c978a80b5716fd29, type: 3}
+  - {fileID: -1780832901, guid: 2d74a82ec26d4904c978a80b5716fd29, type: 3}
   mutationStages: []

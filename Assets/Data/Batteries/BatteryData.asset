@@ -15,5 +15,5 @@ MonoBehaviour:
   _id: 
   itemName: Battery
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: -3017979480325208809, guid: 8abacc60d8ca93d48ad50fe32d7b83e1, type: 3}
   rarity: 0

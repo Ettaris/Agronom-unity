@@ -15,12 +15,17 @@ MonoBehaviour:
   _id: 
   itemName: Lamb
   description: 
-  icon: {fileID: -4769776175211994874, guid: a92aa199f8acebb46bf9791065bfcfd3, type: 3}
+  icon: {fileID: -1988664961, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}
   rarity: 4
-  growthTime: 5
+  growthTime: 4
   baseCalories: 200
+  fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
+  - {fileID: 2383096554206129452, guid: 67c38d22b2955584dbb37aab3e6c5a3b, type: 3}
+  - {fileID: -4630917884381904298, guid: 67c38d22b2955584dbb37aab3e6c5a3b, type: 3}
+  - {fileID: 4816701278271731509, guid: 67c38d22b2955584dbb37aab3e6c5a3b, type: 3}
+  - {fileID: -2457176721757424053, guid: 67c38d22b2955584dbb37aab3e6c5a3b, type: 3}
+  - {fileID: 8137120954226770546, guid: 67c38d22b2955584dbb37aab3e6c5a3b, type: 3}
   mutationStages: []

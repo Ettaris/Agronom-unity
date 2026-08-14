@@ -265,7 +265,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1804173047833429197
 RectTransform:
   m_ObjectHideFlags: 0
@@ -388,7 +388,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5186171642842493552, guid: 7dd3a3273b5881b44b812af6e2acd950, type: 3}
+  m_Sprite: {fileID: 941617537757018978, guid: 85c238cff829dd241a12d0513aa175c1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -968,8 +968,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1159516824005035374}
   - {fileID: 1804173047833429197}
+  - {fileID: 1159516824005035374}
   - {fileID: 2399353369396232222}
   - {fileID: 3104698492856597584}
   - {fileID: 5572226710274975248}
@@ -1046,6 +1046,8 @@ MonoBehaviour:
   _dragScale: 1.1
   _dragLift: 0.3
   _returnDuration: 0.3
+  _shakeDuration: 0.2
+  _shakeStrength: 5
 --- !u!95 &2760881903335753401
 Animator:
   serializedVersion: 7

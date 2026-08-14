@@ -15,13 +15,17 @@ MonoBehaviour:
   _id: 
   itemName: Cabbage
   description: 
-  icon: {fileID: -6868335896951200935, guid: a313c11d7058f7c4da88fddd5144416c, type: 3}
+  icon: {fileID: 1684329156, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 15
+  fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
-  - {fileID: 159068718711766808, guid: d8ea8b924f3794843b482b6a41bcc4ef, type: 3}
+  - {fileID: 159068718711766808, guid: 5e7e26a7892bcc54ab6e6e1229b543e1, type: 3}
+  - {fileID: 2258594115014863313, guid: 5e7e26a7892bcc54ab6e6e1229b543e1, type: 3}
+  - {fileID: -5069418417032509421, guid: 5e7e26a7892bcc54ab6e6e1229b543e1, type: 3}
+  - {fileID: 7935378914130774900, guid: 5e7e26a7892bcc54ab6e6e1229b543e1, type: 3}
+  - {fileID: -2316294712386077141, guid: 5e7e26a7892bcc54ab6e6e1229b543e1, type: 3}
   mutationStages: []

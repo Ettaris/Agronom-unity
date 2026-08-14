@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 
   itemName: Carrot
   description: 
-  icon: {fileID: 8197652507214342660, guid: a8fca0c391efec64e89be35967d807fa, type: 3}
+  icon: {fileID: -519472111, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}
   rarity: 0
   growthTime: 1
   baseCalories: 10
@@ -23,6 +23,9 @@ MonoBehaviour:
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
-  - {fileID: -5859083586626064994, guid: a2208174ab1c9df4fb3cbcf71fca07d9, type: 3}
+  - {fileID: -5859083586626064994, guid: 9dfdc18f976c04c448327a4d48097424, type: 3}
+  - {fileID: 1746509244472477445, guid: 9dfdc18f976c04c448327a4d48097424, type: 3}
+  - {fileID: -2094157912208876536, guid: 9dfdc18f976c04c448327a4d48097424, type: 3}
+  - {fileID: 3721053832486967156, guid: 9dfdc18f976c04c448327a4d48097424, type: 3}
+  - {fileID: -3855089239954288668, guid: 9dfdc18f976c04c448327a4d48097424, type: 3}
   mutationStages: []

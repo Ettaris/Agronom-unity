@@ -15,13 +15,17 @@ MonoBehaviour:
   _id: 
   itemName: Watermelon
   description: 
-  icon: {fileID: -622501155029653920, guid: d69817710f985b544a246c16835bd717, type: 3}
+  icon: {fileID: 7278091147797105035, guid: ea95b6a2c5cb98248a6a1a95494d6c73, type: 3}
   rarity: 0
   growthTime: 2
   baseCalories: 30
+  fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
-  - {fileID: -8558258358756935692, guid: 00f3cef88d90807409cf99afc2df7406, type: 3}
+  - {fileID: -7102155541526828479, guid: d93e8ae9e13d55443ad92cd7e9ef265d, type: 3}
+  - {fileID: -6733415217991068956, guid: d93e8ae9e13d55443ad92cd7e9ef265d, type: 3}
+  - {fileID: 4724142048663248912, guid: d93e8ae9e13d55443ad92cd7e9ef265d, type: 3}
+  - {fileID: 3425451634053761019, guid: d93e8ae9e13d55443ad92cd7e9ef265d, type: 3}
+  - {fileID: 8001623681038082390, guid: d93e8ae9e13d55443ad92cd7e9ef265d, type: 3}
   mutationStages: []

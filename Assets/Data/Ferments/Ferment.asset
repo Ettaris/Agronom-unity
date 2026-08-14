@@ -15,5 +15,5 @@ MonoBehaviour:
   _id: 
   itemName: Ferment
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: -9202710710707814369, guid: 28ee3766e308bd34a9d2eb9db214eceb, type: 3}
   rarity: 0

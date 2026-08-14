@@ -4135,6 +4135,7 @@ MonoBehaviour:
   _consumableSlot: {fileID: 1070322947}
   _plantSlotA: {fileID: 349495658}
   _plantSlotB: {fileID: 1294788373}
+  _backgroundBlockPanel: {fileID: 0}
   _actionButton: {fileID: 2063589208}
   _plantInfo: {fileID: 1337885091}
   _labAnimator: {fileID: 783247944}
@@ -4981,15 +4982,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _gameConfig: {fileID: 11400000, guid: 4ac45ef5d1f296442b830710952dabc2, type: 2}
-  _boardRoot: {fileID: 0}
-  _notificationSystem: {fileID: 0}
-  _handView: {fileID: 0}
-  _boardView: {fileID: 0}
-  _gameOverView: {fileID: 0}
-  _journalView: {fileID: 0}
-  _HUDView: {fileID: 0}
-  _laboratoryView: {fileID: 0}
-  _cardDrawView: {fileID: 0}
+  _boardRoot: {fileID: 1284520086}
+  _notificationSystem: {fileID: 1529247380}
+  _handView: {fileID: 1736746206}
+  _boardView: {fileID: 239737091}
+  _gameOverView: {fileID: 1017030952}
+  _journalView: {fileID: 134021977}
+  _HUDView: {fileID: 814562213}
+  _laboratoryView: {fileID: 783247943}
+  _cardDrawView: {fileID: 1731522223}
 --- !u!1 &992209181
 GameObject:
   m_ObjectHideFlags: 0
