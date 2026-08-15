@@ -14,6 +14,7 @@ public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, I
     [Header("Visuals")]
     [SerializeField] private Image _background;
     [SerializeField] private Image _highlightImage;
+    [SerializeField] private Image _effectOverlay;
     [SerializeField] private Animator _cellAnimator;
 
     private Cell _logicCell;
@@ -24,6 +25,8 @@ public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, I
     public int Column => _column;
     public int X => _column;
     public int Y => _row;
+
+    public Image EffectOverlay => _effectOverlay;
 
     private void Awake()
     {
@@ -61,17 +64,18 @@ public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, I
         {
             switch (state)
             {
+                //TODO: убрать лишние хайлайты
                 case CellState.Highlighted:
                     Debug.Log("Cellview SetState highlited");
                     _highlightImage.gameObject.SetActive(true);
-                    _highlightImage.color = Color.green;
+                    _highlightImage.color = new Color(0.33f, 0.42f, 0.18f, 0.3f);
                     break;
                 case CellState.Unavailable:
-                    _highlightImage.gameObject.SetActive(true);
+                    //_highlightImage.gameObject.SetActive(true);
                     _highlightImage.color = Color.red;
                     break;
                 case CellState.Occupied:
-                    _highlightImage.gameObject.SetActive(true);
+                    //_highlightImage.gameObject.SetActive(true);
                     _highlightImage.color = Color.yellow;
                     break;
                 default:

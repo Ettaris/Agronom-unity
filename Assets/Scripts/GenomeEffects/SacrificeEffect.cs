@@ -22,11 +22,25 @@ namespace GenomeEffects
                 var leftPlant = leftCell.Plant;
                 leftPlant.GrowthProgress = 1f;
                 EventBus.Publish(new PlantGrownEvent { Plant = leftPlant });
-                Debug.Log($"Sacrifice: Left plant {leftPlant.PlantData.itemName} grown instantly.");
+                EventBus.Publish(new EffectAppliedEvent
+                {
+                    X = x - 1,
+                    Y = y,
+                    Type = EffectType.Grow,
+                    Duration = 0.5f
+                });
             }
             else { return; }
 
             // 2. Удаляем текущее растение (носитель) без выдачи калорий
+            EventBus.Publish(new EffectAppliedEvent
+            {
+                X = x,
+                Y = y,
+                Type = EffectType.Sacrifice,
+                Duration = 0.5f
+            });
+            EventBus.Publish(new PlantKilledEvent { Plant = plant, X = x, Y = y, Reason = "sacrifice" });
             board.RemovePlant(x, y);
             plant.CurrentCell = null;
 
@@ -36,7 +50,6 @@ namespace GenomeEffects
 
             // Публикуем событие уничтожения
             EventBus.Publish(new PlantKilledEvent { Plant = plant, X = x, Y = y, Reason = "Sacrifice" });
-            Debug.Log($"Sacrifice: Plant at ({x},{y}) sacrificed.");
         }
     }
 }

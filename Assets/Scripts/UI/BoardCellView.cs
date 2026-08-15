@@ -6,6 +6,8 @@ using Gameplay;
 
 public class BoardCellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
+
+    //TODO: Delete this script.
     public enum CellState
     {
         Default,
@@ -75,21 +77,21 @@ public class BoardCellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     {
         _currentState = state;
         _cellAnimator.SetInteger("State", (int)state);
-        // Подсветка
+        // Подсветка TODO: убрать ненужный хайлайты
         switch (state)
         {
             case CellState.Highlighted:
                 _highlightObject.SetActive(true);
                 // цвет зелёный
-                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = new Color(1f, 1f, 1f, 0.5f);
+                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = Color.darkOliveGreen;
                 break;
             case CellState.Occupied:
-                _highlightObject.SetActive(true);
-                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = new Color(1f, 1f, 0f, 0.2f);
+                //_highlightObject.SetActive(true);
+                //_highlightObject.GetComponent<UnityEngine.UI.Image>().color = new Color(1f, 1f, 0f);
                 break;
             case CellState.Unavailable:
-                _highlightObject.SetActive(true);
-                _highlightObject.GetComponent<UnityEngine.UI.Image>().color = new Color(1f, 0f, 0f, 0.2f);
+                //_highlightObject.SetActive(true);
+                //_highlightObject.GetComponent<UnityEngine.UI.Image>().color = new Color(1f, 0f, 0f);
                 break;
             default:
                 _highlightObject.SetActive(false);

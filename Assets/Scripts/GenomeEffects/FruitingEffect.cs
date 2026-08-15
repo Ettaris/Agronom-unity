@@ -28,6 +28,7 @@ namespace GenomeEffects
             {
                 board.PlacePlant(sprout, pos);
                 EventBus.Publish(new PlantPlacedEvent { Plant = sprout, X = x, Y = y });
+                EventBus.Publish(new EffectAppliedEvent { Type = EffectType.Grow, X = x, Y = y, Duration = 0.6f });
             }
             else
             {

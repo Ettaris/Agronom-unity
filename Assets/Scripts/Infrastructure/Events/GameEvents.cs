@@ -5,6 +5,25 @@ using UnityEngine;
 
 namespace Infrastructure.Events
 {
+    //Для анимаций клеток.
+    public enum EffectType
+    {
+        Grow,    
+        Boost,   
+        Debuff,  
+        Bomb,    
+        Weed,
+        Sacrifice,
+    }
+
+    public struct EffectAppliedEvent
+    {
+        public int X;
+        public int Y;
+        public EffectType Type;
+        public float Duration; 
+    }
+
     // ---------- Жизненный цикл забега ----------
     public struct RunStartedEvent
     {

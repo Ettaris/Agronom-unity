@@ -2,6 +2,7 @@ using Gameplay;
 using Infrastructure;
 using Infrastructure.Events;
 using Managers;
+using UnityEngine;
 
 namespace Systems
 {
@@ -13,11 +14,13 @@ namespace Systems
         private RunData _runData;
         private PropertyResolverSystem _propertyResolver;
         private ScoreSystem _scoreSystem;
+        private BoardRoot _boardRoot;
 
         public void Initialize()
         {
             _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
             _scoreSystem = ServiceLocator.Get<ScoreSystem>();
+            _boardRoot = ServiceLocator.Get<BoardRoot>();
         }
 
         public void Dispose() { }
@@ -53,8 +56,14 @@ namespace Systems
             _runData.Board.RemovePlant(x, y);
             plant.CurrentCell = null;
 
-            // 4. Вызываем эффекты уничтожения (Fruiting, RandomFruiting и т.д.)
-            //    Это должно происходить до UnregisterPlant, чтобы свойства были доступны
+            if (FloatingTextPool.Instance != null)
+            {
+                var worldPos = _boardRoot.GetCellView(x, y).transform.position;
+                string sign = modifiedCalories > 0 ? "+" : "";
+                Color color = modifiedCalories > 0 ? Color.white : Color.red;
+                FloatingTextPool.Instance.ShowTextAtScreen(worldPos, $"{sign}{modifiedCalories}", color, 60f, 1.5f);
+            }
+
             _propertyResolver.OnPlantDestroyed(plant, x, y);
 
             // 5. Публикуем событие уничтожения (для других систем)

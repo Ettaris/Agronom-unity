@@ -6,9 +6,10 @@ using Gameplay;
 
 namespace Systems
 {
-    public class DropHandler : IGameSystem
+    public class DropHandler : IGameSystem, IRunAware
     {
         private HandView _handView;
+        private RunData _runData;
 
         public void Initialize()
         {
@@ -24,11 +25,18 @@ namespace Systems
             EventBus.Unsubscribe<CardDropEvent>(OnCardDrop);
         }
 
+        public void OnRunDataSetup(RunData runData)
+        {
+            _runData = runData;
+        }
+
         private void OnCardDrop(CardDropEvent evt)
         {
             var card = evt.Card;
             var target = evt.Target;
             var item = card.Item;
+
+            if (target == null) { card.CancelDrop(); return; }
 
             if (item == null) return;
 
@@ -38,14 +46,22 @@ namespace Systems
             {
                 if (item is PlantInstance plant)
                 {
-                    CommandProcessor.Execute(new PlacePlantCommand
+                    Vector2Int pos = new Vector2Int(cellView.X, cellView.Y);
+                    if (_runData.Board.CanPlace(pos, plant.PlantData.size))
                     {
-                        Plant = plant,
-                        X = cellView.X,
-                        Y = cellView.Y
-                    });
+                        CommandProcessor.Execute(new PlacePlantCommand
+                        {
+                            Plant = plant,
+                            X = cellView.X,
+                            Y = cellView.Y
+                        });
+                    }
+                    else
+                    {
+                        card.CancelDrop();
+                    }
+                    return;
                 }
-                return;
             }
 
             // ---- ѕопытка использовани€ в лаборатории ----
@@ -68,5 +84,7 @@ namespace Systems
 
             card.CancelDrop();
         }
+
+
     }
 }

@@ -33,12 +33,14 @@ public class MutationView : MonoBehaviour
 
         EventBus.Subscribe<PlantGrownEvent>(OnPlantGrown);
         EventBus.Subscribe<GenomeChangedEvent>(OnGenomeChanged);
+        EventBus.Subscribe<DayEndedEvent>(OnDayEnd);
     }
 
     private void OnDestroy()
     {
         EventBus.Unsubscribe<PlantGrownEvent>(OnPlantGrown);
         EventBus.Unsubscribe<GenomeChangedEvent>(OnGenomeChanged);
+        EventBus.Unsubscribe<DayEndedEvent>(OnDayEnd);
     }
 
     public void Initialize(PlantInstance plant)
@@ -53,54 +55,46 @@ public class MutationView : MonoBehaviour
             return;
         }
         ResetVisuals();
-        // Обязательно обнуляем локальную позицию – мы дочерний объект опорной клетки
         transform.localPosition = Vector3.zero;
-        PositionAndScale();
-        UpdateVisuals(false);
+        UpdateVisuals(true);
     }
 
-    private void PositionAndScale()
+    private void UpdatePositionAndSize()
     {
-        Debug.Log("Go to Pos and Scale");
-        if (_currentPlant == null || _boardRoot == null) {
-            Debug.Log($"Current plant == {_currentPlant} or _board root = {_boardRoot}");
-            return;
-        }
+        if (_currentPlant == null || _boardRoot == null) return;
 
         Vector2Int size = _currentPlant.PlantData.size;
         Vector2Int pos = _currentPlant.Position;
 
         var anchorCell = _boardRoot.GetCellView(pos.x, pos.y);
-        if (anchorCell == null)
-        {
-            Debug.LogError($"MutationView: No cell view at ({pos.x},{pos.y})");
-            return;
-        }
+        if (anchorCell == null) return;
 
-        // Получаем размер опорной клетки
         RectTransform cellRect = anchorCell.GetComponent<RectTransform>();
         float cellWidth = cellRect.rect.width;
         float cellHeight = cellRect.rect.height;
 
-        // Обнуляем локальные координаты и масштаб
-        transform.localPosition = Vector3.zero;
-        transform.localScale = Vector3.one;
+        float heightScale = _currentPlant.PlantData.heightScale;
+        float progress = _currentPlant.GrowthProgress; // 0..1
 
-        // Настраиваем RectTransform изображения
+        float currentHeightFactor = 0.65f + 0.35f * progress;
+
+        float currentHeightScale = heightScale * currentHeightFactor;
+
+        if (progress == 0) currentHeightScale = Mathf.Clamp01(currentHeightScale);
+
+        float finalWidth = cellWidth * size.x;
+        float finalHeight = cellHeight * size.y * currentHeightScale;
+
         RectTransform imgRect = _plantImage.rectTransform;
-        imgRect.anchorMin = new Vector2(0.5f, 0.5f);
-        imgRect.anchorMax = new Vector2(0.5f, 0.5f);
-        imgRect.pivot = new Vector2(0.5f, 0.5f);
+        imgRect.sizeDelta = new Vector2(finalWidth, finalHeight);
 
-        // Размер изображения = размер клетки × размер растения
-        imgRect.sizeDelta = new Vector2(cellWidth * size.x, cellHeight * size.y);
-
-        // Смещение, чтобы центр изображения совпал с центром группы клеток
+        // Смещение по Y: нижняя часть остаётся на уровне клетки
+        float offsetY = (finalHeight - cellHeight * size.y) / 2f;
         float offsetX = cellWidth * (size.x - 1) / 2f;
-        float offsetY = -cellHeight * (size.y - 1) / 2f;
         imgRect.anchoredPosition = new Vector2(offsetX, offsetY);
 
-        Debug.Log($"MutationView: size={size}, cellSize=({cellWidth},{cellHeight}), sizeDelta={imgRect.sizeDelta}, anchoredPos={imgRect.anchoredPosition}");
+
+        transform.SetSiblingIndex(pos.y * 100 + pos.x);
     }
 
     private void ResetVisuals()
@@ -127,6 +121,9 @@ public class MutationView : MonoBehaviour
             _plantImage.gameObject.SetActive(false);
             return;
         }
+
+        UpdatePositionAndSize();
+
 
         _plantImage.gameObject.SetActive(true);
         _plantImage.color = Color.white;
@@ -207,5 +204,10 @@ public class MutationView : MonoBehaviour
     {
         if (evt.Plant == _currentPlant)
             UpdateVisuals(true);
+    }
+
+    private void OnDayEnd(DayEndedEvent evt)
+    {
+        UpdateVisuals(true);
     }
 }

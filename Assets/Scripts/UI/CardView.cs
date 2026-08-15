@@ -64,8 +64,6 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         _servicesReady = true;
         _boardView = ServiceLocator.TryGet<BoardView>(out var bv) ? bv : null;
-        if (_boardView == null)
-            Debug.LogWarning("CardView: BoardView not found!");
     }
 
 
@@ -126,7 +124,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void Deselect()
     {
         KillCurrentTween();
-        _currentTween = transform.DOScale(_originalScale, 0.15f).SetEase(Ease.OutQuad);
+        _currentTween = transform.DOScale(_originalScale, 0.05f).SetEase(Ease.OutQuad);
         _cardAnimator.SetTrigger("Deselect");
     }
 
@@ -169,9 +167,9 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void CancelDrop()
     {
-        _cardAnimator.SetTrigger("Cancel");
         if (_returnCoroutine != null) StopCoroutine(_returnCoroutine);
         _returnCoroutine = StartCoroutine(ReturnToPosition(_originalAnchoredPosition, _returnDuration));
+        _cardAnimator.SetTrigger("Cancel");
     }
 
     private void KillCurrentTween()
@@ -186,6 +184,8 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (_item == null) return;
+
+        TooltipManager.Hide();
 
         KillCurrentTween();
         DOTween.Kill(transform);
@@ -238,8 +238,9 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 continue;
 
             EventBus.Publish(new CardDropEvent { Card = this, Target = result.gameObject });
-            break;
+            return;
         }
+        EventBus.Publish(new CardDropEvent { Card = this, Target = null });
     }
 
     private IEnumerator ReturnToPosition(Vector2 target, float duration)
@@ -262,11 +263,16 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void OnPointerEnter(PointerEventData eventData)
     {
         Highlight();
+        if (_item is PlantInstance plant && !eventData.dragging)
+        {
+            TooltipManager.ShowCardTooltip(plant, eventData.position);
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         Unhighlight();
+        TooltipManager.Hide();
     }
 
     public void OnPointerDown(PointerEventData eventData) { }

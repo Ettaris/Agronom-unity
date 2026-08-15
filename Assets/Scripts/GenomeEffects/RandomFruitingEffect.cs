@@ -33,7 +33,7 @@ namespace GenomeEffects
                 {
                     sprout.CurrentCell = cell;
                     EventBus.Publish(new PlantPlacedEvent { Plant = sprout, X = cell.X, Y = cell.Y });
-                    Debug.Log("Random Fruiting Done");
+                    EventBus.Publish(new EffectAppliedEvent { Type = EffectType.Grow, X = cell.X, Y = cell.Y, Duration = 0.6f});
                 }
             }
         }

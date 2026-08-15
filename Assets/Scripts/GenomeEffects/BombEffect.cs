@@ -1,4 +1,3 @@
-// GenomeEffects/BombEffect.cs
 using Gameplay;
 using Properties.Interfaces;
 using Infrastructure;
@@ -73,6 +72,8 @@ namespace GenomeEffects
                 board.RemovePlant(nx, ny);
                 neighbor.CurrentCell = null;
                 resolver.UnregisterPlant(neighbor);
+
+                EventBus.Publish(new EffectAppliedEvent { X = nx, Y = ny, Type = EffectType.Bomb, Duration = 0.6f });
 
                 // Публикуем события для обновления UI
                 EventBus.Publish(new PlantHarvestedEvent

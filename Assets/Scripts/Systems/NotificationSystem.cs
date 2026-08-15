@@ -45,10 +45,7 @@ namespace Systems
             }
 
             // Подписка на события
-            EventBus.Subscribe<PlantGrownEvent>(OnPlantGrown);
-            EventBus.Subscribe<PlantHarvestedEvent>(OnPlantHarvested);
             EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
-            EventBus.Subscribe<PlantKilledEvent>(OnPlantKilled);
             EventBus.Subscribe<HandFullEvent>(OnHandFull);
         }
 

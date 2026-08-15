@@ -33,7 +33,7 @@ namespace GenomeEffects
                     {
                         weed.CurrentCell = cell;
                         EventBus.Publish(new PlantPlacedEvent { Plant = weed, X = cell.X, Y = cell.Y });
-                        Debug.Log(weed + "Weed planted(hugeEf)");
+                        EventBus.Publish(new EffectAppliedEvent { Type = EffectType.Weed, Duration = 0.75f, X = cell.X, Y = cell.Y });
                     }
                 }
             }

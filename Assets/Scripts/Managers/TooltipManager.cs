@@ -3,12 +3,17 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using Data;
+using Gameplay;
+using Systems;
 using Infrastructure;
 
 public class TooltipManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private CanvasGroup _canvasGroup;
+
+    [Header("GenomeTooltip")]
+    [SerializeField] private GameObject _genomeTooltipObject;
     [SerializeField] private TMP_Text _titleText;
     [SerializeField] private TMP_Text _descriptionText;
     [SerializeField] private TMP_Text _costText;
@@ -16,7 +21,8 @@ public class TooltipManager : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float _fadeDuration = 0.15f;
-    [SerializeField] private Vector2 _offset = new Vector2(15, -15);
+    [SerializeField] private Vector2 _showGenomeOffset = new Vector2(15, -15);
+    [SerializeField] private Vector2 _showCardOffset = new Vector2(15, -15);
 
     private static TooltipManager _instance;
     private bool _isVisible;
@@ -37,12 +43,14 @@ public class TooltipManager : MonoBehaviour
 
     public static void Show(GenomePropertyData data, Vector2 position)
     {
-        if (_instance == null)
-        {
-            Debug.LogError("TooltipManager not found!");
-            return;
-        }
+        if (_instance == null) return;
         _instance.ShowInternal(data, position);
+    }
+
+    public static void ShowCardTooltip(PlantInstance plant, Vector2 position)
+    {
+        if (_instance == null) return;
+        _instance.ShowCardTooltipInternal(plant, position);
     }
 
     public static void Hide()
@@ -51,29 +59,80 @@ public class TooltipManager : MonoBehaviour
         _instance.HideInternal();
     }
 
+    public static void UpdatePosition(Vector2 position)
+    {
+        if (_instance == null || !_instance._isVisible) return;
+        Vector2 finalPos = position + _instance._showGenomeOffset;
+        RectTransform rect = _instance.GetComponent<RectTransform>();
+        Vector2 size = rect.rect.size;
+        Vector2 screenSize = new Vector2(Screen.width, Screen.height);
+        finalPos.x = Mathf.Clamp(finalPos.x, size.x / 2, screenSize.x - size.x / 2);
+        finalPos.y = Mathf.Clamp(finalPos.y, size.y / 2, screenSize.y - size.y / 2);
+        rect.position = finalPos;
+    }
+
+    // ---------- Приватные методы ----------
+
     private void ShowInternal(GenomePropertyData data, Vector2 position)
     {
-        if (data == null)
-        {
-            HideInternal();
-            return;
-        }
+        if (data == null) { HideInternal(); return; }
 
         _titleText.text = data.propertyName;
         _descriptionText.text = data.description;
         _costText.text = $"Цена: {data.genomeCost}";
         if (_iconImage != null) _iconImage.sprite = data.icon;
 
-        // Позиционирование с учётом смещения
-        Vector2 finalPos = position + _offset;
-        // Ограничиваем позицию, чтобы тултип не выходил за экран
+        SetPosition(position, _showGenomeOffset);
+        FadeIn();
+    }
+
+    private void ShowCardTooltipInternal(PlantInstance plant, Vector2 position)
+    {
+        if (plant == null || plant.Genome.Properties.Count == 0)
+        {
+            HideInternal();
+            return;
+        }
+
+        var journal = ServiceLocator.Get<JournalSystem>().GetJournal();
+
+        string tooltipText = "";
+        foreach (var prop in plant.Genome.Properties)
+        {
+            bool isKnown = journal != null && journal.IsPropertyDiscovered(plant.PlantData, prop.Data);
+            if (isKnown)
+            {
+                tooltipText += $"{prop.Data.propertyName}: {prop.Data.description}\n";
+            }
+            else
+            {
+                tooltipText += "???\n";
+            }
+        }
+        tooltipText = tooltipText.TrimEnd('\n');
+
+        _titleText.text = plant.PlantData.itemName;
+        _descriptionText.text = tooltipText;
+        _costText.text = ""; // не показываем стоимость
+        if (_iconImage != null) _iconImage.sprite = plant.PlantData.icon;
+
+        SetPosition(position, _showCardOffset);
+        FadeIn();
+    }
+
+    private void SetPosition(Vector2 position, Vector2 offset)
+    {
+        Vector2 finalPos = position + offset;
         RectTransform rect = GetComponent<RectTransform>();
         Vector2 size = rect.rect.size;
         Vector2 screenSize = new Vector2(Screen.width, Screen.height);
         finalPos.x = Mathf.Clamp(finalPos.x, size.x / 2, screenSize.x - size.x / 2);
         finalPos.y = Mathf.Clamp(finalPos.y, size.y / 2, screenSize.y - size.y / 2);
         rect.position = finalPos;
+    }
 
+    private void FadeIn()
+    {
         if (!_isVisible)
         {
             _isVisible = true;
@@ -93,17 +152,5 @@ public class TooltipManager : MonoBehaviour
         {
             _canvasGroup.alpha = 0;
         });
-    }
-
-    public static void UpdatePosition(Vector2 position)
-    {
-        if (_instance == null || !_instance._isVisible) return;
-        Vector2 finalPos = position + _instance._offset;
-        RectTransform rect = _instance.GetComponent<RectTransform>();
-        Vector2 size = rect.rect.size;
-        Vector2 screenSize = new Vector2(Screen.width, Screen.height);
-        finalPos.x = Mathf.Clamp(finalPos.x, size.x / 2, screenSize.x - size.x / 2);
-        finalPos.y = Mathf.Clamp(finalPos.y, size.y / 2, screenSize.y - size.y / 2);
-        rect.position = finalPos;
     }
 }
