@@ -16,7 +16,7 @@ MonoBehaviour:
   propertyName: HyperSpeed
   description: "\u0420\u0430\u0441\u0442\u0435\u043D\u0438\u0435 \u0440\u0430\u0441\u0442\u0451\u0442
     \u0437\u0430 1 \u0434\u0435\u043D\u044C"
-  icon: {fileID: -8918940840976848179, guid: 466b1b514fca7eb4db7fd0971be7a37a, type: 3}
+  icon: {fileID: -3850679877105380084, guid: 6fe69a1bb94aa9f4b8f86dcbb206d60f, type: 3}
   rarity: 0
   genomeCost: 30
   _effectClassName: HyperSpeedEffect

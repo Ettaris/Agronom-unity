@@ -18,7 +18,7 @@ MonoBehaviour:
     \u043A\u043B\u0435\u0442\u043A\u0435, \u043D\u043E 4 \u0441\u043C\u0435\u0436\u043D\u044B\u0435
     \u043A\u043B\u0435\u0442\u043A\u0438 \u043F\u0440\u0435\u0432\u0440\u0430\u0449\u0430\u044E\u0442\u0441\u044F
     \u0432 \u0441\u043E\u0440\u043D\u044F\u043A"
-  icon: {fileID: 6455089648793706954, guid: 30c7dccef94766842886a6a21518f610, type: 3}
+  icon: {fileID: -3850679877105380084, guid: 5ce216a33af75fc4192a0a55a31394c8, type: 3}
   rarity: 0
   genomeCost: 40
   _effectClassName: HugeEffect

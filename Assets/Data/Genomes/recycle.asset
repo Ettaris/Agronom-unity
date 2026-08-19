@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "\u0420\u0430\u0441\u0442\u0435\u043D\u0438\u0435 \u0434\u0430\u0451\u0442
     \u0441\u0432\u043E\u0451 \u0441\u0435\u043C\u044F \u043F\u043E\u0441\u043B\u0435
     \u0441\u0431\u043E\u0440\u0430"
-  icon: {fileID: -8188024232169336312, guid: 4e53180d2f9004748859e208b9206bc0, type: 3}
+  icon: {fileID: -3850679877105380084, guid: 18c1e1114f93eb2459dbfb93cce7dd48, type: 3}
   rarity: 0
   genomeCost: 40
   _effectClassName: RecycleEffect
