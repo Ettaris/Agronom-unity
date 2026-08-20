@@ -5720,9 +5720,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JournalView
   _entriesContainer: {fileID: 2003305375}
   _entryPrefab: {fileID: 2287755999866345528, guid: 9e714a486890a0d4aa89008144e72971, type: 3}
-  _closeButton: {fileID: 862980249}
   _openButton: {fileID: 227342647}
   _emptyLabel: {fileID: 855634817}
+  _backgroundBlockRaycast: {fileID: 0}
+  _plantsTabButton: {fileID: 0}
+  _modifiersTabButton: {fileID: 0}
   _prevButton: {fileID: 922192669}
   _nextButton: {fileID: 1895149645}
   _pageText: {fileID: 1876259112}
@@ -9403,7 +9405,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.28235295}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.28627452}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10882,6 +10884,7 @@ MonoBehaviour:
   _confirmButton: {fileID: 2118306203}
   _skipButton: {fileID: 77186054}
   _selectionCounterText: {fileID: 344241331}
+  _offerBlockRaycastPanel: {fileID: 0}
   _windowAnimator: {fileID: 1731522224}
   _cardSpacing: 100
   _cardAppearDelay: 0.1

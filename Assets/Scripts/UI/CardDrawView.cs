@@ -19,10 +19,11 @@ public class CardDrawView : MonoBehaviour, IGameSystem, IRunAware
 {
     [Header("UI References")]
     [SerializeField] private Transform _cardsContainer;
-    [SerializeField] private CardView _cardPrefab; // используем тот же префаб, что в HandView
+    [SerializeField] private CardView _cardPrefab; 
     [SerializeField] private Button _confirmButton;
-    [SerializeField] private Button _skipButton; // опционально
+    [SerializeField] private Button _skipButton; 
     [SerializeField] private TMP_Text _selectionCounterText;
+    [SerializeField] private GameObject _offerBlockRaycastPanel;
 
     [Header("Animator")]
     [SerializeField] private Animator _windowAnimator;
@@ -72,12 +73,10 @@ public class CardDrawView : MonoBehaviour, IGameSystem, IRunAware
         }
         gameObject.SetActive(false);
         _isProcessing = false;
-        Debug.Log("CardDrawView OnRunStarted");
     }
 
     private void OnOfferGenerated(OfferGeneratedEvent evt)
     {
-        Debug.Log($"CardDrawView: OfferGenerated received, count={evt.Offer.Count}, maxSelectable={evt.MaxSelectable}");
         ShowOffer(evt.Offer, evt.MaxSelectable);
     }
 
@@ -85,9 +84,10 @@ public class CardDrawView : MonoBehaviour, IGameSystem, IRunAware
     {
         if (offer == null || offer.Count == 0)
         {
-            Debug.LogWarning("CardDrawView: Offer is empty");
             return;
         }
+
+        _offerBlockRaycastPanel.SetActive(true);
 
         _maxSelectable = maxSelectable;
         _selectedCards.Clear();
@@ -196,6 +196,8 @@ public class CardDrawView : MonoBehaviour, IGameSystem, IRunAware
 
         CommandProcessor.Execute(new SelectCardsCommand { SelectedItems = selectedItems });
 
+        _offerBlockRaycastPanel.SetActive(false);
+
         _windowAnimator.SetTrigger("Close");
         DOVirtual.DelayedCall(0.5f, () =>
         {
@@ -207,6 +209,7 @@ public class CardDrawView : MonoBehaviour, IGameSystem, IRunAware
     private void OnSkipClicked()
     {
         if (_isProcessing) return;
+        _offerBlockRaycastPanel.SetActive(false);
         _windowAnimator.SetTrigger("Close");
         DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
     }
@@ -215,6 +218,7 @@ public class CardDrawView : MonoBehaviour, IGameSystem, IRunAware
     {
         if (gameObject.activeSelf)
         {
+            _offerBlockRaycastPanel.SetActive(false);
             _windowAnimator.SetTrigger("Close");
             DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
         }

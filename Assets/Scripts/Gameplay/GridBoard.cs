@@ -54,8 +54,9 @@ namespace Gameplay
                 for (int dy = 0; dy < size.y; dy++)
                     _cells[x + dx, y + dy].Plant = plant;
 
-            // Сохраняем позицию в растении
+            // TODO: make it easier and revome size check if all plants 1x1
             plant.Position = position;
+            plant.CurrentCell = GetCell(x, y);
             return true;
         }
 

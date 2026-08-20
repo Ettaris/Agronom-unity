@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13409bb339ea7f74ab8b5ddbda533d6b, type: 3}
+  m_Name: Tutorial_Intro
+  m_EditorClassIdentifier: Assembly-CSharp::NarrativeSequence
+  sequenceId: Tutorial_Intro
+  steps:
+  - rid: 3977529949955555589
+  - rid: 3977529949955555461
+  - rid: 3977529949955555506
+  - rid: 3977529949955555507
+  - rid: 3977529949955555558
+  references:
+    version: 2
+    RefIds:
+    - rid: 3977529949955555461
+      type: {class: DialogueStep, ns: , asm: Assembly-CSharp}
+      data:
+        speaker: Guard
+        text: "\u0422\u044B \u043A\u0430\u043A? \u0416\u0438\u0432\u043E\u0439?"
+        typewriterSpeed: 0.05
+    - rid: 3977529949955555506
+      type: {class: DialogueStep, ns: , asm: Assembly-CSharp}
+      data:
+        speaker: Guard
+        text: "\u041F\u043B\u0435\u0432\u0430\u0442\u044C. \u041F\u0440\u0438\u043D\u0438\u043C\u0430\u0439\u0441\u044F
+          \u0437\u0430 \u0434\u0435\u043B\u043E. \u0422\u0435\u0431\u0435 \u043D\u0430\u0434\u043E
+          \u0441\u043E\u0431\u0440\u0430\u0442\u044C 30 \u043A\u0430\u043B\u043E\u0440\u0438\u0439
+          \u043A \u0447\u0435\u0442\u0432\u0435\u0440\u0433\u0443."
+        typewriterSpeed: 0.08
+    - rid: 3977529949955555507
+      type: {class: DialogueStep, ns: , asm: Assembly-CSharp}
+      data:
+        speaker: Guard
+        text: "\u0412\u043E\u0442 \u044D\u0442\u0438 \u0447\u0435\u0440\u0442\u043E\u0432\u044B
+          \u0440\u0430\u0441\u0442\u0435\u043D\u0438\u044F. \u041F\u0440\u0438\u0441\u0442\u0443\u043F\u0430\u0439."
+        typewriterSpeed: 0.13
+    - rid: 3977529949955555558
+      type: {class: FadeStep, ns: , asm: Assembly-CSharp}
+      data:
+        targetId: screenfade
+        startAlpha: 1
+        endAlpha: 0
+        duration: 1
+        disableOnComplete: 1
+        activateBeforeStart: 0
+    - rid: 3977529949955555589
+      type: {class: DelayStep, ns: , asm: Assembly-CSharp}
+      data:
+        seconds: 1
