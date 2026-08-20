@@ -16,6 +16,7 @@ namespace Systems
         private ScoreSystem _scoreSystem;
         private BoardRoot _boardRoot;
 
+        //TODO: harvest system не должен знать про скор систем и ПРС
         public void Initialize()
         {
             _propertyResolver = ServiceLocator.Get<PropertyResolverSystem>();
@@ -46,15 +47,13 @@ namespace Systems
             var plant = cell.Plant;
             int baseCalories = plant.PlantData.baseCalories;
 
+            plant.CurrentCell = cell;
+
             // 1. Модификация от соседей (Generosity и т.п.)
             int modifiedCalories = _propertyResolver.ModifyHarvestByNeighbors(plant, baseCalories);
 
             // 2. Модификация от собственных свойств
             modifiedCalories = _propertyResolver.ModifyHarvest(plant, modifiedCalories);
-
-            // 3. Удаляем растение с поля
-            _runData.Board.RemovePlant(x, y);
-            plant.CurrentCell = null;
 
             if (FloatingTextPool.Instance != null)
             {
@@ -63,6 +62,10 @@ namespace Systems
                 Color color = modifiedCalories > 0 ? Color.white : Color.red;
                 FloatingTextPool.Instance.ShowTextAtScreen(worldPos, $"{sign}{modifiedCalories}", color, 60f, 1.5f);
             }
+
+            // 3. Удаляем растение с поля
+            _runData.Board.RemovePlant(x, y);
+            plant.CurrentCell = null;
 
             _propertyResolver.OnPlantDestroyed(plant, x, y);
 

@@ -161,7 +161,10 @@ namespace Systems
             }
         }
 
-        private void OnHarvest(HarvestEvent evt) { } // не используется
+        private void OnHarvest(HarvestEvent evt)
+        {
+            ModifyHarvest(evt.Plant, evt.Plant.PlantData.baseCalories);
+        }
 
         public int ModifyHarvestByNeighbors(PlantInstance plant, int baseCalories)
         {

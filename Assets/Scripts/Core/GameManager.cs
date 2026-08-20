@@ -13,6 +13,9 @@ using Gameplay;
 [DefaultExecutionOrder(-100)]
 public class GameManager : MonoBehaviour
 {
+    [Header("DEBUG")]
+    [SerializeField] private bool _showTutorial;
+
     [Header("Configs")]
     [SerializeField] private GameConfig _gameConfig;
 
@@ -26,6 +29,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private HUDView _HUDView;
     [SerializeField] private LaboratoryView _laboratoryView;
     [SerializeField] private CardDrawView _cardDrawView;
+
+    [Header("NarrativeContext")]
+    [SerializeField] private GameObject _tutorialBackground;
 
     private bool _isInitialized = false;
     private readonly List<IRunAware> _runAwares = new();
@@ -73,6 +79,7 @@ public class GameManager : MonoBehaviour
         var cardDrawSystem = new CardDrawSystem();
         var journalSystem = new JournalSystem();
         var dropHandler = new DropHandler();
+        var narrativeSystem = new NarrativeSystem();
 
         RegisterService(propertyResolver);
         RegisterService(runGeneration);
@@ -84,6 +91,7 @@ public class GameManager : MonoBehaviour
         RegisterService(cardDrawSystem);
         RegisterService(journalSystem);
         RegisterService(dropHandler);
+        RegisterService(narrativeSystem);
 
         RegisterService(_notificationSystem);
         RegisterService(_handView);
@@ -122,9 +130,10 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Get<LaboratoryView>().Initialize();
         ServiceLocator.Get<CardDrawView>().Initialize();
         ServiceLocator.Get<DropHandler>().Initialize();
-
+        ServiceLocator.Get<NarrativeSystem>().Initialize();
 
         StartGame();
+
     }
 
     public void InitializeAndActivateRun(RunData runData)
@@ -135,7 +144,16 @@ public class GameManager : MonoBehaviour
         }
         Debug.Log("RunStarted Event");
         EventBus.Publish(new RunStartedEvent { RunData = runData });
-
+        
+        if (_showTutorial)
+        {
+            var narrativeSystem = ServiceLocator.Get<NarrativeSystem>();
+            narrativeSystem.StartSequence("Tutorial_Intro", () =>
+            {
+                Debug.Log("Tutorial done");
+            });
+        }
+        else { _tutorialBackground.SetActive(false); }
     }
 
     private async void StartGame()

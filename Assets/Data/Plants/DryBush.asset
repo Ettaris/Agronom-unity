@@ -13,15 +13,17 @@ MonoBehaviour:
   m_Name: DryBush
   m_EditorClassIdentifier: Assembly-CSharp::Data.PlantData
   _id: 
-  itemName: 
+  itemName: DryBush
   description: 
-  icon: {fileID: 0}
+  icon: {fileID: -7944502702452990849, guid: 3cc7bd4c37d83694489536216e06fc3d, type: 3}
   rarity: 0
-  growthTime: 10
-  baseCalories: 10
+  growthTime: 3
+  baseCalories: 0
   fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
   heightScale: 1
-  growthSprites: []
+  growthSprites:
+  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
+  - {fileID: 3824498671837561107, guid: bf7d69737b809394e8ffb3d160416a2e, type: 3}
   mutationStages: []

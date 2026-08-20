@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42.6727, y: 21.058}
+  m_AnchoredPosition: {x: 42.674, y: 32.718}
   m_SizeDelta: {x: 154.6223, y: 24.564}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5442978854946023136
@@ -237,13 +237,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JournalEntryView
   _plantIcon: {fileID: 7359113942349572010}
   _plantName: {fileID: 6988830848418681076}
-  _baseCaloriesText: {fileID: 103224022198297136}
-  _growthTimeText: {fileID: 359824402827459662}
-  _discoveredCount: {fileID: 1979465820333156854}
-  _permanentBadge: {fileID: 6485515132241820731}
-  _rarityFrame: {fileID: 2239801747346103041}
   _propertiesContainer: {fileID: 411568942625286004}
   _genomeIconPrefab: {fileID: 826860789983188524, guid: 3c9ea0ffe2cfb9f4e8c78391d18e462e, type: 3}
+  _plantCountText: {fileID: 1979465820333156854}
+  _modifierIcon: {fileID: 7359113942349572010}
+  _modifierName: {fileID: 6988830848418681076}
+  _modifierDescription: {fileID: 103224022198297136}
+  _modifierCost: {fileID: 6670023818050343271}
+  _permanentBadge: {fileID: 6485515132241820731}
 --- !u!225 &3228580683696522131
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -365,7 +366,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42.672, y: -11.754}
+  m_AnchoredPosition: {x: 42.673, y: -6.8432}
   m_SizeDelta: {x: 154.62, y: 13.6865}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3066321714773089994
@@ -423,10 +424,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12.25
-  m_fontSizeBase: 36
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 1
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -560,13 +561,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 1
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 8
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -617,7 +618,7 @@ GameObject:
   - component: {fileID: 1876398152477399359}
   - component: {fileID: 103224022198297136}
   m_Layer: 5
-  m_Name: BaseCaloriesText
+  m_Name: BaseCaloriesText/Description
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -639,8 +640,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42.673, y: 1.9327}
-  m_SizeDelta: {x: 154.62, y: 13.6865}
+  m_AnchoredPosition: {x: 40.313503, y: 10.3}
+  m_SizeDelta: {x: 149.901, y: 13.6865}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1876398152477399359
 CanvasRenderer:
@@ -670,7 +671,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Calories: '
+  m_text: 'Calories:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -697,10 +698,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12.25
-  m_fontSizeBase: 36
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 1
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -953,8 +954,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -83.162, y: 0.76748}
-  m_SizeDelta: {x: 70.2631, y: 65.145}
+  m_AnchoredPosition: {x: -81.473, y: 1.9327}
+  m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2479503006713521528
 CanvasRenderer:
@@ -1086,13 +1087,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 1
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 8
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535

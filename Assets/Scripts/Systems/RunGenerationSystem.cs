@@ -107,22 +107,40 @@ namespace Systems
 
         private void AssignPermanentModifiersForPlants(HashSet<PlantData> allPlantTypes, RunData runData, SeedGenerator seedRandom)
         {
+            var config = _config.modifierConfig;
+            if (config == null)
+            {
+                return;
+            }
+
+            float permanentChance = config.permanentChance;
+            int totalWithFixed = 0;
+            int totalRandom = 0;
+
             foreach (var plantData in allPlantTypes)
             {
                 GenomePropertyData permanent = null;
+
                 if (plantData.fixedPermanentModifier != null)
                 {
                     permanent = plantData.fixedPermanentModifier;
+                    totalWithFixed++;
                 }
-                else
+                else if (seedRandom.NextDouble() < permanentChance)
                 {
-                    permanent = ModifierAssigner.SelectPermanentModifier(seedRandom, _config.modifierConfig, _config.genomeRarityPool);
+                    permanent = ModifierAssigner.SelectPermanentModifier(seedRandom, config, _config.genomeRarityPool);
+                    if (permanent != null)
+                        totalRandom++;
                 }
+
                 if (permanent != null)
+                {
                     runData.PermanentModifiers[plantData] = permanent;
-                else
-                    Debug.LogWarning($"No permanent modifier assigned for {plantData.itemName}");
+                    Debug.Log($"Permanent modifier '{permanent.propertyName}' assigned to {plantData.itemName}");
+                }
             }
+
+            Debug.Log($"Permanent modifiers assigned: {totalWithFixed} fixed, {totalRandom} random (out of {allPlantTypes.Count} total types)");
         }
 
         private List<PlantInstance> CreatePlantInstances(HashSet<PlantData> allPlantTypes, RunData runData, SeedGenerator random)

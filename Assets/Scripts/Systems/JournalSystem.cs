@@ -3,6 +3,7 @@ using Gameplay;
 using Infrastructure;
 using Infrastructure.Events;
 using Managers;
+using System.Collections.Generic;
 
 namespace Systems
 {
@@ -10,6 +11,9 @@ namespace Systems
     {
         private JournalData _journal;
         private bool _isLoaded;
+
+        public List<IJournalEntryData> GetPlantEntries() => _journal.GetPlantEntries();
+        public List<IJournalEntryData> GetModifierEntries() => _journal.GetModifierEntries();
 
         public void Initialize()
         {
@@ -49,6 +53,11 @@ namespace Systems
         {
             _journal = journal ?? new JournalData();
             _isLoaded = true;
+        }
+
+        public bool IsPropertyDiscovered(PlantData plant, GenomePropertyData property)
+        {
+            return _journal.IsPropertyDiscovered(plant, property);
         }
     }
 }

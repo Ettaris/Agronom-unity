@@ -27,7 +27,7 @@ namespace GenomeEffects
             if (freeCells.Count > 0)
             {
                 var cell = freeCells[Random.Range(0, freeCells.Count)];
-                Vector2Int pos = new Vector2Int(x, y);
+                Vector2Int pos = new Vector2Int(cell.X, cell.Y);
                 var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, runData.Random, config, runData);
                 if (board.PlacePlant(sprout, pos))
                 {

@@ -20,12 +20,18 @@ public class JournalView : MonoBehaviour, IGameSystem
 
     //TODO: If there will be a good reason, make different interfaces for UI and Systems, or general like IInitializble and IDisposable.
 
+    public enum Tab { Plants, Modifiers }
+
     [Header("UI References")]
     [SerializeField] private Transform _entriesContainer;
     [SerializeField] private GameObject _entryPrefab;
-    [SerializeField] private Button _closeButton;
     [SerializeField] private Button _openButton;
     [SerializeField] private TMP_Text _emptyLabel;
+    [SerializeField] private GameObject _backgroundBlockRaycast;
+
+    [Header("Tabs")]
+    [SerializeField] private Button _plantsTabButton;
+    [SerializeField] private Button _modifiersTabButton;
 
     [Header("Pagination")]
     [SerializeField] private Button _prevButton;
@@ -47,13 +53,12 @@ public class JournalView : MonoBehaviour, IGameSystem
     private bool _isOpen;
     private int _currentPage = 0;
     private int _totalPages = 0;
-    private List<JournalPlantEntry> _allEntries = new List<JournalPlantEntry>();
-
+    private List<IJournalEntryData> _allEntries = new List<IJournalEntryData>();
+    private Tab _currentTab = Tab.Plants;
 
     public void Initialize()
     {
         EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
-        _closeButton.onClick.AddListener(CloseJournal);
         _prevButton.onClick.AddListener(PreviousPage);
         _nextButton.onClick.AddListener(NextPage);
         _openButton.onClick.AddListener(OpenJournal);
@@ -64,12 +69,16 @@ public class JournalView : MonoBehaviour, IGameSystem
         _journalSystem = ServiceLocator.Get<JournalSystem>();
         if (_journalSystem == null)
             Debug.LogError("JournalSystem not found!");
+
+        _plantsTabButton.onClick.AddListener(() => SwitchTab(Tab.Plants));
+        _modifiersTabButton.onClick.AddListener(() => SwitchTab(Tab.Modifiers));
+
+        SwitchTab(Tab.Plants);
     }
 
     public void Dispose()
     {
         EventBus.Unsubscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
-        _closeButton.onClick.RemoveAllListeners();
         _prevButton.onClick.RemoveAllListeners();
         _nextButton.onClick.RemoveAllListeners();
     }
@@ -88,6 +97,7 @@ public class JournalView : MonoBehaviour, IGameSystem
         _journalAnimator.SetTrigger("Open");
         _isOpen = true;
         RefreshJournal();
+        _backgroundBlockRaycast.SetActive(true);
     }
 
     public void CloseJournal()
@@ -97,16 +107,28 @@ public class JournalView : MonoBehaviour, IGameSystem
         DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
     }
 
+    private void SwitchTab(Tab tab)
+    {
+        _currentTab = tab;
+        _currentPage = 0;
+        RefreshJournal();
+        // Можно подсветить активную вкладку
+    }
+
     private void RefreshJournal()
     {
-        var journalData = _journalSystem.GetJournal();
-        _allEntries = journalData.plantEntries;
+        if (_currentTab == Tab.Plants)
+            _allEntries = _journalSystem.GetPlantEntries();
+        else
+            _allEntries = _journalSystem.GetModifierEntries();
+
         _totalPages = Mathf.CeilToInt((float)_allEntries.Count / _entriesPerPage);
         if (_totalPages == 0) _totalPages = 1;
 
         if (_currentPage >= _totalPages)
             _currentPage = 0;
 
+        // Скрываем старые записи
         foreach (var entry in _activeEntries)
         {
             entry.Hide(() => ReturnEntryToPool(entry));

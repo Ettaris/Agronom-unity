@@ -3,6 +3,8 @@ using TMPro;
 using DG.Tweening;
 using Gameplay;
 using System.Collections.Generic;
+using Infrastructure;
+using Systems;
 
 /// <summary>
 /// Отображение информации о растении (название, рост, геном, свойства). Используется в анализаторе и центрифуге.
@@ -37,8 +39,18 @@ public class PlantInfoView : MonoBehaviour
         }
 
         _plantName.text = plant.PlantData.itemName;
-        _growthTimeText.text = plant.PlantData.growthTime.ToString();
+        _growthTimeText.text = $"Growth Time: {plant.PlantData.growthTime} ";
         _genomeWeightText.text = $"{plant.Genome.CurrentWeight}/{plant.Genome.MaxCapacity}";
+
+        _baseCaloriesText.text = $"Base Cals: {plant.PlantData.baseCalories}";
+
+        int modified = 0;
+        var resolver = ServiceLocator.TryGet<PropertyResolverSystem>(out var pr) ? pr : null;
+        if (resolver != null)
+        {
+            modified = resolver.ModifyHarvest(plant, plant.PlantData.baseCalories);
+        }
+        _modifiedCaloriesText.text = $"Modified Cals: {modified}";
 
         foreach (var icon in _propertyIcons)
             Destroy(icon.gameObject);

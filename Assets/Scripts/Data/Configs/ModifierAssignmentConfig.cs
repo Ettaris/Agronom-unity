@@ -5,6 +5,8 @@ public class ModifierAssignmentConfig : ScriptableObject
 {
     [Header("Permanent Modifier")]
     public bool assignPermanent = true;
+    [Range(0f, 1f)]
+    public float permanentChance = 0.25f;
 
     [Header("Second Modifier")]
     [Range(0f, 1f)]
