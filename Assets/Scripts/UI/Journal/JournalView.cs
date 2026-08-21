@@ -104,7 +104,7 @@ public class JournalView : MonoBehaviour, IGameSystem
     {
         _journalAnimator.SetTrigger("Close");
         _isOpen = false;
-        DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
+        gameObject.SetActive(false);
     }
 
     private void SwitchTab(Tab tab)

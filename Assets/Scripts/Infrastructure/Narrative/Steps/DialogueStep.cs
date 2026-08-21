@@ -9,6 +9,7 @@ public class DialogueStep : NarrativeStep
     public string text = "";
     [Tooltip("Скорость печати (секунд на символ). 0 = мгновенно.")]
     public float typewriterSpeed = 0.05f;
+    public AudioData voice;
     [NonSerialized] private Action _onComplete;
 
     public override void Execute(Action onComplete)
@@ -25,7 +26,7 @@ public class DialogueStep : NarrativeStep
         {
             presenter.HideDialogue();
             _onComplete?.Invoke();
-        }, typewriterSpeed);
+        }, typewriterSpeed, voice);
     }
 
     public override void Cancel()

@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private HUDView _HUDView;
     [SerializeField] private LaboratoryView _laboratoryView;
     [SerializeField] private CardDrawView _cardDrawView;
+    [SerializeField] private AudioRoot _audioRoot;
 
     [Header("NarrativeContext")]
     [SerializeField] private GameObject _tutorialBackground;
@@ -102,6 +103,7 @@ public class GameManager : MonoBehaviour
         RegisterService(_journalView);
         RegisterService(_laboratoryView);
         RegisterService(_cardDrawView);
+        RegisterService(_audioRoot);
 
         InitializeServices();
     }
@@ -131,6 +133,7 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Get<CardDrawView>().Initialize();
         ServiceLocator.Get<DropHandler>().Initialize();
         ServiceLocator.Get<NarrativeSystem>().Initialize();
+        ServiceLocator.Get<AudioRoot>().Initialize();
 
         StartGame();
 

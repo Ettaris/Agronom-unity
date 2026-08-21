@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38f8de9bc9204c84fac8856d5ed211e5, type: 3}
+  m_Name: AudioConfig
+  m_EditorClassIdentifier: Assembly-CSharp::AudioConfig
+  masterVolume: 1
+  musicVolume: 1
+  sfxVolume: 1
+  voiceVolume: 1
+  mainTheme: {fileID: 0}
+  gameplayMusic: {fileID: 0}
+  laboratoryMusic: {fileID: 0}
+  endRunMusic: {fileID: 0}
+  buttonClick: {fileID: 11400000, guid: 5a55d0400dd17634abaf4cea0b7432f2, type: 2}
+  cardSelect: {fileID: 11400000, guid: 0989f2d5a8c0dea498d40acfb8364e6f, type: 2}
+  cardHover: {fileID: 11400000, guid: ed7e0861105f0dd4983ee8cf5ba7346b, type: 2}
+  plantPlaced: {fileID: 11400000, guid: 438cecd0ab0ace24491888b110ba3d74, type: 2}
+  plantHarvest: {fileID: 0}
+  plantGrown: {fileID: 0}
+  modifierTriggered: {fileID: 11400000, guid: 9bf84675c139676419ceaa47fe1c3a7a, type: 2}
+  analyzer: {fileID: 0}
+  centrifuge: {fileID: 0}
+  dayEnd: {fileID: 0}
+  guardIntroduction: {fileID: 0}
+  guardTutorial: {fileID: 0}
+  guardStageComplete: {fileID: 0}

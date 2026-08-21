@@ -81,6 +81,7 @@ public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
 
     public void CloseLab()
     {
+        EventBus.Publish(new HandUpdatedEvent { });
         _labAnimator.SetTrigger("Close");
         ClearSlots();
         _plantInfo.Clear();
@@ -94,8 +95,6 @@ public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
 
     private void OnPlantAnalyzed(PlantAnalyzedEvent evt)
     {
-        Debug.Log($"plant analyzed event with {evt.Plant}");
-        Debug.Log($"{evt.Plant.PlantData.itemName}");
         _plantInfo.ShowPlant(evt.Plant);
     }
 
@@ -107,15 +106,11 @@ public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
 
     private void OnCardSelected(CardSelectedEvent evt)
     {
-        // Игнорируем выбор, если окно не активно – только Drag&Drop
         if (!gameObject.activeInHierarchy) return;
-        // Никакой автоматической вставки!
-        Debug.Log($"LaboratoryView: Card {evt.Item.Data.itemName} selected, but drag&drop only.");
     }
 
     private void OnHandUpdated(HandUpdatedEvent evt)
     {
-        // Если предмет в слоте был удалён из руки (использован) – очищаем слоты
         if (_consumableItem != null)
         {
             bool exists = false;

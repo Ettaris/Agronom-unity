@@ -67,7 +67,6 @@ namespace Systems
                 RegisterPropertyInCache(prop);
             }
             _plantProperties[plant] = list;
-            UnityEngine.Debug.Log($"RegisterPlant: {plant.PlantData.itemName} with {list.Count} properties");
         }
 
         private void RegisterPropertyInCache(GenomePropertyInstance property)
@@ -119,7 +118,6 @@ namespace Systems
                     var copy = new List<GenomePropertyInstance>(list);
                     foreach (var prop in copy)
                     {
-                        // Проверяем, принадлежит ли это свойство текущему растению
                         if (prop is IOnPlantPlaced handler &&
                             _plantProperties.TryGetValue(evt.Plant, out var props) &&
                             props.Contains(prop))
@@ -145,7 +143,8 @@ namespace Systems
         {
             if (_propertyCacheByInterface.TryGetValue(typeof(IOnDayStart), out var list))
             {
-                foreach (var prop in list)
+                var copy = new List<GenomePropertyInstance>(list);
+                foreach (var prop in copy)
                     if (prop is IOnDayStart handler)
                         handler.OnDayStart(evt.DayNumber);
             }
@@ -155,9 +154,21 @@ namespace Systems
         {
             if (_propertyCacheByInterface.TryGetValue(typeof(IOnDayEnd), out var list))
             {
-                foreach (var prop in list)
+                var copy = new List<GenomePropertyInstance>(list);
+                foreach (var prop in copy)
                     if (prop is IOnDayEnd handler)
                         handler.OnDayEnd(evt.DayNumber);
+            }
+        }
+
+        private void OnPlantGrown(PlantGrownEvent evt)
+        {
+            if (_propertyCacheByInterface.TryGetValue(typeof(IOnPlantGrown), out var list))
+            {
+                var copy = new List<GenomePropertyInstance>(list);
+                foreach (var prop in copy)
+                    if (prop is IOnPlantGrown handler)
+                        handler.OnPlantGrown(evt.Plant);
             }
         }
 
@@ -192,16 +203,6 @@ namespace Systems
                 }
             }
             return modified;
-        }
-
-        private void OnPlantGrown(PlantGrownEvent evt)
-        {
-            if (_propertyCacheByInterface.TryGetValue(typeof(IOnPlantGrown), out var list))
-            {
-                foreach (var prop in list)
-                    if (prop is IOnPlantGrown handler)
-                        handler.OnPlantGrown(evt.Plant);
-            }
         }
 
         // ===== Прямые вызовы =====

@@ -44,6 +44,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private Coroutine _returnCoroutine;
     private BoardView _boardView;
     private bool _servicesReady;
+    private bool _isDraggable = true;
 
     public System.Action<CardView> OnCardClick;
     public System.Action<CardView> OnDragStart;
@@ -72,10 +73,12 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _currentTween?.Kill();
     }
 
-    public void Setup(ItemInstance item, bool animateAppear = true)
+    public void Setup(ItemInstance item, bool animateAppear = true, bool draggable = true)
     {
         _item = item;
         if (_item == null) { gameObject.SetActive(false); return; }
+
+        _isDraggable = draggable;
 
         gameObject.SetActive(true);
         _titleText.text = item.Data.itemName;
@@ -100,6 +103,8 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         _cardAnimator.Rebind();
         _cardAnimator.SetTrigger("Show");
+
+
 
         transform.localScale = Vector3.zero;
         if (animateAppear)
@@ -135,6 +140,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             KillCurrentTween();
             transform.localScale = _originalScale;
             _currentTween = transform.DOScale(_originalScale * _hoverScale, 0.15f).SetEase(Ease.OutQuad);
+            EventBus.Publish(new CardHoveredEvent { });
         }
         _cardAnimator.SetBool("IsHovered", true);
     }
@@ -183,7 +189,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     // ----- Drag & Drop -----
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (_item == null) return;
+        if (!_isDraggable || _item == null) return;
 
         TooltipManager.Hide();
 
@@ -193,7 +199,6 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         _isDragging = true;
         _originalAnchoredPosition = _rectTransform.anchoredPosition;
-        _originalScale = transform.localScale;
 
         float lift = _rectTransform.rect.height * _dragLift;
         _rectTransform.DOAnchorPosY(_originalAnchoredPosition.y + lift, 0.15f);
@@ -205,6 +210,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (!_isDraggable) return;
         if (!_isDragging || _canvas == null) return;
 
         Vector2 localPoint;
@@ -226,9 +232,12 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (!_isDraggable) return;
         if (!_isDragging) return;
         _isDragging = false;
         _cardAnimator.SetBool("IsDragging", false);
+
+        _rectTransform.localScale = _originalScale;
 
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);

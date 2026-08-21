@@ -29,7 +29,7 @@ namespace Infrastructure.Events
     {
         public int Seed;
         public RunData RunData;
-        public bool IsLoaded; // true Ч загрузка сохранени€, false Ч новый забег
+        public bool IsLoaded;
     }
 
     public struct RunEndedEvent
@@ -201,5 +201,9 @@ namespace Infrastructure.Events
         public CardView Card;
         public GameObject Target;
     }
+
+    //SFX and Music Events
+    public struct LabOpenedEvent { }
+    public struct CardHoveredEvent { }
 
 }

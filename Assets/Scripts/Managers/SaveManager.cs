@@ -267,7 +267,7 @@ namespace Managers
             }
 
             // Проверка пулов
-            if (config.plantPool == null || config.genomePool == null)
+            if (config.plantRarityPool == null || config.genomeRarityPool == null)
             {
                 Debug.LogError("RestoreRunData: PlantPool or GenomePool is null in GameConfig!");
                 return null;
@@ -286,7 +286,7 @@ namespace Managers
             // Восстанавливаем поле (с проверками)
             foreach (var sp in data.boardPlants ?? new List<SaveData.SerializedPlant>())
             {
-                var plantData = config.plantPool.plants.Find(p => p.Id == sp.plantDataId);
+                var plantData = config.plantRarityPool.commonPlants.Find(p => p.Id == sp.plantDataId);
                 if (plantData == null)
                 {
                     Debug.LogWarning($"PlantData with id {sp.plantDataId} not found");
@@ -296,13 +296,13 @@ namespace Managers
                 var plant = new PlantInstance(plantData, sp.maxGenomeCapacity);
                 plant.GrowthProgress = sp.growthProgress;
 
-                foreach (var spProp in sp.properties ?? new List<SaveData.SerializedProperty>())
-                {
-                    var propData = config.genomePool.genomeProperties.Find(p => p.Id == spProp.propertyDataId);
-                    if (propData == null) continue;
-                    var prop = new GenomePropertyInstance(propData, spProp.stacks);
-                    plant.AddGenomeProperty(prop);
-                }
+                //foreach (var spProp in sp.properties ?? new List<SaveData.SerializedProperty>())
+                //{
+                //    var propData = config.genomePool.genomeProperties.Find(p => p.Id == spProp.propertyDataId);
+                //    if (propData == null) continue;
+                //    var prop = new GenomePropertyInstance(propData, spProp.stacks);
+                //    plant.AddGenomeProperty(prop);
+                //}
 
                 if (runData.Board.PlacePlant(plant, sp.x, sp.y))
                 {
@@ -315,14 +315,14 @@ namespace Managers
             // Восстанавливаем руку и колоду (аналогично с проверками)
             foreach (var si in data.handItems ?? new List<SaveData.SerializedItem>())
             {
-                var item = RestoreItem(si, config);
-                if (item != null) runData.Hand.Add(item);
+                //var item = RestoreItem(si, config);
+                //if (item != null) runData.Hand.Add(item);
             }
 
             foreach (var si in data.deckItems ?? new List<SaveData.SerializedItem>())
             {
-                var item = RestoreItem(si, config);
-                if (item != null) runData.Deck.Add(item);
+                //var item = RestoreItem(si, config);
+                //if (item != null) runData.Deck.Add(item);
             }
 
             // Восстанавливаем параметры
@@ -360,51 +360,51 @@ namespace Managers
             }
         }
 
-        private ItemInstance RestoreItem(SaveData.SerializedItem si, GameConfig config)
-        {
-            // Ищем ItemData по id
-            ItemData itemData = null;
+        //private ItemInstance RestoreItem(SaveData.SerializedItem si, GameConfig config)
+        //{
+        //    // Ищем ItemData по id
+        //    ItemData itemData = null;
 
-            // Сначала ищем среди растений
-            itemData = config.plantPool?.plants.Find(p => p.Id == si.itemDataId);
-            if (itemData == null)
-                itemData = config.fermentPool?.ferments.Find(f => f.Id == si.itemDataId);
-            if (itemData == null)
-                itemData = config.batteryPool?.batteries.Find(b => b.Id == si.itemDataId);
+        //    // Сначала ищем среди растений
+        //    //itemData = config.plantPool?.plants.Find(p => p.Id == si.itemDataId);
+        //    if (itemData == null)
+        //        itemData = config.fermentPool?.ferments.Find(f => f.Id == si.itemDataId);
+        //    if (itemData == null)
+        //        itemData = config.batteryPool?.batteries.Find(b => b.Id == si.itemDataId);
 
-            if (itemData == null)
-            {
-                Debug.LogWarning($"ItemData with id {si.itemDataId} not found");
-                return null;
-            }
+        //    if (itemData == null)
+        //    {
+        //        Debug.LogWarning($"ItemData with id {si.itemDataId} not found");
+        //        return null;
+        //    }
 
-            // Если это растение – создаём PlantInstance
-            if (si.isPlant && si.plantData != null)
-            {
-                var plantData = config.plantPool.plants.Find(p => p.Id == si.plantData.plantDataId);
-                if (plantData == null)
-                {
-                    Debug.LogWarning($"PlantData with id {si.plantData.plantDataId} not found");
-                    return null;
-                }
+        //    // Если это растение – создаём PlantInstance
+        //    if (si.isPlant && si.plantData != null)
+        //    {
+        //        var plantData = config.plantPool.plants.Find(p => p.Id == si.plantData.plantDataId);
+        //        if (plantData == null)
+        //        {
+        //            Debug.LogWarning($"PlantData with id {si.plantData.plantDataId} not found");
+        //            return null;
+        //        }
 
-                var plant = new PlantInstance(plantData, si.plantData.maxGenomeCapacity);
-                plant.GrowthProgress = si.plantData.growthProgress;
-                foreach (var sp in si.plantData.properties)
-                {
-                    var propData = config.genomePool.genomeProperties.Find(p => p.Id == sp.propertyDataId);
-                    if (propData == null) continue;
-                    var prop = new GenomePropertyInstance(propData, sp.stacks);
-                    plant.AddGenomeProperty(prop);
-                }
-                return plant;
-            }
-            else
-            {
-                // Обычный предмет (фермент, батарейка)
-                return new ItemInstance(itemData, si.quantity);
-            }
-        }
+        //        var plant = new PlantInstance(plantData, si.plantData.maxGenomeCapacity);
+        //        plant.GrowthProgress = si.plantData.growthProgress;
+        //        foreach (var sp in si.plantData.properties)
+        //        {
+        //            var propData = config.genomePool.genomeProperties.Find(p => p.Id == sp.propertyDataId);
+        //            if (propData == null) continue;
+        //            var prop = new GenomePropertyInstance(propData, sp.stacks);
+        //            plant.AddGenomeProperty(prop);
+        //        }
+        //        return plant;
+        //    }
+        //    else
+        //    {
+        //        // Обычный предмет (фермент, батарейка)
+        //        return new ItemInstance(itemData, si.quantity);
+        //    }
+        //}
 
         // ======== IGameSystem ========
         public void Initialize()

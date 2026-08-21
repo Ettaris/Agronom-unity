@@ -29,18 +29,21 @@ public class DialogueView : MonoBehaviour, IDialoguePresenter
         _typewriterTween?.Kill();
     }
 
-    public void ShowDialogue(string speaker, string text, Action onContinue, float typewriterSpeed = 0f)
+    public void ShowDialogue(string speaker, string text, Action onContinue, float typewriterSpeed = 0f, AudioData voice = null)
     {
         _speakerText.text = speaker;
         _dialogueText.text = text;
         _onContinue = onContinue;
         _isShowing = true;
 
-        // Сбрасываем видимость символов
         _dialogueText.maxVisibleCharacters = 0;
         _panel.SetActive(true);
 
-        // Если speed <= 0, показываем мгновенно
+        if (voice != null )
+        {
+            ServiceLocator.Get<AudioService>().PlayVoice(voice);
+        }
+
         if (typewriterSpeed <= 0f)
         {
             _dialogueText.maxVisibleCharacters = text.Length;

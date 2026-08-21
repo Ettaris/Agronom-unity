@@ -5,8 +5,8 @@ namespace Data
     [System.Serializable]
     public struct StageData
     {
-        public int totalDays;          // общее количество дней к концу этапа (нарастающий итог)
-        public int requiredCalories;   // необходимое общее количество калорий к концу этапа
+        public int totalDays;          
+        public int requiredCalories;  
     }
     /// <summary>
     /// ќтвечает за конфигурацию забега. ¬ключает в себ€ все данные, лимиты и параметры игры.
@@ -15,10 +15,8 @@ namespace Data
     public class GameConfig : ScriptableObject
     {
         [Header("ѕулы данных")]
-        public PlantPool plantPool;
-        public GenomePool genomePool;
-        public FermentPool fermentPool;   // новый пул ферментов
-        public BatteryPool batteryPool;   // новый пул батареек                        
+        public FermentPool fermentPool;   
+        public BatteryPool batteryPool;                       
         public PlantRarityPool plantRarityPool;
         public GenomeRarityPool genomeRarityPool;
         public PlantRarityConfig plantRarityConfig;

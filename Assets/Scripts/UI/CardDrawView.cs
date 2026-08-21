@@ -114,7 +114,7 @@ public class CardDrawView : MonoBehaviour, IGameSystem, IRunAware
         foreach (var item in offer)
         {
             CardView card = Instantiate(_cardPrefab, _cardsContainer);
-            card.Setup(item);
+            card.Setup(item, true, false);
             card.OnCardClick += OnCardClicked;
             _cardViews.Add(card);
         }
