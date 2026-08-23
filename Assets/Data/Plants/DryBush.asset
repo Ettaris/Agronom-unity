@@ -15,15 +15,15 @@ MonoBehaviour:
   _id: 
   itemName: DryBush
   description: 
-  icon: {fileID: -7944502702452990849, guid: 3cc7bd4c37d83694489536216e06fc3d, type: 3}
+  icon: {fileID: -3850679877105380084, guid: e9ddf8669e0fb114ca826400567a3956, type: 3}
   rarity: 0
-  growthTime: 3
+  growthTime: 2
   baseCalories: 0
   fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
-  heightScale: 1
+  heightScale: 2
   growthSprites:
-  - {fileID: -7866928900747384746, guid: 730b3138199f6ca4f9a78810ad1b4ce2, type: 3}
-  - {fileID: 3824498671837561107, guid: bf7d69737b809394e8ffb3d160416a2e, type: 3}
+  - {fileID: 1388711795, guid: f0cde0a4a4ed6a543b17148dccc942fc, type: 3}
+  - {fileID: 268128920, guid: f0cde0a4a4ed6a543b17148dccc942fc, type: 3}
   mutationStages: []

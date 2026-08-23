@@ -22,6 +22,7 @@ MonoBehaviour:
   fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
   maxGenomeCapacity: 60
+  heightScale: 2
   growthSprites:
   - {fileID: -6905139553319271647, guid: 21ae41b7af69a2c449f3fc1150806b89, type: 3}
   - {fileID: -1414401220342530014, guid: 21ae41b7af69a2c449f3fc1150806b89, type: 3}
