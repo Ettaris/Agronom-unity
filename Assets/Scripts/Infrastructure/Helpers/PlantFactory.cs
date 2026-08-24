@@ -21,6 +21,29 @@ public static class PlantFactory
         return plant;
     }
 
+    public static PlantInstance ClonePlant(PlantInstance source, GameConfig config)
+    {
+        if (source == null) return null;
+
+        int maxCap = source.PlantData.maxGenomeCapacity > 0 ? source.PlantData.maxGenomeCapacity : config.defaultMaxGenomeCapacity;
+        var clone = new PlantInstance(source.PlantData, maxCap);
+
+        foreach (var prop in source.Genome.Properties)
+        {
+            var newProp = prop.Data.CreateEffect(prop.Stacks);
+            clone.AddGenomeProperty(newProp);
+            if (source.PermanentModifier != null && source.PermanentModifier.Data == prop.Data)
+            {
+                clone.PermanentModifier = newProp;
+            }
+        }
+
+        var resolver = ServiceLocator.Get<PropertyResolverSystem>();
+        resolver.RegisterPlant(clone);
+
+        return clone;
+    }
+
     public static PlantInstance CreateWeed(PlantData weedData)
     {
         var weed = new PlantInstance(weedData, 0);

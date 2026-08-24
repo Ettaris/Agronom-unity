@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37dd6a083ff2ec24a89f183f84077560, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::Data.GameConfig
-  plantPool: {fileID: 0}
-  genomePool: {fileID: 0}
   fermentPool: {fileID: 11400000, guid: 3bbc291569a190641a62a315163a59cb, type: 2}
   batteryPool: {fileID: 11400000, guid: 20f5d189d736f2f488c44ea785b0d369, type: 2}
   plantRarityPool: {fileID: 11400000, guid: 3b4737f3fba444e488f6c292f0cb0771, type: 2}
@@ -33,8 +31,8 @@ MonoBehaviour:
   initialHandSize: 5
   defaultMaxGenomeCapacity: 60
   cardsPerDay: 6
-  cardsToSelect: 2
-  maxPropertiesPerPlant: 1
+  cardsToSelect: 3
+  maxPropertiesPerPlant: 3
   startingCalories: 0
   startingDeckSize: 15
   boardWidth: 5

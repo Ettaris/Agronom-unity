@@ -28,7 +28,6 @@ public class BoardView : MonoBehaviour, IGameSystem
     public Vector2Int _previewPosition;
     public bool _previewCanPlace;
 
-    private Dictionary<PlantInstance, MutationView> _plantViews = new Dictionary<PlantInstance, MutationView>();
     private List<CellView> _previewCells = new List<CellView>();
 
     public void Initialize()
@@ -50,14 +49,13 @@ public class BoardView : MonoBehaviour, IGameSystem
 
     private void OnRunStarted(RunStartedEvent @event)
     {
-        Debug.Log("RunStartedEvent from boardView");
         _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
         if (_runData == null) return;
 
         if (_boardRoot == null) _boardRoot = ServiceLocator.TryGet(out BoardRoot br) ? br : null;
-        if (_boardRoot == null) { Debug.LogError("BoardView: BoardRoot not found!"); return; }
+        if (_boardRoot == null) { return; }
         _board = _boardRoot.GridBoard;
-        if (_board == null) { Debug.LogError("BoardView: GridBoard is null!"); return; }
+        if (_board == null) {  return; }
     }
 
     // ---------- Обработчики событий ----------
@@ -65,18 +63,15 @@ public class BoardView : MonoBehaviour, IGameSystem
     {
         Debug.Log("OnPlantPlaced from boardView");
         UpdateCellView(evt.X, evt.Y);
-        CreatePlantVisual(evt.Plant);
     }
 
     private void OnPlantHarvested(PlantHarvestedEvent evt)
     {
-        RemovePlantVisual(evt.Plant);
         UpdateCellView(evt.X, evt.Y);
     }
 
     private void OnPlantKilled(PlantKilledEvent evt)
     {
-        RemovePlantVisual(evt.Plant);
         UpdateCellView(evt.X, evt.Y);
     }
 
@@ -84,30 +79,6 @@ public class BoardView : MonoBehaviour, IGameSystem
     {
         _selectedItem = evt.Item;
     }
-
-    private void CreatePlantVisual(PlantInstance plant)
-    {
-        if (plant == null) {
-            Debug.LogError($"Plant in createVisual is null {plant}");
-            return; }
-        if (_plantViews.ContainsKey(plant)) {
-            Debug.LogError($"{_plantViews.ContainsKey(plant)} - plantViews already contain plant for plant {plant}");
-            return; }
-
-        Vector2Int pos = plant.Position;
-        var anchorCell = _boardRoot.GetCellView(pos.x, pos.y);
-        if (anchorCell == null)
-        {
-            Debug.LogWarning($"BoardView: No cell view at ({pos.x},{pos.y})");
-            return;
-        }
-
-        GameObject go = Instantiate(_mutationViewPrefab, anchorCell.transform);
-        MutationView view = go.GetComponent<MutationView>();
-        view.Initialize(plant);
-        _plantViews[plant] = view;
-    }
-
 
     public void OnCellPointerEnter(int x, int y)
     {
@@ -135,7 +106,7 @@ public class BoardView : MonoBehaviour, IGameSystem
         if (view == null) return;
 
         if (highlight)
-            view.SetState(cell.Plant != null ? CellState.Occupied : CellState.Highlighted);
+            view.SetState(cell.Plant != null ? CellState.Default : CellState.Highlighted);
         else
             view.SetState(CellState.Default);
     }
@@ -170,7 +141,7 @@ public class BoardView : MonoBehaviour, IGameSystem
                 var cellView = _boardRoot.GetCellView(cx, cy);
                 if (cellView != null)
                 {
-                    cellView.SetState(canPlace ? CellState.Highlighted : CellState.Unavailable);
+                    cellView.SetState(canPlace ? CellState.Highlighted : CellState.Default);
                     _previewCells.Add(cellView);
                 }
             }
@@ -183,11 +154,7 @@ public class BoardView : MonoBehaviour, IGameSystem
         _previewCells.Clear();
     }
 
-    // ----- FindBestPlacement -----
-    /// <summary>
-    /// Находит наилучшую опорную позицию (левый верхний угол) для растения заданного размера,
-    /// ближайшую к экранной позиции курсора.
-    /// </summary>
+    //TODO: Delete this.
     public bool FindBestPlacement(Vector2 screenPos, Vector2Int size, out Vector2Int position, out bool canPlace)
     {
         position = Vector2Int.zero;
@@ -278,33 +245,17 @@ public class BoardView : MonoBehaviour, IGameSystem
         return null;
     }
 
-    private void RemovePlantVisual(PlantInstance plant)
-    {
-        if (plant == null) return;
-        if (_plantViews.TryGetValue(plant, out var view))
-        {
-            Destroy(view.gameObject);
-            _plantViews.Remove(plant);
-        }
-    }
-
-    public void RefreshPlantVisual(PlantInstance plant)
-    {
-        if (_plantViews.TryGetValue(plant, out var view))
-            view.Refresh();
-    }
-
     // ---------- Обновление клеток ----------
-    private void UpdateCellView(int x, int y)
+
+    public void UpdateCellView(int x, int y)
     {
         var cellView = _boardRoot.GetCellView(x, y);
         if (cellView != null)
         {
             var plant = _board.GetCell(x, y)?.Plant;
-            cellView.SetState(plant != null ? CellState.Occupied : CellState.Default);
+            cellView.SetPlant(plant);
         }
     }
-
 
     private void SetCellState(int x, int y, CellState state)
     {
@@ -312,14 +263,12 @@ public class BoardView : MonoBehaviour, IGameSystem
         if (view != null) view.SetState(state);
     }
 
-
     public void OnCellPointerDown(int x, int y, PointerEventData eventData)
     {
         if (eventData.button != PointerEventData.InputButton.Left) return;
         _isPointerDown = true;
         _lastHarvestedCell = new Vector2Int(-1, -1);
         TryPlantOrHarvest(x, y);
-        
     }
 
     public void OnCellPointerUp(int x, int y, PointerEventData eventData)
@@ -342,7 +291,7 @@ public class BoardView : MonoBehaviour, IGameSystem
             }
             else
             {
-                SetCellState(x, y, CellState.Unavailable);
+                SetCellState(x, y, CellState.Default);
                 return;
             }
         }
@@ -357,7 +306,6 @@ public class BoardView : MonoBehaviour, IGameSystem
             }
             else
             {
-                // Подсветить красным на мгновение
                 ShowPreview(pos, plant.PlantData.size, false);
                 DOVirtual.DelayedCall(0.5f, ClearPreview);
             }
@@ -376,16 +324,11 @@ public class BoardView : MonoBehaviour, IGameSystem
 
     public void ClearBoard()
     {
-        foreach (var kvp in _plantViews)
-        {
-            if (kvp.Value != null) Destroy(kvp.Value.gameObject);
-        }
-        _plantViews.Clear();
-
         if (_boardRoot != null)
         {
             foreach (var cell in _boardRoot.CellViews.Values)
             {
+                cell.ClearPlant();
                 cell.SetState(CellState.Default);
             }
         }

@@ -11,6 +11,9 @@ public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, I
     [SerializeField] private int _row;
     [SerializeField] private int _column;
 
+    [Header("Mutation")]
+    [SerializeField] private MutationView _mutationView;
+
     [Header("Visuals")]
     [SerializeField] private Image _background;
     [SerializeField] private Image _highlightImage;
@@ -20,6 +23,7 @@ public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, I
     private Cell _logicCell;
     private BoardView _boardView;
     private bool _servicesReady;
+    private PlantInstance _currentPlant;
 
     public int Row => _row;
     public int Column => _column;
@@ -32,15 +36,16 @@ public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, I
     {
         if (_highlightImage != null)
             _highlightImage.gameObject.SetActive(false);
+        if (_mutationView == null)
+            _mutationView = GetComponentInChildren<MutationView>();
+        if (_mutationView != null)
+            _mutationView.gameObject.SetActive(false);
     }
 
     private void Start()
     {
-        Debug.Log("CellView Services Initialized");
         _servicesReady = true;
         _boardView = ServiceLocator.TryGet<BoardView>(out var bv) ? bv : null;
-        if (_boardView == null)
-            Debug.LogError("CellView: BoardView not found!");
     }
 
 
@@ -64,25 +69,41 @@ public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, I
         {
             switch (state)
             {
-                //TODO: убрать лишние хайлайты
                 case CellState.Highlighted:
-                    Debug.Log("Cellview SetState highlited");
                     _highlightImage.gameObject.SetActive(true);
-                    _highlightImage.color = new Color(0.33f, 0.42f, 0.18f, 0.3f);
-                    break;
-                case CellState.Unavailable:
-                    //_highlightImage.gameObject.SetActive(true);
-                    _highlightImage.color = Color.red;
-                    break;
-                case CellState.Occupied:
-                    //_highlightImage.gameObject.SetActive(true);
-                    _highlightImage.color = Color.yellow;
+                    _highlightImage.color = new Color(0.33f, 0.42f, 0.18f, 0.17f);
                     break;
                 default:
                     _highlightImage.gameObject.SetActive(false);
                     break;
             }
         }
+    }
+
+    public void SetPlant(PlantInstance plant)
+    {
+        _currentPlant = plant;
+        if (_logicCell != null)
+            _logicCell.Plant = plant;
+
+        if (_mutationView != null)
+        {
+            if (plant != null)
+            {
+                _mutationView.gameObject.SetActive(true);
+                _mutationView.Initialize(plant);
+                _mutationView.Refresh();
+            }
+            else
+            {
+                _mutationView.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void ClearPlant()
+    {
+        SetPlant(null);
     }
 
     // ---------- IPointer Handlers ----------
@@ -111,6 +132,4 @@ public enum CellState
 {
     Default,
     Highlighted,
-    Occupied,
-    Unavailable
 }

@@ -21,7 +21,7 @@ namespace GenomeEffects
             var config = ServiceLocator.Get<GameConfig>();
             var random = runData.Random;
 
-            var sprout = PlantFactory.CreatePlantWithProperties(plant.PlantData, random, config, runData);
+            var sprout = PlantFactory.ClonePlant(plant, config);
 
             Vector2Int pos = new Vector2Int(x, y);
             if (board.CanPlace(pos, sprout.PlantData.size))
@@ -29,10 +29,6 @@ namespace GenomeEffects
                 board.PlacePlant(sprout, pos);
                 EventBus.Publish(new PlantPlacedEvent { Plant = sprout, X = x, Y = y });
                 EventBus.Publish(new EffectAppliedEvent { Type = EffectType.Grow, X = x, Y = y, Duration = 0.6f });
-            }
-            else
-            {
-                Debug.LogWarning("FruitingEffect: Cannot place sprout at original position");
             }
         }
     }

@@ -86,7 +86,7 @@ public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
         ClearSlots();
         _plantInfo.Clear();
         _backgroundBlockPanel.SetActive(true);
-        DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));
+        DOVirtual.DelayedCall(0.4f, () => gameObject.SetActive(false));
     }
 
     #endregion

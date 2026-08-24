@@ -54,10 +54,23 @@ public class MutationView : MonoBehaviour
             Clear();
             return;
         }
-        ResetVisuals();
         transform.localPosition = Vector3.zero;
+        SetPlant(plant);
+    }
+
+    public void SetPlant(PlantInstance plant)
+    {
+        _currentPlant = plant;
+        if (plant == null)
+        {
+            Clear();
+            return;
+        }
+        ResetVisuals();
+        UpdatePositionAndSize();
         UpdateVisuals(true);
     }
+
 
     private void UpdatePositionAndSize()
     {

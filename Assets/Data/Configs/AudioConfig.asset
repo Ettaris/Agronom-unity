@@ -17,7 +17,7 @@ MonoBehaviour:
   sfxVolume: 1
   voiceVolume: 1
   mainTheme: {fileID: 0}
-  gameplayMusic: {fileID: 0}
+  gameplayMusic: {fileID: 11400000, guid: 46617ba7e2190d942ac3ffcf1b92b9a2, type: 2}
   laboratoryMusic: {fileID: 0}
   endRunMusic: {fileID: 0}
   buttonClick: {fileID: 11400000, guid: 5a55d0400dd17634abaf4cea0b7432f2, type: 2}

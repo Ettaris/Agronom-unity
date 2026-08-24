@@ -224,6 +224,7 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
+        _showTutorial = false;
         var runManager = ServiceLocator.Get<RunManager>();
         runManager.ResetRun();
 

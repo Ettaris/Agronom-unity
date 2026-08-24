@@ -8,6 +8,7 @@ using Infrastructure.Events;
 using Data;
 using Systems;
 using Gameplay;
+using System.Collections;
 
 /// <summary>
 /// UI журнала открытых свойств.
@@ -91,6 +92,14 @@ public class JournalView : MonoBehaviour, IGameSystem
         }
     }
 
+    public IEnumerator SetActiveFalseByEndOfAnimation()
+    {
+        yield return new WaitForSeconds(0.1f);
+        float animationLength = _journalAnimator.GetCurrentAnimatorStateInfo(0).length;
+        yield return new WaitForSeconds(animationLength - 0.2f);
+        gameObject.SetActive(false);
+    }
+
     public void OpenJournal()
     {
         gameObject.SetActive(true);
@@ -104,7 +113,7 @@ public class JournalView : MonoBehaviour, IGameSystem
     {
         _journalAnimator.SetTrigger("Close");
         _isOpen = false;
-        gameObject.SetActive(false);
+        StartCoroutine(SetActiveFalseByEndOfAnimation());
     }
 
     private void SwitchTab(Tab tab)
