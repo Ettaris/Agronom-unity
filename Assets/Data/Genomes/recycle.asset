@@ -19,5 +19,5 @@ MonoBehaviour:
     \u0441\u0431\u043E\u0440\u0430"
   icon: {fileID: -3850679877105380084, guid: 18c1e1114f93eb2459dbfb93cce7dd48, type: 3}
   rarity: 0
-  genomeCost: 40
+  genomeCost: 1
   _effectClassName: RecycleEffect

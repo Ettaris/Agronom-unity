@@ -18,5 +18,5 @@ MonoBehaviour:
     \u0441\u0432\u0435\u0440\u0445\u0443"
   icon: {fileID: -3850679877105380084, guid: 9c35746d9778df24290b914e61f445ef, type: 3}
   rarity: 0
-  genomeCost: 10
+  genomeCost: 1
   _effectClassName: GenerosityEffect

@@ -21,7 +21,7 @@ MonoBehaviour:
   baseCalories: 0
   fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
-  maxGenomeCapacity: 60
+  maxGenomeCapacity: 3
   heightScale: 2
   growthSprites:
   - {fileID: 1388711795, guid: f0cde0a4a4ed6a543b17148dccc942fc, type: 3}

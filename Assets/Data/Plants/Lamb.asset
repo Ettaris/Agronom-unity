@@ -17,11 +17,11 @@ MonoBehaviour:
   description: 
   icon: {fileID: -1988664961, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}
   rarity: 4
-  growthTime: 4
-  baseCalories: 200
+  growthTime: 10
+  baseCalories: 800
   fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
-  maxGenomeCapacity: 60
+  maxGenomeCapacity: 3
   heightScale: 2
   growthSprites:
   - {fileID: 2383096554206129452, guid: 67c38d22b2955584dbb37aab3e6c5a3b, type: 3}

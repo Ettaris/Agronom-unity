@@ -18,10 +18,10 @@ MonoBehaviour:
   icon: {fileID: 1684329156, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}
   rarity: 0
   growthTime: 2
-  baseCalories: 15
+  baseCalories: 60
   fixedPermanentModifier: {fileID: 0}
   size: {x: 1, y: 1}
-  maxGenomeCapacity: 60
+  maxGenomeCapacity: 3
   heightScale: 2
   growthSprites:
   - {fileID: 159068718711766808, guid: 5e7e26a7892bcc54ab6e6e1229b543e1, type: 3}

@@ -19,5 +19,5 @@ MonoBehaviour:
     \u0434\u043D\u044F \u043A \u0440\u043E\u0441\u0442\u0443"
   icon: {fileID: -3850679877105380084, guid: 07f40454247eb3443b18770a314d53fa, type: 3}
   rarity: 0
-  genomeCost: 20
+  genomeCost: 1
   _effectClassName: BigEffect
