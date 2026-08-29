@@ -20,18 +20,30 @@ MonoBehaviour:
   modifierConfig: {fileID: 11400000, guid: 9ddc60f341d2d1241aa0a27f52951dfb, type: 2}
   offerGenerationConfig: {fileID: 11400000, guid: d6de5bc5011112d42b48dd8034df1eb1, type: 2}
   stages:
+  - totalDays: 2
+    requiredCalories: 15
+  - totalDays: 2
+    requiredCalories: 45
   - totalDays: 3
-    requiredCalories: 30
-  - totalDays: 7
+    requiredCalories: 110
+  - totalDays: 3
     requiredCalories: 200
-  - totalDays: 12
-    requiredCalories: 600
-  - totalDays: 17
-    requiredCalories: 1200
-  - totalDays: 20
-    requiredCalories: 1400
-  - totalDays: 30
-    requiredCalories: 3000
+  - totalDays: 4
+    requiredCalories: 340
+  - totalDays: 4
+    requiredCalories: 520
+  - totalDays: 5
+    requiredCalories: 760
+  - totalDays: 5
+    requiredCalories: 1050
+  - totalDays: 6
+    requiredCalories: 1500
+  - totalDays: 6
+    requiredCalories: 2100
+  - totalDays: 5
+    requiredCalories: 2900
+  - totalDays: 5
+    requiredCalories: 3600
   weedPlantData: {fileID: 11400000, guid: ec0b5171a1e755946a7ef48ae19f207f, type: 2}
   maxHandSize: 10
   initialHandSize: 5

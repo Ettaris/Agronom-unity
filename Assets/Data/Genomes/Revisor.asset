@@ -22,5 +22,5 @@ MonoBehaviour:
     \u043F\u043E\u043B\u044F, \u043A\u0440\u043E\u043C\u0435 \u0441\u0435\u0431\u044F."
   icon: {fileID: 941617537757018978, guid: 85c238cff829dd241a12d0513aa175c1, type: 3}
   rarity: 0
-  genomeCost: 0
+  genomeCost: 1
   _effectClassName: RevisorEffect

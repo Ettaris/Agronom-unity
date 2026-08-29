@@ -19,5 +19,5 @@ MonoBehaviour:
     \u043C\u0435\u0441\u0442\u0435"
   icon: {fileID: -3850679877105380084, guid: 6631f2722a2c6b94ca96240c78bc15b4, type: 3}
   rarity: 0
-  genomeCost: 20
+  genomeCost: 1
   _effectClassName: RandomFruitingEffect
