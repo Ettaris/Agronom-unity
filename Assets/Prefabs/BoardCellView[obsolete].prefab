@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 3804746829287226224}
   - component: {fileID: 8467436457892197596}
   m_Layer: 5
-  m_Name: BoardCellView
+  m_Name: 'BoardCellView[obsolete]'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -10,23 +10,22 @@ using Managers;
 namespace GenomeEffects
 {
     /// <summary>
-    /// Напуганный: если слева/справа есть растение того же типа → +15% калорий себе.
+    /// Напуганный: если слева/справа есть растение того же типа → +30% калорий себе.
     /// Если нет → все соседи (8 клеток) получают -15% калорий при сборе.
     /// </summary>
-    public class ScaredEffect : GenomeEffectBase, IOnHarvest, IOnNeighborHarvest
+    public class ScaredEffect : GenomeEffectBase, IOnHarvestCalculation, IOnNeighborHarvestCalculation
     {
         public ScaredEffect(GenomePropertyData data, int stacks = 1) : base(data, stacks) { }
 
         // ---- IOnHarvest: применяется к самому растению при его сборе ----
-        public int ModifyHarvest(PlantInstance plant, int baseCalories, GridBoard board)
+        public int CalculateHarvest(PlantInstance plant, int baseCalories, IGridBoard board)
         {
             if (plant == null || plant.CurrentCell == null) return baseCalories;
 
             bool hasSameTypeNeighbor = CheckHorizontalSameType(plant, board);
             if (hasSameTypeNeighbor)
             {
-                // +15% к себе
-                return Mathf.RoundToInt(baseCalories * 1.15f);
+                return Mathf.RoundToInt(baseCalories * 1.3f);
             }
             else
             {
@@ -35,10 +34,10 @@ namespace GenomeEffects
             }
         }
 
-        // ---- IOnNeighborHarvest: применяется к соседям при их сборе ----
-        public int ModifyNeighborHarvest(PlantInstance neighbor, int baseCalories)
+
+        public int CalculateNeighborHarvest(PlantInstance neighbor, int baseCalories, IGridBoard board)
         {
-            // Получаем владельца свойства (растение, на котором висит этот эффект)
+
             var resolver = ServiceLocator.Get<PropertyResolverSystem>();
             var owner = resolver.GetOwner(this);
             if (owner == null || owner.CurrentCell == null) return baseCalories;
@@ -47,34 +46,29 @@ namespace GenomeEffects
             if (!IsNeighbor(owner, neighbor)) return baseCalories;
 
             // Проверяем, есть ли у owner сосед того же типа слева/справа
-            var board = ServiceLocator.Get<RunManager>().CurrentRunData.Board;
             bool hasSameTypeNeighbor = CheckHorizontalSameType(owner, board);
 
             if (!hasSameTypeNeighbor)
             {
-                // Штраф -15% к соседу
                 return Mathf.RoundToInt(baseCalories * 0.85f);
             }
             else
             {
-                // Условие выполнено – штраф не применяем
                 return baseCalories;
             }
         }
 
         // ---- Вспомогательные методы ----
-        private bool CheckHorizontalSameType(PlantInstance plant, GridBoard board)
+        private bool CheckHorizontalSameType(PlantInstance plant, IGridBoard board)
         {
             if (plant == null || plant.CurrentCell == null) return false;
             int x = plant.CurrentCell.X;
             int y = plant.CurrentCell.Y;
 
-            // Проверяем слева
             var leftCell = board.GetCell(x - 1, y);
             if (leftCell != null && leftCell.Plant != null && leftCell.Plant.PlantData == plant.PlantData)
                 return true;
 
-            // Проверяем справа
             var rightCell = board.GetCell(x + 1, y);
             if (rightCell != null && rightCell.Plant != null && rightCell.Plant.PlantData == plant.PlantData)
                 return true;
@@ -89,7 +83,7 @@ namespace GenomeEffects
 
             int dx = Mathf.Abs(owner.CurrentCell.X - neighbor.CurrentCell.X);
             int dy = Mathf.Abs(owner.CurrentCell.Y - neighbor.CurrentCell.Y);
-            return dx <= 1 && dy <= 1 && (dx + dy) > 0; // сосед в 8 клетках, но не сама клетка
+            return dx <= 1 && dy <= 1 && (dx + dy) > 0; 
         }
     }
 }

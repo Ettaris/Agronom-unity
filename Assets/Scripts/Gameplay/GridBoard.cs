@@ -6,7 +6,7 @@ namespace Gameplay
     /// <summary>
     /// Хранит массив клеток Cell и отвечает за их логику.
     /// </summary>
-    public class GridBoard
+    public class GridBoard : IGridBoard
     {
         private Cell[,] _cells;
         public int Width { get; }
@@ -50,13 +50,10 @@ namespace Gameplay
             if (!CanPlace(position, size)) return false;
 
             int x = position.x, y = position.y;
-            for (int dx = 0; dx < size.x; dx++)
-                for (int dy = 0; dy < size.y; dy++)
-                    _cells[x + dx, y + dy].Plant = plant;
-
-            // TODO: make it easier and revome size check if all plants 1x1
+            plant.SetCurrentCell(GetCell(x, y));
             plant.Position = position;
-            plant.CurrentCell = GetCell(x, y);
+            _cells[x,y].Plant = plant;
+            Debug.Log($"Set current cell for plant {plant} - {plant.CurrentCell}");
             return true;
         }
 
@@ -83,7 +80,10 @@ namespace Gameplay
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
                     if (_cells[x, y].Plant != null && !result.Contains(_cells[x, y].Plant))
+                    {
+                        _cells[x, y].Plant.CurrentCell = _cells[x, y];
                         result.Add(_cells[x, y].Plant);
+                    }
             return result;
         }
 
@@ -99,14 +99,7 @@ namespace Gameplay
             var cell = GetCell(x, y);
             return cell != null && !cell.IsOccupied;
         }
-        //TODO: Duplicate
-        public bool PlacePlant(PlantInstance plant, int x, int y)
-        {
-            if (!IsFree(x, y)) return false;
-            var cell = GetCell(x, y);
-            cell.Plant = plant;
-            return true;
-        }
+
         //TODO: Duplicate
         public PlantInstance RemovePlant(int x, int y)
         {
@@ -151,6 +144,28 @@ namespace Gameplay
                 }
             }
             return plants;
+        }
+
+
+        //TODO: optimize
+        public GridBoard Clone()
+        {
+            var clone = new GridBoard(Width, Height);
+            for (int x = 0; x < Width; x++)
+                for (int y = 0; y < Height; y++)
+                {
+                    if (_cells[x, y].Plant != null)
+                    {
+                        // Копируем только данные, не ссылки на оригинальные объекты
+                        var plantData = _cells[x, y].Plant.PlantData;
+                        var maxCap = _cells[x, y].Plant.Genome.MaxCapacity;
+                        var plantClone = new PlantInstance(plantData, maxCap);
+                        foreach (var prop in _cells[x, y].Plant.Genome.Properties)
+                            plantClone.AddGenomeProperty(prop.Data.CreateEffect(prop.Stacks));
+                        clone._cells[x, y].Plant = plantClone;
+                    }
+                }
+            return clone;
         }
 
         public void Clear()

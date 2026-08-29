@@ -15,6 +15,6 @@ MonoBehaviour:
   cardsPerDay: 10
   selectableCards: 4
   guaranteedPlants: 2
-  plantWeight: 70
-  fermentWeight: 20
+  plantWeight: 60
+  fermentWeight: 30
   batteryWeight: 10

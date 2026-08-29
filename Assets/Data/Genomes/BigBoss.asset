@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd68da879bbc71c4fbe807a8128ac6a5, type: 3}
   m_Name: BigBoss
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePropertyData
-  _id: 
+  _id: 75473f60-eb11-43dc-8121-90f0bf69262f
   propertyName: BigBoss
   description: "\u0415\u0441\u043B\u0438 \u0440\u0430\u0441\u0442\u0435\u043D\u0438\u0435
     \u0438\u043C\u0435\u0435\u0442 \u0440\u0430\u0441\u0442\u0435\u043D\u0438\u044F

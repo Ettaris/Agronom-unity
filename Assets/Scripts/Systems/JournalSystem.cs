@@ -4,6 +4,7 @@ using Infrastructure;
 using Infrastructure.Events;
 using Managers;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Systems
 {
@@ -11,53 +12,73 @@ namespace Systems
     {
         private JournalData _journal;
         private bool _isLoaded;
-
-        public List<IJournalEntryData> GetPlantEntries() => _journal.GetPlantEntries();
-        public List<IJournalEntryData> GetModifierEntries() => _journal.GetModifierEntries();
+        private GameConfig _config;
 
         public void Initialize()
         {
             _journal = new JournalData();
             _isLoaded = false;
+            _config = ServiceLocator.Get<GameConfig>();
+
             EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
-            EventBus.Subscribe<GenomeDiscoveredEvent>(DiscoverPlantProperties);
+            EventBus.Subscribe<PlantAnalyzedEvent>(OnPlantAnalyzed);
+            EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
         }
 
         public async void Dispose()
         {
             EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
+            EventBus.Unsubscribe<PlantAnalyzedEvent>(OnPlantAnalyzed);
+            EventBus.Unsubscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
             if (_journal != null)
                 await ServiceLocator.Get<SaveManager>().SaveJournalAsync(_journal);
         }
 
         private async void OnRunStarted(RunStartedEvent evt)
         {
-            var journal = await ServiceLocator.Get<SaveManager>().LoadJournalAsync();
-            if (journal != null) _journal = journal;
+            var loaded = await ServiceLocator.Get<SaveManager>().LoadJournalAsync();
+            if (loaded != null) _journal = loaded;
             _isLoaded = true;
+            ServiceLocator.Get<RunManager>().CurrentRunData.SetJournalData(_journal);
         }
 
-        public void DiscoverPlantProperties(GenomeDiscoveredEvent evt)
+        private void OnPlantAnalyzed(PlantAnalyzedEvent evt)
         {
             if (evt.Plant == null) return;
+            _journal.StudyPlant(evt.Plant.PlantData, 1);
+
+            bool isPermanent(GenomePropertyInstance prop) =>
+                (evt.Plant.PermanentModifier != null && evt.Plant.PermanentModifier.Data == prop.Data);
+
             foreach (var prop in evt.Plant.Genome.Properties)
             {
-                bool perm = evt.isPermanent || (evt.Plant.PermanentModifier != null && evt.Plant.PermanentModifier.Data == prop.Data) ;
-                _journal.AddOrUpdatePlant(evt.Plant, prop.Data, perm);
+                bool perm = isPermanent(prop);
+                _journal.DiscoverModifier(prop.Data, evt.Plant, perm);
             }
         }
 
-        public JournalData GetJournal() => _journal;
+        private void OnGenomeDiscovered(GenomeDiscoveredEvent evt)
+        {
+        }
 
+        public List<IJournalEntryData> GetPlantEntries()
+        {
+            return _journal.GetPlantEntries(_config);
+        }
+
+        public List<IJournalEntryData> GetModifierEntries()
+        {
+            return _journal.GetModifierEntries(_config);
+        }
+
+        public JournalData GetJournal() => _journal;
         public void SetJournal(JournalData journal)
         {
             _journal = journal ?? new JournalData();
             _isLoaded = true;
         }
 
-        public bool IsPropertyDiscovered(PlantData plant, GenomePropertyData property)
-        {
-            return _journal.IsPropertyDiscovered(plant, property);
-        }
+        public bool IsPlantStudied(PlantData plant) => _journal.IsPlantStudied(plant);
+        public bool IsModifierDiscovered(GenomePropertyData modifier) => _journal.IsModifierDiscovered(modifier);
     }
 }

@@ -12,36 +12,35 @@ namespace GenomeEffects
     /// то владелец получает +100% к калориям при сборе.
     /// Если хотя бы один сосед отсутствует, владелец получает -40% к калориям.
     /// </summary>
-    public class BigBossEffect : GenomeEffectBase, IOnHarvest
+
+    public class BigBossEffect : GenomeEffectBase, IOnHarvestCalculation, IOnHarvestApplication
     {
         public BigBossEffect(GenomePropertyData data, int stacks = 1) : base(data, stacks) { }
 
-        public int ModifyHarvest(PlantInstance plant, int baseCalories, GridBoard board)
+        private bool CheckAllNeighbors(PlantInstance plant, IGridBoard board, out int x, out int y)
         {
-            Debug.Log(plant);
-            if (plant.CurrentCell == null) return baseCalories;
-
-            int x = plant.CurrentCell.X;
-            int y = plant.CurrentCell.Y;
-
+            x = plant.CurrentCell.X;
+            y = plant.CurrentCell.Y;
             bool hasUp = board.GetCell(x, y + 1)?.Plant != null;
             bool hasDown = board.GetCell(x, y - 1)?.Plant != null;
             bool hasLeft = board.GetCell(x - 1, y)?.Plant != null;
             bool hasRight = board.GetCell(x + 1, y)?.Plant != null;
+            return hasUp && hasDown && hasLeft && hasRight;
+        }
 
+        public int CalculateHarvest(PlantInstance plant, int baseCalories, IGridBoard board)
+        {
+            if (plant.CurrentCell == null) return baseCalories;
+            bool allNeighbors = CheckAllNeighbors(plant, board, out _, out _);
+            return allNeighbors ? Mathf.RoundToInt(baseCalories * 2f) : Mathf.RoundToInt(baseCalories * 0.6f);
+        }
 
-            if (hasUp && hasDown && hasLeft && hasRight)
-            {
-                Debug.Log("BigBoss done well");
-                EventBus.Publish(new EffectAppliedEvent { X = x, Y = y, Type = EffectType.Boost, Duration = 1f });
-                return Mathf.RoundToInt(baseCalories * 2f);
-            }
-            else
-            {
-                Debug.Log("BigBoss done bad");
-                EventBus.Publish(new EffectAppliedEvent { X = x, Y = y, Type = EffectType.Debuff, Duration = 0.8f });
-                return Mathf.RoundToInt(baseCalories * 0.6f);
-            }
+        public void ApplyHarvest(PlantInstance plant, int baseCalories, IGridBoard board)
+        {
+            if (plant.CurrentCell == null) return;
+            bool allNeighbors = CheckAllNeighbors(plant, board, out int x, out int y);
+            EffectType type = allNeighbors ? EffectType.Boost : EffectType.Debuff;
+            EventBus.Publish(new EffectAppliedEvent { X = x, Y = y, Type = type, Duration = 1f });
         }
     }
 }

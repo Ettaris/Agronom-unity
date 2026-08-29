@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd68da879bbc71c4fbe807a8128ac6a5, type: 3}
   m_Name: Huge
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePropertyData
-  _id: 
+  _id: 18cdb7ed-eb33-41eb-8f92-a4f0e6548759
   propertyName: Huge
   description: "X2 \u043A\u0430\u043B\u043E\u0440\u0438\u0438 \u044D\u0442\u043E\u0439
     \u043A\u043B\u0435\u0442\u043A\u0435, \u043D\u043E 4 \u0441\u043C\u0435\u0436\u043D\u044B\u0435

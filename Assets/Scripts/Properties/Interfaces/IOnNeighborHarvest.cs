@@ -1,10 +1,12 @@
 using Gameplay;
+using System;
 
 namespace Properties.Interfaces
 {
     /// <summary>
     /// »нтерфейс дл€ свойств, которые вли€ют на сбор урожа€ соседних растений.
     /// </summary>
+    [Obsolete]
     public interface IOnNeighborHarvest
     {
         /// <summary>

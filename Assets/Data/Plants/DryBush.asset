@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b155d812f60734fab8f474e2a90439, type: 3}
   m_Name: DryBush
   m_EditorClassIdentifier: Assembly-CSharp::Data.PlantData
-  _id: 
+  _id: 5
   itemName: DryBush
   description: 
   icon: {fileID: -3850679877105380084, guid: e9ddf8669e0fb114ca826400567a3956, type: 3}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AudioDataCardHover
   m_EditorClassIdentifier: Assembly-CSharp::AudioData
   clips:
-  - {fileID: 8300000, guid: 3dc51e8f7593ec74bbd63922cc1a87cd, type: 3}
+  - {fileID: 8300000, guid: ab4b0c86f17289043a92706aab636029, type: 3}
   volume: 0.555
   pitch: 1
   randomPitch: 0.074

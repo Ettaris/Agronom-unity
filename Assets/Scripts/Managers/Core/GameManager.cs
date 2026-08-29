@@ -6,6 +6,7 @@ using Data;
 using Infrastructure.Events;
 using System.Collections.Generic;
 using Gameplay;
+using Gameplay.Calculation;
 
 /// <summary>
 /// Главный менеджер игры. Отвечает за инициализацию всех систем и управление состоянием игры.
@@ -82,6 +83,9 @@ public class GameManager : MonoBehaviour
         var dropHandler = new DropHandler();
         var narrativeSystem = new NarrativeSystem();
 
+        var harvestCalculator = new HarvestCalculator();
+        var placementPreviewSystem = new PlacementPreviewSystem();
+
         RegisterService(propertyResolver);
         RegisterService(runGeneration);
         RegisterService(growthSystem);
@@ -93,6 +97,8 @@ public class GameManager : MonoBehaviour
         RegisterService(journalSystem);
         RegisterService(dropHandler);
         RegisterService(narrativeSystem);
+        RegisterService(harvestCalculator);
+        RegisterService(placementPreviewSystem);
 
         RegisterService(_notificationSystem);
         RegisterService(_handView);
@@ -114,10 +120,10 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Get<RunManager>().Initialize();
         ServiceLocator.Get<DayManager>().Initialize();
 
+        ServiceLocator.Get<HarvestSystem>().Initialize();
         ServiceLocator.Get<PropertyResolverSystem>().Initialize();
         ServiceLocator.Get<RunGenerationSystem>().Initialize();
         ServiceLocator.Get<GrowthSystem>().Initialize();
-        ServiceLocator.Get<HarvestSystem>().Initialize();
         ServiceLocator.Get<ScoreSystem>().Initialize();
         ServiceLocator.Get<CentrifugeSystem>().Initialize();
         ServiceLocator.Get<CardDrawSystem>().Initialize();
@@ -134,6 +140,7 @@ public class GameManager : MonoBehaviour
         ServiceLocator.Get<DropHandler>().Initialize();
         ServiceLocator.Get<NarrativeSystem>().Initialize();
         ServiceLocator.Get<AudioRoot>().Initialize();
+        ServiceLocator.Get<PlacementPreviewSystem>().Initialize();
 
         StartGame();
 
@@ -208,6 +215,18 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void DisposeServices()
     {
+        ServiceLocator.Get<AudioRoot>().Dispose();
+        ServiceLocator.Get<NarrativeSystem>().Dispose();
+        ServiceLocator.Get<DropHandler>().Dispose();
+        ServiceLocator.Get<NotificationSystem>().Dispose();
+        ServiceLocator.Get<CardDrawView>().Dispose();
+        ServiceLocator.Get<GameOverView>().Dispose();
+        ServiceLocator.Get<LaboratoryView>().Dispose();
+        ServiceLocator.Get<HUDView>().Dispose();
+        ServiceLocator.Get<JournalView>().Dispose();
+        ServiceLocator.Get<HandView>().Dispose();
+        ServiceLocator.Get<BoardView>().Dispose();
+        ServiceLocator.Get<BoardRoot>().Dispose();
         ServiceLocator.Get<JournalSystem>().Dispose();
         ServiceLocator.Get<CardDrawSystem>().Dispose();
         ServiceLocator.Get<CentrifugeSystem>().Dispose();

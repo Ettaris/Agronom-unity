@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd68da879bbc71c4fbe807a8128ac6a5, type: 3}
   m_Name: Revisor
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePropertyData
-  _id: 
+  _id: 38896f60-f4c0-4398-8b45-d29921f6dad5
   propertyName: Revisor
   description: "\u0415\u0441\u043B\u0438 \u043D\u0430 \u043F\u043E\u043B\u0435 <=
     5 \u0440\u0430\u0441\u0442\u0435\u043D\u0438\u0439 \u0432\u044B\u0440\u0430\u0449\u0438\u0432\u0430\u0435\u0442

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b155d812f60734fab8f474e2a90439, type: 3}
   m_Name: Pumpkin
   m_EditorClassIdentifier: Assembly-CSharp::Data.PlantData
-  _id: 
+  _id: 12
   itemName: Pumpkin
   description: 
   icon: {fileID: -984040803269576920, guid: ea95b6a2c5cb98248a6a1a95494d6c73, type: 3}

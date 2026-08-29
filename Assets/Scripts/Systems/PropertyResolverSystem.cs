@@ -106,6 +106,8 @@ namespace Systems
 
         // ===== Обработка событий =====
 
+
+        //Переработать архитектуру поиска интерфейсов и растений - идти от растения к его свойствам, а затем фильтровать по интерфейсу. Сейчас лишняя проверка на овнера интерфейса. TODO:
         private void OnPlantPlaced(PlantPlacedEvent evt)
         {
             RegisterPlant(evt.Plant);
@@ -190,7 +192,6 @@ namespace Systems
                 if (cell.Plant == null) continue;
                 var neighborPlant = cell.Plant;
 
-                // Получаем свойства соседа
                 if (_plantProperties.TryGetValue(neighborPlant, out var props))
                 {
                     foreach (var prop in props)
@@ -219,17 +220,17 @@ namespace Systems
                 {
                     if (prop is IOnDestroyedWithCoords handler)
                     {
-                        // Проверяем, принадлежит ли свойство этому растению
                         if (_plantProperties.TryGetValue(plant, out var props) && props.Contains(prop))
                         {
                             handler.OnDestroyed(plant, x, y, _runData.Board);
-                            UnityEngine.Debug.Log($"  Called {prop.GetType().Name} for {plant.PlantData.itemName}");
+                            Debug.Log($"  Called {prop.GetType().Name} for {plant.PlantData.itemName}");
                         }
                     }
                 }
             }
         }
 
+        [Obsolete]
         public int ModifyHarvest(PlantInstance plant, int baseCalories)
         {
             int modified = baseCalories;
@@ -274,6 +275,13 @@ namespace Systems
                     return kvp.Key;
             }
             return null;
+        }
+
+        public List<GenomePropertyInstance> GetPlantProperties(PlantInstance plant)
+        {
+            if (_plantProperties.TryGetValue(plant, out var props))
+                return props;
+            return new List<GenomePropertyInstance>();
         }
     }
 }

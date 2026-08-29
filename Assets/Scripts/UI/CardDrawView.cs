@@ -209,6 +209,7 @@ public class CardDrawView : MonoBehaviour, IGameSystem, IRunAware
     private void OnSkipClicked()
     {
         if (_isProcessing) return;
+        _selectedCards.Clear();
         _offerBlockRaycastPanel.SetActive(false);
         _windowAnimator.SetTrigger("Close");
         DOVirtual.DelayedCall(0.5f, () => gameObject.SetActive(false));

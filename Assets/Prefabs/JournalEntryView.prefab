@@ -237,9 +237,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JournalEntryView
   _plantIcon: {fileID: 7359113942349572010}
   _plantName: {fileID: 6988830848418681076}
-  _propertiesContainer: {fileID: 411568942625286004}
-  _genomeIconPrefab: {fileID: 826860789983188524, guid: 3c9ea0ffe2cfb9f4e8c78391d18e462e, type: 3}
-  _plantCountText: {fileID: 1979465820333156854}
+  _plantDescription: {fileID: 103224022198297136}
   _modifierIcon: {fileID: 7359113942349572010}
   _modifierName: {fileID: 6988830848418681076}
   _modifierDescription: {fileID: 103224022198297136}
@@ -349,7 +347,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5276454982850265314
 RectTransform:
   m_ObjectHideFlags: 0
@@ -486,7 +484,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5091204475818792633
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1012,7 +1010,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3372531358092578289
 RectTransform:
   m_ObjectHideFlags: 0

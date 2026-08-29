@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd68da879bbc71c4fbe807a8128ac6a5, type: 3}
   m_Name: Gemmation
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePropertyData
-  _id: 
+  _id: ed840c83-5a9b-4b90-99c5-440f80f4f87a
   propertyName: gemmation
   description: "\u0420\u0430\u0441\u0442\u0435\u043D\u0438\u0435 \u043F\u043B\u043E\u0434\u0438\u0442\u0441\u044F
     \u0441\u0430\u043C\u043E \u043D\u0430 \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u0443\u044E

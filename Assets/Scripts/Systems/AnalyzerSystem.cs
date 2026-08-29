@@ -3,6 +3,7 @@ using Infrastructure;
 using Infrastructure.Events;
 using Data;
 using Managers;
+using System.Collections.Generic;
 
 namespace Systems
 {
@@ -65,24 +66,31 @@ namespace Systems
                 return false;
             }
 
-            // Проверяем, есть ли у растения свойства для анализа
-            if (plant.Genome.Properties.Count == 0)
+            var runData = ServiceLocator.Get<RunManager>().CurrentRunData;
+            if (runData != null)
             {
-                UnityEngine.Debug.Log($"Plant {plant.PlantData.itemName} has no properties to discover.");
-                // Всё равно считаем, что анализ прошёл, фермент тратится
-                _hand.Remove(fermentItem);
-                return true;
+                if (!runData.DiscoveredGenomes.ContainsKey(plant.PlantData))
+                    runData.DiscoveredGenomes[plant.PlantData] = new List<GenomePropertyData>();
+
+                foreach (var prop in plant.Genome.Properties)
+                {
+                    if (!runData.DiscoveredGenomes[plant.PlantData].Contains(prop.Data))
+                        runData.DiscoveredGenomes[plant.PlantData].Add(prop.Data);
+                }
             }
 
-            foreach (var prop in plant.Genome.Properties)
+            if (plant.Genome.Properties.Count > 0)
             {
-                bool isPermanent = IsPropertyPermanent(plant, prop);
-                EventBus.Publish(new GenomeDiscoveredEvent
+                foreach (var prop in plant.Genome.Properties)
                 {
-                    Plant = plant,
-                    Property = prop,
-                    isPermanent = isPermanent
-                });
+                    bool isPermanent = IsPropertyPermanent(plant, prop);
+                    EventBus.Publish(new GenomeDiscoveredEvent
+                    {
+                        Plant = plant,
+                        Property = prop,
+                        isPermanent = isPermanent
+                    });
+                }
             }
 
             _hand.Remove(fermentItem);

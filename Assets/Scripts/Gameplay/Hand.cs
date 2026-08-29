@@ -54,12 +54,13 @@ namespace Gameplay
 
         public void Clear() => _items.Clear();
 
-        // Метод для получения всех растений
         public IEnumerable<PlantInstance> GetPlants()
         {
             foreach (var item in _items)
                 if (item is PlantInstance plant)
                     yield return plant;
         }
+
+        
     }
 }
