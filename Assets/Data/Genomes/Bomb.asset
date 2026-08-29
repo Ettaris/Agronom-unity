@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd68da879bbc71c4fbe807a8128ac6a5, type: 3}
   m_Name: Bomb
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePropertyData
-  _id: 
+  _id: c859c797-804c-4937-9c50-8dd88997af5e
   propertyName: Bomb
   description: "\u0441\u043E\u0431\u0438\u0440\u0430\u0435\u0442\u0441\u044F \u0441\u0440\u0430\u0437\u0443
     \u043F\u0440\u0438 \u043F\u043E\u0441\u0430\u0434\u043A\u0435 (50% \u043A\u0430\u043B\u043E\u0440\u0438\u0439)\t\u0440\u0430\u0441\u0442\u0435\u043D\u0438\u0435

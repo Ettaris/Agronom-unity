@@ -7,11 +7,11 @@ using UnityEngine;
 
 namespace GenomeEffects
 {
-    public class GenerosityEffect : GenomeEffectBase, IOnNeighborHarvest
+    public class GenerosityEffect : GenomeEffectBase, IOnNeighborHarvestCalculation
     {
         public GenerosityEffect(GenomePropertyData data, int stacks = 1) : base(data, stacks) { }
 
-        public int ModifyNeighborHarvest(PlantInstance neighbor, int baseCalories)
+        public int CalculateNeighborHarvest(PlantInstance neighbor, int baseCalories, IGridBoard board)
         {
             // Получаем владельца свойства (растение снизу)
             var resolver = ServiceLocator.Get<PropertyResolverSystem>();

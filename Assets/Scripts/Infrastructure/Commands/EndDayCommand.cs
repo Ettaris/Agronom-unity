@@ -7,7 +7,7 @@ namespace Commands
     {
         public void Execute()
         {
-            EventBus.Publish(new EndDayCommand()); // можно вызвать напр€мую, но дл€ команд используем CommandProcessor
+            EventBus.Publish(new EndDayCommand());
         }
     }
 }

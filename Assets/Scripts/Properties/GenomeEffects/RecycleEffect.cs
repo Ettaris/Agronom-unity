@@ -7,24 +7,27 @@ using Data;
 
 namespace GenomeEffects
 {
-    public class RecycleEffect : GenomeEffectBase, IOnHarvest
+    public class RecycleEffect : GenomeEffectBase, IOnHarvestCalculation, IOnHarvestApplication
     {
         public RecycleEffect(GenomePropertyData data, int stacks = 1) : base(data, stacks) { }
 
-        public int ModifyHarvest(PlantInstance plant, int baseCalories, GridBoard board)
+        public void ApplyHarvest(PlantInstance plant, int baseCalories, IGridBoard board)
         {
             var runData = ServiceLocator.Get<RunManager>().CurrentRunData;
-            if (runData == null) return baseCalories;
+            var config = ServiceLocator.Get<GameConfig>();
 
-            // Создаём новое растение (семя) с такой же максимальной ёмкостью генома, но без свойств
-            var seed = new PlantInstance(plant.PlantData, plant.Genome.MaxCapacity);
-            // (свойства не копируются)
+            // Создаём новое растение (семя) клон
+            var sprout = PlantFactory.ClonePlant(plant, config);
 
             // Добавляем в руку
-            runData.Hand.Add(seed);
+            runData.Hand.Add(sprout);
             EventBus.Publish(new HandUpdatedEvent());
+        }
 
+        public int CalculateHarvest(PlantInstance plant, int baseCalories, IGridBoard board)
+        {
             return baseCalories;
         }
+
     }
 }

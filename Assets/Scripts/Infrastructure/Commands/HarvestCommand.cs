@@ -1,4 +1,5 @@
 using Infrastructure;
+using UnityEngine;
 
 namespace Commands
 {
@@ -6,11 +7,12 @@ namespace Commands
     {
         public int X;
         public int Y;
+        public Vector2 ScreenPos;
 
         public void Execute()
         {
             var harvestSystem = ServiceLocator.Get<Systems.HarvestSystem>();
-            harvestSystem.HarvestPlantAt(X, Y);
+            harvestSystem.HarvestPlantAt(X, Y, ScreenPos);
         }
     }
 }

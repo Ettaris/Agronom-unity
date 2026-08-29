@@ -14,13 +14,12 @@ namespace Gameplay
         public JournalData Journal { get; private set; }
         public int Seed { get; }
         public int CurrentDay { get; set; }
-        public int DailyQuota { get; set; }
         public bool IsQuotaReached { get; set; }
-        public bool IsTotalGoalReached { get; set; }
         public int CurrentStageIndex { get; set; }
         public int StageStartDay { get; set; }
         public StageData[] Stages { get; }
         public Dictionary<PlantData, GenomePropertyData> PermanentModifiers { get; set; }
+        public Dictionary<PlantData, List<GenomePropertyData>> DiscoveredGenomes { get; set; }
 
         public RunData(int seed, int boardWidth, int boardHeight, int handMaxSize, JournalData journal, StageData[] stages)
         {
@@ -34,6 +33,7 @@ namespace Gameplay
             IsQuotaReached = false;
             Journal = journal;
             Stages = stages;
+            DiscoveredGenomes = new Dictionary<PlantData, List<GenomePropertyData>>(40);
         }
 
         public StageData GetCurrentStage()

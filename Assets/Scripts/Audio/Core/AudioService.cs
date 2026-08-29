@@ -10,12 +10,22 @@ public class AudioService : IGameSystem
     private readonly MusicPlayer _music;
     private readonly VoicePlayer _voice;
 
+    public AudioConfig Config { get; private set; }
+
+    public static AudioService Instance { get; private set; }
+
+    public enum AudioID { 
+        journalPageSwitchSfx,
+    }
+
+
     public AudioService(AudioConfig config, SfxPlayer sfx, MusicPlayer music, VoicePlayer voice)
     {
         _config = config;
         _sfx = sfx;
         _music = music;
         _voice = voice;
+        Instance = this;
     }
 
     public void Initialize()
@@ -28,7 +38,6 @@ public class AudioService : IGameSystem
         EventBus.Subscribe<DayEndedEvent>(OnDayEnded);
         EventBus.Subscribe<RunStartedEvent>(OnRunStarted);
         EventBus.Subscribe<RunEndedEvent>(OnRunEnded);
-        EventBus.Subscribe<LabOpenedEvent>(OnLabOpened);
         EventBus.Subscribe<CardSelectedEvent>(OnCardSelected);
         EventBus.Subscribe<CardHoveredEvent>(OnCardHovered);
         EventBus.Subscribe<EffectAppliedEvent>(OnEffectApplied);
@@ -44,7 +53,6 @@ public class AudioService : IGameSystem
         EventBus.Unsubscribe<DayEndedEvent>(OnDayEnded);
         EventBus.Unsubscribe<RunStartedEvent>(OnRunStarted);
         EventBus.Unsubscribe<RunEndedEvent>(OnRunEnded);
-        EventBus.Unsubscribe<LabOpenedEvent>(OnLabOpened);
         EventBus.Unsubscribe<CardSelectedEvent>(OnCardSelected);
         EventBus.Unsubscribe<CardHoveredEvent>(OnCardHovered);
         EventBus.Subscribe<EffectAppliedEvent>(OnEffectApplied);
@@ -67,8 +75,8 @@ public class AudioService : IGameSystem
     private void OnPlantPlaced(PlantPlacedEvent evt) => PlaySfx(_config.plantPlaced);
     private void OnPlantHarvested(PlantHarvestedEvent evt) => PlaySfx(_config.plantHarvest);
     private void OnPlantGrown(PlantGrownEvent evt) => PlaySfx(_config.plantGrown);
-    private void OnPlantAnalyzed(PlantAnalyzedEvent evt) => PlaySfx(_config.analyzer);
-    private void OnBatteryUsed(GenomeTransferredEvent evt) => PlaySfx(_config.centrifuge);
+    private void OnPlantAnalyzed(PlantAnalyzedEvent evt) => PlaySfx(_config.analyzeDone);
+    private void OnBatteryUsed(GenomeTransferredEvent evt) => PlaySfx(_config.centrifugeDone);
     private void OnDayEnded(DayEndedEvent evt) => PlaySfx(_config.dayEnd);
     private void OnCardSelected(CardSelectedEvent evt) => PlaySfx(_config.cardSelect);
     private void OnEffectApplied(EffectAppliedEvent evt) => PlaySfx(_config.modifierTriggered);
@@ -82,10 +90,5 @@ public class AudioService : IGameSystem
     private void OnRunEnded(RunEndedEvent evt)
     {
         CrossfadeMusic(_config.endRunMusic, 1.5f);
-    }
-
-    private void OnLabOpened(LabOpenedEvent evt)
-    {
-        CrossfadeMusic(_config.laboratoryMusic, 1f);
     }
 }

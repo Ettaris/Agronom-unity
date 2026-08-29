@@ -25,14 +25,14 @@ MonoBehaviour:
     - rid: 3977529949955555461
       type: {class: DialogueStep, ns: , asm: Assembly-CSharp}
       data:
-        speaker: Guard
+        speaker: "\u041E\u0445\u0440\u0430\u043D\u043D\u0438\u043A"
         text: "\u0422\u044B \u043A\u0430\u043A? \u0416\u0438\u0432\u043E\u0439?"
         typewriterSpeed: 0.01
-        voice: {fileID: 0}
+        voice: {fileID: 11400000, guid: 1de2732955fff144c917c8b2dca525ec, type: 2}
     - rid: 3977529949955555506
       type: {class: DialogueStep, ns: , asm: Assembly-CSharp}
       data:
-        speaker: Guard
+        speaker: "\u041E\u0445\u0440\u0430\u043D\u043D\u0438\u043A"
         text: "\u041F\u043B\u0435\u0432\u0430\u0442\u044C. \u041F\u0440\u0438\u043D\u0438\u043C\u0430\u0439\u0441\u044F
           \u0437\u0430 \u0434\u0435\u043B\u043E. \u0422\u0435\u0431\u0435 \u043D\u0430\u0434\u043E
           \u0441\u043E\u0431\u0440\u0430\u0442\u044C 30 \u043A\u0430\u043B\u043E\u0440\u0438\u0439
@@ -42,11 +42,11 @@ MonoBehaviour:
     - rid: 3977529949955555507
       type: {class: DialogueStep, ns: , asm: Assembly-CSharp}
       data:
-        speaker: Guard
+        speaker: "\u041E\u0445\u0440\u0430\u043D\u043D\u0438\u043A"
         text: "\u0412\u043E\u0442 \u044D\u0442\u0438 \u0447\u0435\u0440\u0442\u043E\u0432\u044B
           \u0440\u0430\u0441\u0442\u0435\u043D\u0438\u044F. \u041F\u0440\u0438\u0441\u0442\u0443\u043F\u0430\u0439."
         typewriterSpeed: 0.01
-        voice: {fileID: 0}
+        voice: {fileID: 11400000, guid: 93fe5463af8b8474cb44e3212ea94770, type: 2}
     - rid: 3977529949955555558
       type: {class: FadeStep, ns: , asm: Assembly-CSharp}
       data:

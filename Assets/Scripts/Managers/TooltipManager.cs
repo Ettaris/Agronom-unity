@@ -6,6 +6,7 @@ using Data;
 using Gameplay;
 using Systems;
 using Infrastructure;
+using Managers;
 
 public class TooltipManager : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class TooltipManager : MonoBehaviour
     [SerializeField] private Vector2 _showCardOffset = new Vector2(15, -15);
 
     private static TooltipManager _instance;
+    private RunData _runData;
     private bool _isVisible;
 
     private void Awake()
@@ -88,32 +90,56 @@ public class TooltipManager : MonoBehaviour
 
     private void ShowCardTooltipInternal(PlantInstance plant, Vector2 position)
     {
-        if (plant == null || plant.Genome.Properties.Count == 0)
-        {
-            HideInternal();
-            return;
-        }
+        if (plant == null) return;
 
-        var journal = ServiceLocator.Get<JournalSystem>().GetJournal();
+        if (_runData == null) _runData = ServiceLocator.Get<RunManager>().CurrentRunData;
+
+        bool isStudied = _runData.Journal.IsPlantStudied(plant.PlantData);
+        Debug.Log($"{_runData.Journal} - journal + isStudied: {isStudied}, plant - {plant.PlantData}");
 
         string tooltipText = "";
-        foreach (var prop in plant.Genome.Properties)
+
+        // Информация о растении
+        if (isStudied)
         {
-            bool isKnown = journal != null && journal.IsPropertyDiscovered(plant.PlantData, prop.Data);
-            if (isKnown)
+            tooltipText += $"Калории: {plant.PlantData.baseCalories}\n";
+            tooltipText += $"Рост: {plant.PlantData.growthTime} дн.\n";
+        }
+        else
+        {
+            tooltipText += "???\n";
+            tooltipText += "???\n";
+        }
+
+        // Геномы
+        if (_runData != null && _runData.DiscoveredGenomes.TryGetValue(plant.PlantData, out var discovered))
+        {
+            foreach (var prop in plant.Genome.Properties)
             {
-                tooltipText += $"{prop.Data.propertyName}: {prop.Data.description}\n";
+                bool isKnown = discovered.Contains(prop.Data);
+                if (isKnown)
+                {
+                    tooltipText += $"{prop.Data.propertyName}: {prop.Data.description}\n";
+                }
+                else
+                {
+                    tooltipText += "???\n";
+                }
             }
-            else
+        }
+        else
+        {
+            foreach (var prop in plant.Genome.Properties)
             {
                 tooltipText += "???\n";
             }
         }
+
         tooltipText = tooltipText.TrimEnd('\n');
 
         _titleText.text = plant.PlantData.itemName;
         _descriptionText.text = tooltipText;
-        _costText.text = ""; // не показываем стоимость
+        _costText.text = "";
         if (_iconImage != null) _iconImage.sprite = plant.PlantData.icon;
 
         SetPosition(position, _showCardOffset);

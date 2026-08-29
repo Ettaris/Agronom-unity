@@ -25,6 +25,12 @@ namespace GenomeEffects
                 var resolver = ServiceLocator.Get<PropertyResolverSystem>();
                 var owner = resolver.GetOwner(this);
 
+                if (owner == null || owner.CurrentCell == null)
+                {
+                    _daysLeft = 30;
+                    return;
+                }
+
                 var config = ServiceLocator.Get<GameConfig>();
                 var runData = ServiceLocator.Get<RunManager>().CurrentRunData;
 
@@ -38,7 +44,7 @@ namespace GenomeEffects
                 {
                     var cell = freeCells[Random.Range(0, freeCells.Count)];
                     var clone = PlantFactory.CreatePlantWithProperties(owner.PlantData, runData.Random, config, runData);
-                    if (board.PlacePlant(clone, cell.X, cell.Y))
+                    if (board.PlacePlant(clone, new Vector2Int(cell.X, cell.Y)))
                     {
                         clone.CurrentCell = cell;
                         EventBus.Publish(new PlantPlacedEvent { Plant = clone, X = cell.X, Y = cell.Y });

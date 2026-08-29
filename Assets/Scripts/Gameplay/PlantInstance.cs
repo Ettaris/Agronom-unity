@@ -26,5 +26,10 @@ namespace Gameplay
         public GenomePropertyInstance RemoveGenomeProperty(GenomePropertyData propertyData) => Genome.RemoveProperty(propertyData, this);
         public void ClearGenomeProperties() => Genome.Clear();
         public int GetGenomeFillPercent() => Genome.GetFillPercent();
+
+        public void SetCurrentCell(Cell cell)
+        {
+            CurrentCell = cell;
+        }
     }
 }

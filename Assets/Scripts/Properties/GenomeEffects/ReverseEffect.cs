@@ -11,11 +11,11 @@ namespace GenomeEffects
     /// - базовые калории уменьшаются на 10 (минимум 1)
     /// - за каждый модификатор на соседях (плюсом) +15% (максимум +90%)
     /// </summary>
-    public class ReverseEffect : GenomeEffectBase, IOnHarvest
+    public class ReverseEffect : GenomeEffectBase, IOnHarvestCalculation
     {
         public ReverseEffect(GenomePropertyData data, int stacks = 1) : base(data, stacks) { }
 
-        public int ModifyHarvest(PlantInstance plant, int baseCalories, GridBoard board)
+        public int CalculateHarvest(PlantInstance plant, int baseCalories, IGridBoard board)
         {
             if (plant.CurrentCell == null) return baseCalories;
             int x = plant.CurrentCell.X;
@@ -45,8 +45,6 @@ namespace GenomeEffects
 
             float bonus = 0.15f * Mathf.Min(totalModifiers, 6);
             int finalCalories = Mathf.RoundToInt(modifiedBase * (1f + bonus));
-
-            Debug.Log($"ReverseEffect: base={baseCalories}, modifiedBase={modifiedBase}, totalModifiers={totalModifiers}, bonus={bonus}, final={finalCalories}");
 
             return finalCalories;
         }

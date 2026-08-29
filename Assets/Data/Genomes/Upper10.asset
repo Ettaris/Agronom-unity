@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd68da879bbc71c4fbe807a8128ac6a5, type: 3}
   m_Name: Upper10
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePropertyData
-  _id: 
+  _id: ca2a6827-e412-47ac-9c88-7455f93ef886
   propertyName: Upper10
   description: "+10 \u043A\u0430\u043B\u043E\u0440\u0438\u0439 "
   icon: {fileID: -3017979480325208809, guid: 8abacc60d8ca93d48ad50fe32d7b83e1, type: 3}

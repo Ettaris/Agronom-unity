@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd68da879bbc71c4fbe807a8128ac6a5, type: 3}
   m_Name: Scared
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePropertyData
-  _id: 
+  _id: 1b45b4c9-f9d4-44c7-a4b0-267fc567baf5
   propertyName: Scared
   description: "\u0435\u0441\u043B\u0438 \u0441\u043B\u0435\u0432\u0430 \u0438\u043B\u0438
     \u0441\u043F\u0440\u0430\u0432\u0430 \u0435\u0441\u0442\u044C \u0440\u0430\u0441\u0442\u0435\u043D\u0438\u0435

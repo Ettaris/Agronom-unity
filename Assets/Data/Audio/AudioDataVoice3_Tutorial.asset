@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d847cf08f633664a940d1a9fc540e02, type: 3}
-  m_Name: AudioData 2
+  m_Name: AudioDataVoice3_Tutorial
   m_EditorClassIdentifier: Assembly-CSharp::AudioData
-  clips: []
-  volume: 1
+  clips:
+  - {fileID: 8300000, guid: 28f5f1be8cee83d4fb664747f9ad395b, type: 3}
+  volume: 0.287
   pitch: 1
   randomPitch: 0.05
   randomVolume: 0

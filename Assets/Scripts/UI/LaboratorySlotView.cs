@@ -3,11 +3,12 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using Gameplay;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Слот лаборатории для предмета.
 /// </summary>
-public class LaboratorySlotView : MonoBehaviour
+public class LaboratorySlotView : MonoBehaviour, IPointerClickHandler
 {
     [Header("References")]
     [SerializeField] private Image _iconImage;
@@ -22,6 +23,8 @@ public class LaboratorySlotView : MonoBehaviour
 
     public bool IsEmpty => _item == null;
     public ItemInstance Item => _item;
+
+    public System.Action<LaboratorySlotView> OnSlotClicked;
 
     public void SetItem(ItemInstance item)
     {
@@ -56,4 +59,13 @@ public class LaboratorySlotView : MonoBehaviour
             .OnComplete(() => transform.DOScale(Vector3.one, 0.2f));
         _slotAnimator.SetTrigger("Pulse");
     }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left && _item != null)
+        {
+            OnSlotClicked?.Invoke(this);
+        }
+    }
+
 }

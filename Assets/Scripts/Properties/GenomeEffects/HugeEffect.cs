@@ -8,11 +8,11 @@ using Infrastructure.Events;
 
 namespace GenomeEffects
 {
-    public class HugeEffect : GenomeEffectBase, IOnHarvest, IOnPlantPlaced
+    public class HugeEffect : GenomeEffectBase, IOnHarvestCalculation, IOnPlantPlaced
     {
         public HugeEffect(GenomePropertyData data, int stacks = 1) : base(data, stacks) { }
 
-        public int ModifyHarvest(PlantInstance plant, int baseCalories, GridBoard board)
+        public int CalculateHarvest(PlantInstance plant, int baseCalories, IGridBoard board)
         {
             return baseCalories * 2;
         }

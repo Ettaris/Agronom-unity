@@ -123,10 +123,10 @@ namespace Managers
 
         public void SaveJournal(JournalData journal)
         {
-            if (journal == null) return;
-            string json = JsonConvert.SerializeObject(journal, Formatting.Indented);
-            string path = GetJournalFilePath();
-            File.WriteAllText(path, json);
+            //if (journal == null) return;
+            //string json = JsonConvert.SerializeObject(journal, Formatting.Indented);
+            //string path = GetJournalFilePath();
+            //File.WriteAllText(path, json);
         }
 
         public JournalData LoadJournal()
@@ -157,7 +157,6 @@ namespace Managers
                 seed = runData.Seed,
                 currentDay = runData.CurrentDay,
                 calories = runData.Inventory.Calories,
-                dailyQuota = runData.DailyQuota,
                 isQuotaReached = runData.IsQuotaReached,
                 journal = runData.Journal ?? new JournalData(),
                 boardPlants = new List<SaveData.SerializedPlant>(),
@@ -304,7 +303,7 @@ namespace Managers
                 //    plant.AddGenomeProperty(prop);
                 //}
 
-                if (runData.Board.PlacePlant(plant, sp.x, sp.y))
+                if (runData.Board.PlacePlant(plant, new Vector2Int(sp.x, sp.y)))
                 {
                     plant.CurrentCell = runData.Board.GetCell(sp.x, sp.y);
                     var resolver = ServiceLocator.Get<PropertyResolverSystem>();

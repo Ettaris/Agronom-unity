@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b155d812f60734fab8f474e2a90439, type: 3}
   m_Name: Corn
   m_EditorClassIdentifier: Assembly-CSharp::Data.PlantData
-  _id: 
+  _id: 3
   itemName: Corn
   description: 
   icon: {fileID: 1261957497, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}

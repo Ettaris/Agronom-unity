@@ -21,18 +21,23 @@ public class AudioConfig : ScriptableObject
 
     [Header("SFX")]
     public AudioData buttonClick;
+    public AudioData journalPageSwitchSfx;
     public AudioData cardSelect;
     public AudioData cardHover;
     public AudioData plantPlaced;
     public AudioData plantHarvest;
     public AudioData plantGrown;
     public AudioData modifierTriggered;
-    public AudioData analyzer;
-    public AudioData centrifuge;
+    public AudioData fermentItemDropped;
+    public AudioData analyzeDone;
+    public AudioData labOpened;
+    public AudioData batteryItemDropped;
+    public AudioData centrifugeDone;
     public AudioData dayEnd;
 
     [Header("Voice")]
     public AudioData guardIntroduction;
     public AudioData guardTutorial;
     public AudioData guardStageComplete;
+
 }

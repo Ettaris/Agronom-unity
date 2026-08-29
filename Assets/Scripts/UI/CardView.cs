@@ -43,6 +43,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private Canvas _canvas;
     private Coroutine _returnCoroutine;
     private BoardView _boardView;
+    private PlacementPreviewSystem _previewSystem;
     private bool _servicesReady;
     private bool _isDraggable = true;
 
@@ -65,6 +66,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         _servicesReady = true;
         _boardView = ServiceLocator.TryGet<BoardView>(out var bv) ? bv : null;
+        _previewSystem = ServiceLocator.TryGet<PlacementPreviewSystem>(out var ps) ? ps : null;
     }
 
 
@@ -191,6 +193,9 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if (!_isDraggable || _item == null) return;
 
+        if (_item is PlantInstance plant)
+            _previewSystem.StartDrag(plant);
+
         TooltipManager.Hide();
 
         KillCurrentTween();
@@ -223,11 +228,35 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         float lift = _rectTransform.rect.height * _dragLift;
         _rectTransform.anchoredPosition = new Vector2(localPoint.x, localPoint.y + lift);
 
-        // Обновляем превью на поле
-        if (_servicesReady && _item is PlantInstance plant && _boardView != null)
+        if (_item is PlantInstance plant)
         {
-            _boardView.UpdatePreviewFromScreen(eventData.position, plant.PlantData);
+            if (IsOverField(eventData))
+                _boardView.UpdatePreviewFromScreen(eventData.position, plant.PlantData);
         }
+
+    }
+
+    private bool IsOverField(PointerEventData eventData)
+    {
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        bool hasCell = false;
+        foreach (var res in results)
+        {
+            // Если попали в CellView — запоминаем
+            if (res.gameObject.GetComponent<CellView>() != null)
+                hasCell = true;
+
+            // Если попали в любой UI-элемент, который не должен пропускать превью — сразу возвращаем false
+            if (res.gameObject.GetComponent<BlockRaycastType>() != null ||
+                res.gameObject.GetComponent<LaboratorySlotView>() != null ||
+                res.gameObject.GetComponent<LaboratoryView>() != null)
+            {
+                return false;
+            }
+        }
+        return hasCell;
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -250,6 +279,8 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             return;
         }
         EventBus.Publish(new CardDropEvent { Card = this, Target = null });
+        _previewSystem?.EndDrag();
+        _boardView?.ClearPreviewFromDrag();
     }
 
     private IEnumerator ReturnToPosition(Vector2 target, float duration)

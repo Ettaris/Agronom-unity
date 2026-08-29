@@ -1,22 +1,23 @@
 using UnityEngine;
-using System.Collections.Generic;
 using Data;
-using Gameplay;
+using System.Collections.Generic;
 
 public class JournalPlantEntryData : IJournalEntryData
 {
-    private JournalPlantEntry _entry;
+    private PlantData _plantData;
+    private int _analysisCount;
 
-    public JournalPlantEntryData(JournalPlantEntry entry)
+    public JournalPlantEntryData(PlantData plantData, int count)
     {
-        _entry = entry;
+        _plantData = plantData;
+        _analysisCount = count;
     }
 
-    public string Title => _entry.plantData.itemName;
-    public Sprite Icon => _entry.plantData.icon;
-    public string Description => $"Проанализировано: {_entry.discoveryCount} раз";
-    public List<GenomePropertyData> Properties => _entry.discoveredProperties;
+    public string Title => _plantData.itemName;
+    public Sprite Icon => _plantData.icon;
+    public string Description => $"Изучено: {_analysisCount} раз\nКалории: {_plantData.baseCalories}\nРост: {_plantData.growthTime} дн.";
+    public List<GenomePropertyData> Properties => new List<GenomePropertyData>();
     public bool IsPermanent => false;
     public string PermanentFor => "";
-    public int Count => _entry.discoveryCount;
+    public int Count => _analysisCount;
 }

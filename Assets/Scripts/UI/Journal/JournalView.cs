@@ -1,26 +1,16 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
+using System.Collections;
+using System.Collections.Generic;
 using Infrastructure;
 using Infrastructure.Events;
 using Data;
 using Systems;
-using Gameplay;
-using System.Collections;
-
-/// <summary>
-/// UI журнала открытых свойств.
-/// ќтображает список геномов, обнаруженных игроком.
-/// »спользует пул записей дл€ минимизации аллокаций.
-/// </summary>
 
 public class JournalView : MonoBehaviour, IGameSystem
 {
-
-    //TODO: If there will be a good reason, make different interfaces for UI and Systems, or general like IInitializble and IDisposable.
-
     public enum Tab { Plants, Modifiers }
 
     [Header("UI References")]
@@ -59,21 +49,17 @@ public class JournalView : MonoBehaviour, IGameSystem
 
     public void Initialize()
     {
-        EventBus.Subscribe<GenomeDiscoveredEvent>(OnGenomeDiscovered);
+        _journalSystem = ServiceLocator.Get<JournalSystem>();
+        if (_journalSystem == null) Debug.LogError("JournalSystem not found!");
+
         _prevButton.onClick.AddListener(PreviousPage);
         _nextButton.onClick.AddListener(NextPage);
         _openButton.onClick.AddListener(OpenJournal);
-
-        gameObject.SetActive(false);
-        _isOpen = false;
-
-        _journalSystem = ServiceLocator.Get<JournalSystem>();
-        if (_journalSystem == null)
-            Debug.LogError("JournalSystem not found!");
-
         _plantsTabButton.onClick.AddListener(() => SwitchTab(Tab.Plants));
         _modifiersTabButton.onClick.AddListener(() => SwitchTab(Tab.Modifiers));
 
+        gameObject.SetActive(false);
+        _isOpen = false;
         SwitchTab(Tab.Plants);
     }
 
@@ -86,17 +72,14 @@ public class JournalView : MonoBehaviour, IGameSystem
 
     private void OnGenomeDiscovered(GenomeDiscoveredEvent evt)
     {
-        if (_isOpen)
-        {
-            RefreshJournal();
-        }
+        if (_isOpen) RefreshJournal();
     }
 
-    public IEnumerator SetActiveFalseByEndOfAnimation()
+    private IEnumerator SetActiveFalseByEndOfAnimation()
     {
         yield return new WaitForSeconds(0.1f);
-        float animationLength = _journalAnimator.GetCurrentAnimatorStateInfo(0).length;
-        yield return new WaitForSeconds(animationLength - 0.2f);
+        float length = _journalAnimator.GetCurrentAnimatorStateInfo(0).length;
+        yield return new WaitForSeconds(length - 0.2f);
         gameObject.SetActive(false);
     }
 
@@ -111,9 +94,12 @@ public class JournalView : MonoBehaviour, IGameSystem
 
     public void CloseJournal()
     {
-        _journalAnimator.SetTrigger("Close");
-        _isOpen = false;
-        StartCoroutine(SetActiveFalseByEndOfAnimation());
+        if (_isOpen)
+        {
+            _journalAnimator.SetTrigger("Close");
+            _isOpen = false;
+            StartCoroutine(SetActiveFalseByEndOfAnimation());
+        }
     }
 
     private void SwitchTab(Tab tab)
@@ -121,7 +107,6 @@ public class JournalView : MonoBehaviour, IGameSystem
         _currentTab = tab;
         _currentPage = 0;
         RefreshJournal();
-        // ћожно подсветить активную вкладку
     }
 
     private void RefreshJournal()
@@ -133,15 +118,10 @@ public class JournalView : MonoBehaviour, IGameSystem
 
         _totalPages = Mathf.CeilToInt((float)_allEntries.Count / _entriesPerPage);
         if (_totalPages == 0) _totalPages = 1;
+        if (_currentPage >= _totalPages) _currentPage = 0;
 
-        if (_currentPage >= _totalPages)
-            _currentPage = 0;
-
-        // —крываем старые записи
         foreach (var entry in _activeEntries)
-        {
             entry.Hide(() => ReturnEntryToPool(entry));
-        }
         _activeEntries.Clear();
 
         _emptyLabel.gameObject.SetActive(_allEntries.Count == 0);
@@ -154,7 +134,6 @@ public class JournalView : MonoBehaviour, IGameSystem
         int startIndex = _currentPage * _entriesPerPage;
         int endIndex = Mathf.Min(startIndex + _entriesPerPage, _allEntries.Count);
 
-        int displayIndex = 0;
         for (int i = startIndex; i < endIndex; i++)
         {
             JournalEntryView entry = GetEntryFromPool();
@@ -165,13 +144,12 @@ public class JournalView : MonoBehaviour, IGameSystem
             entry.CanvasGroup.alpha = 0;
 
             entry.transform.DOLocalMoveX(0, _entryAppearDuration)
-                .SetDelay(displayIndex * _entryAppearDelayOffset)
+                .SetDelay((i - startIndex) * _entryAppearDelayOffset)
                 .SetEase(Ease.OutQuad);
             entry.CanvasGroup.DOFade(1, _entryAppearDuration)
-                .SetDelay(displayIndex * _entryAppearDelayOffset);
+                .SetDelay((i - startIndex) * _entryAppearDelayOffset);
 
             _activeEntries.Add(entry);
-            displayIndex++;
         }
 
         UpdatePaginationButtons();
@@ -184,8 +162,16 @@ public class JournalView : MonoBehaviour, IGameSystem
         _pageText.text = $"{_currentPage + 1}/{_totalPages}";
     }
 
-    private void PreviousPage() { if (_currentPage > 0) { _currentPage--; RefreshJournal(); } }
-    private void NextPage() { if (_currentPage < _totalPages - 1) { _currentPage++; RefreshJournal(); } }
+    private void PreviousPage()
+    {
+        if (_currentPage > 0) { _currentPage--; RefreshJournal(); }
+        AudioService.Instance.PlaySfx(AudioService.Instance.Config.journalPageSwitchSfx);
+    }
+
+    private void NextPage()
+    {
+        if (_currentPage < _totalPages - 1) { _currentPage++; RefreshJournal(); }
+    }
 
     private JournalEntryView GetEntryFromPool()
     {
@@ -209,5 +195,4 @@ public class JournalView : MonoBehaviour, IGameSystem
         entry.CanvasGroup.alpha = 1f;
         _entryPool.Enqueue(entry);
     }
-
 }

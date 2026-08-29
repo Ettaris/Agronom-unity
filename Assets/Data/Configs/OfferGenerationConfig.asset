@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bc02148248dcb14387e2022c5e84215, type: 3}
   m_Name: OfferGenerationConfig
   m_EditorClassIdentifier: Assembly-CSharp::OfferGenerationConfig
-  cardsPerDay: 6
-  selectableCards: 2
+  cardsPerDay: 8
+  selectableCards: 5
   guaranteedPlants: 2
-  plantWeight: 70
-  fermentWeight: 20
+  plantWeight: 60
+  fermentWeight: 30
   batteryWeight: 10

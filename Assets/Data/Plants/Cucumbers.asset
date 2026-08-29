@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b155d812f60734fab8f474e2a90439, type: 3}
   m_Name: Cucumbers
   m_EditorClassIdentifier: Assembly-CSharp::Data.PlantData
-  _id: 
+  _id: 4
   itemName: Cucumbers
   description: 
   icon: {fileID: 2079635591, guid: a38e8323666d6db419e17cdf4e23eb47, type: 3}

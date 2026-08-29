@@ -1,5 +1,6 @@
 using Data;
 using Gameplay;
+using Gameplay.Calculation;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,10 +9,10 @@ namespace Infrastructure.Events
     //Для анимаций клеток.
     public enum EffectType
     {
-        Grow,    
-        Boost,   
-        Debuff,  
-        Bomb,    
+        Grow,
+        Boost,
+        Debuff,
+        Bomb,
         Weed,
         Sacrifice,
     }
@@ -21,7 +22,7 @@ namespace Infrastructure.Events
         public int X;
         public int Y;
         public EffectType Type;
-        public float Duration; 
+        public float Duration;
     }
 
     // ---------- Жизненный цикл забега ----------
@@ -96,6 +97,13 @@ namespace Infrastructure.Events
         public PlantInstance Plant;
         public int BaseCalories;
         public int ModifiedCalories; // будет заполнено после обработки свойств
+    }
+
+    public struct HarvestBreakdownReadyEvent
+    {
+        public HarvestResult Result;
+        public PlantInstance Plant;
+        public Vector2 ScreenPos;
     }
 
     // ---------- Свойства и анализ ----------
@@ -203,7 +211,6 @@ namespace Infrastructure.Events
     }
 
     //SFX and Music Events
-    public struct LabOpenedEvent { }
     public struct CardHoveredEvent { }
 
 }

@@ -45,11 +45,13 @@ public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
         EventBus.Subscribe<GenomeTransferFailedEvent>(OnGenomeTransferFailed);
         EventBus.Subscribe<PlantAnalyzedEvent>(OnPlantAnalyzed);
 
-
         _actionButton.onClick.AddListener(OnActionButtonClicked);
         _actionButton.interactable = false;
 
-        // По умолчанию окно закрыто
+        _consumableSlot.OnSlotClicked += ReturnItemFromSlot;
+        _plantSlotA.OnSlotClicked += ReturnItemFromSlot;
+        _plantSlotB.OnSlotClicked += ReturnItemFromSlot;
+
         gameObject.SetActive(false);
     }
 
@@ -75,8 +77,10 @@ public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
         gameObject.SetActive(true);
         _labAnimator.SetTrigger("Open");
         ClearSlots();
+        AudioService.Instance.PlaySfx(AudioService.Instance.Config.labOpened);
         _plantInfo.Clear();
         _backgroundBlockPanel.SetActive(true);
+        
     }
 
     public void CloseLab()
@@ -171,18 +175,7 @@ public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
         _consumableItem = item;
         _consumableSlot.SetItem(item);
 
-        if (item.Data is BatteryData)
-        {
-            _isCentrifugeMode = true;
-            _plantSlotB.gameObject.SetActive(true);
-            _labAnimator.SetBool("CentrifugeMode", true);
-        }
-        else if (item.Data is FermentData)
-        {
-            _isCentrifugeMode = false;
-            _plantSlotB.gameObject.SetActive(false);
-            _labAnimator.SetBool("CentrifugeMode", false);
-        }
+        UpdateCentrifugeMode();
 
         _consumableSlot.Pulse();
         UpdateActionButton();
@@ -218,6 +211,22 @@ public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
         _labAnimator.SetTrigger("Clear");
     }
 
+    private void UpdateCentrifugeMode()
+    {
+        if (_consumableItem != null && _consumableItem.Data is BatteryData)
+        {
+            _isCentrifugeMode = true;
+            _plantSlotB.gameObject.SetActive(true);
+            _labAnimator.SetBool("CentrifugeMode", true);
+        }
+        else
+        {
+            _isCentrifugeMode = false;
+            _plantSlotB.gameObject.SetActive(false);
+            _labAnimator.SetBool("CentrifugeMode", false);
+        }
+    }
+
     private void UpdateActionButton()
     {
         bool canExecute = false;
@@ -230,6 +239,56 @@ public class LaboratoryView : MonoBehaviour, IGameSystem, IRunAware
             canExecute = _consumableItem != null && _plantA != null;
         }
         _actionButton.interactable = canExecute;
+    }
+
+    private void ReturnItemFromSlot(LaboratorySlotView slot)
+    {
+        if (slot == null) return;
+        var item = slot.Item;
+        if (item == null) return;
+
+        if (_runData.Hand.IsFull)
+        {
+            return;
+        }
+
+        if (slot == _consumableSlot)
+        {
+            _consumableItem = null;
+        }
+        else if (slot == _plantSlotA)
+        {
+            _plantA = null;
+        }
+        else if (slot == _plantSlotB)
+        {
+            _plantB = null;
+        }
+        else
+        {
+            return;
+        }
+        slot.Clear();
+
+        _runData.Hand.Add(item);
+
+        UpdateActionButton();
+        UpdateCentrifugeMode();
+
+        if (_plantA == null && _plantB == null)
+        {
+            _plantInfo.Clear();
+        }
+        else if (_plantA != null)
+        {
+            _plantInfo.ShowPlantName(_plantA);
+        }
+        else if (_plantB != null)
+        {
+            _plantInfo.ShowPlantName(_plantB);
+        }
+
+        EventBus.Publish(new HandUpdatedEvent());
     }
 
     #endregion

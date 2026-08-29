@@ -5,7 +5,7 @@ namespace Infrastructure
 {
     public static class EventBus
     {
-        private static readonly Dictionary<Type, Delegate> _events = new Dictionary<Type, Delegate>(16);
+        private static readonly Dictionary<Type, Delegate> _events = new Dictionary<Type, Delegate>(32);
 
         public static void Subscribe<T>(Action<T> listener) where T : struct
         {

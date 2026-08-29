@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd68da879bbc71c4fbe807a8128ac6a5, type: 3}
   m_Name: Sacrifice
   m_EditorClassIdentifier: Assembly-CSharp::Data.GenomePropertyData
-  _id: 
+  _id: 870b8b71-e25d-459c-a0b1-f22bad7a8023
   propertyName: Sacrifice
   description: "\u0412\u044B\u0440\u0430\u0449\u0438\u0432\u0430\u0435\u0442 \u0441\u0440\u0430\u0437\u0443
     \u0440\u0430\u0441\u0442\u0435\u043D\u0438\u0435 \u0441\u043B\u0435\u0432\u0430,
